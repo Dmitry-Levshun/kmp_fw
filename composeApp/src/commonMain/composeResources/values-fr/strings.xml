@@ -1,0 +1,448 @@
+<resources>
+    <string name="app_name">FIDEwine</string>
+    <string name="app_url">https://fidewine.com</string>
+    <string name="notification_channel_name">FIDEwine</string>
+    <string name="notification_channel_description">Notifications relatives à FideWine</string>
+    <string name="notification_title">FideWine</string>
+    <string name="error">Erreur</string>
+    <string name="success">Succès</string>
+
+    <string name="retry">Recommencez</string>
+    <string name="password">Mot de passe</string>
+    <string name="password_placeholder">Mot de passe</string>
+    <string name="password_is_visible">Le mot de passe est visible</string>
+    <string name="password_is_not_visible">Le mot de passe n\'est pas visible</string>
+    <string name="sign_in">Connexion</string>
+    <string name="change_pass">Modifier le mot de passe</string>
+    <string name="current_pass">Mot de passe actuel</string>
+    <string name="new_pass">nouveau mot de passe</string>
+    <string name="confirm_pass">Confirmez le mot de passe</string>
+    <string name="create_pass">Créer un mot de passe</string>
+
+    <string name="email">Email</string>
+    <string name="email_placeholder">Email</string>
+    <string name="invalid_email_message">L\'email n\'est pas valide</string>
+    <string name="forgot_password_label">Mot de passe oublié \?</string>
+    <string name="forget_password_title">Mot de passe oublié</string>
+    <string name="support_title">Soutien</string>
+
+    <string name="reset_password">réinitialiser le mot de passe</string>
+    <string name="login_error_unable_to_connect">Impossible de se connecter</string>
+    <string name="login_error_generic">Erreur de connexion</string>
+    <string name="login_error_incorrect_details">Informations de connexion incorrectes</string>
+    <string name="login_error_captcha_required">Le compte est temporairement bloqué en raison d\'un trop grand nombre de connexions infructueuses</string>
+    <string name="login_error_empty_fields">Entrez votre email et votre mot de passe</string>
+    <string name="login_error_empty_email">Entrer votre Email</string>
+    <string name="login_error_wrong_password">Votre mot de passe doit contenir au moins\n8 caractères\n1 majuscule et 1 caractère minuscule\n1 caractère spécial\n1 chiffre</string>
+    <string name="login_error_password_mismatch">Non concordance des mots de passe</string>
+    <string name="login_error_no_connection">Assurez-vous que vous êtes connecté à Internet</string>
+    <string name="login_error_server_header">Impossible de changer le mot de passe</string>
+    <string name="error_something_went_wrong">Quelque chose s\'est mal passé</string>
+    <string name="error_server">erreur du serveur</string>
+    <string name="error_incorrect_params">Paramètres incorrects</string>
+    <string name="login_error_incorrect_email">Email incorrect</string>
+    <string name="error_incorrect_value">Valeur incorrecte</string>
+    <string name="help_support">Aide &amp; support</string>
+
+    <string name="OK">D\'ACCORD</string>
+
+    <string name="version">Version</string>
+    <string name="build">Construire</string>
+    <string name="settings_description">Paramètres</string>
+
+    <string name="debug_log_requests_count"><![CDATA[Udp : %d TCP : %d]]></string>
+    <string name="debug_log_filter">Filtre</string>
+    <string name="debug_log_filter_done">Fait</string>
+    <string name="debug_filter_message_info">MessageInfo</string>
+    <string name="debug_filter_message_ignored_type">MessageIgnoredType</string>
+    <string name="debug_filter_message_filtered">MessageFiltré</string>
+    <string name="debug_filter_other_info">Autre info</string>
+    <string name="debug_filter_analytics">Analytique</string>
+    <string name="debug_filter_error">Erreur</string>
+
+    <string name="login_to_your_account">Se connecter</string>
+    <string name="register_your_account">Se connecter</string>
+    <string name="habillage_processing">Habillage Processing</string>
+    <string name="reset_password_content">Entrez votre adresse email liée à votre compte et nous vous enverrons des instructions pour réinitialiser votre mot de passe.</string>
+    <string name="application_description">Description de l\'application</string>
+    <string name="application_description_content">Une application, également appelée programme d\'application ou logiciel d\'application, est un progiciel informatique qui exécute une fonction spécifique directement pour un utilisateur final ou, dans certains cas, pour une autre application.</string>
+    <string name="describe_issue">Décrivez votre problème</string>
+    <string name="send">Envoyer</string>
+    <string name="orders">Commande</string>
+    <string name="order">Commande</string>
+
+    <string name="client_name">Nom du client</string>
+    <string name="details">Détails</string>
+    <string name="company">Entreprise</string>
+    <string name="full_name">Nom et prénom</string>
+    <string name="describe_your_issue">Décrivez votre problème</string>
+    <string name="position">Poste</string>
+    <string name="client">Client</string>
+    <string name="package_text">Paquet</string>
+    <string name="sync_status">Statut de synchronisation:</string>
+    <string name="sync_all">Tout synchroniser</string>
+    <string name="reset">Réinitialiser</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Reprendre</string>
+
+    <string name="resume_scanning">Reprendre la numérisation</string>
+
+    <string name="bottles_scanned">Bouteilles Scannées</string>
+    <string name="cases_scanned">Caisses Scannées:</string>
+    <string name="cases_created">Caisses Créés:</string>
+    <string name="single_bottles">Bouteilles Simples:</string>
+    <string name="bottles_in_cases">Bouteilles en Caisses:</string>
+
+    <string name="scanning">Scan</string>
+    <string name="not_scanned">Non analysé</string>
+    <string name="pending">En attente</string>
+    <string name="sync">Synchroniser</string>
+    <string name="reference">Référence</string>
+    <string name="order_id">Сommande n°</string>
+    <string name="delivery">Livraison:</string>
+    <string name="completion">Complétion</string>
+    <string name="start_scanning">Démarrer le scan</string>
+    <string name="clients_name">Nom du client</string>
+    <string name="wine">Vin</string>
+    <string name="cases">Caisses</string>
+    <string name="quantity">Quantité</string>
+    <string name="bottles">Bouteilles</string>
+    <string name="bottle">Bouteille</string>
+    <string name="comments">commentaires</string>
+    <string name="qty">Qté</string>
+    <string name="search">Rechercher</string>
+    <string name="tank_number">Numéro de réservoir</string>
+    <string name="already_scanned_error">Cette bouteille a déjà été scannée. S\'il vous plaît, prenez la prochaine bouteille.</string>
+    <string name="confirm_check">Confirmez que toutes les données sont correctes</string>
+    <string name="finish">Finition</string>
+    <string name="box_id">Identifiant de la boîte</string>
+    <string name="bottle_id">ID de la bouteille</string>
+    <string name="role">Rôle</string>
+
+
+    <string name="account_type">Type de compte</string>
+    <string name="country">Pays</string>
+    <string name="not_have_account">Vous ne possédez pas de compte \?</string>
+    <string name="have_account">Vous possédez déjà un compte \?</string>
+    <string name="sign_up">S\'enregister</string>
+
+    <string name="create_new_password">Entrer un mot de passe</string>
+    <string name="repeat_new_password">Confirmer le mot de passe</string>
+    <string name="phone_number">Numéro de téléphone</string>
+    <string name="wallet_number">Adresse portefeuille</string>
+    <string name="fidewine_wallet">Portefeuille FIDEwine</string>
+    <string name="nft_id">ID du NFT</string>
+
+    <string name="create_acc">Pour créer un compte professionnel, veuillez visiter la plateforme %1$s.</string>
+    <string name="fidewine_com">fidewine.com</string>
+    <string name="wallet">Portefeuille</string>
+    <string name="my_cellar">Ma cave</string>
+    <string name="digital_passports_transfer">Transfert de passeports numériques</string>
+    <string name="my_cellar_value">Ma valeur de cave</string>
+    <string name="digital_passports">Passeports numériques</string>
+    <string name="transactions">Transactions</string>
+    <string name="vintage">Millésime</string>
+    <string name="vintages">Millesimes</string>
+    <string name="en_primeur">En Primeur</string>
+    <string name="en_livrable">En Livrable</string>
+    <string name="create_digital_passport_transfer">Créer un transfert de passeport numérique</string>
+    <string name="transfers">Transferts</string>
+    <string name="transfer">Transfert</string>
+
+    <string name="creation_date">Date création</string>
+    <string name="expiration_date">Date expiration</string>
+    <string name="from">De</string>
+    <string name="to">À</string>
+    <string name="pay">payer</string>
+    <string name="approve">approuver</string>
+    <string name="accept">accepter</string>
+    <string name="cancel_passports_transfer">Annuler le transfert de passeports</string>
+    <string name="total_qty">Qté totale</string>
+    <string name="total_price">Prix total</string>
+    <string name="price">Prix</string>
+    <string name="address">Adresse</string>
+    <string name="phone">Téléphone</string>
+
+    <string name="digital_passport_iD">Transfert n°</string>
+    <string name="create_passports_transfer">Créer un transfert de passeports</string>
+    <string name="create_transfer">Initier transfert</string>
+    <string name="create_passport">Créer passeport</string>
+
+    <string name="cancel_digital_passport_transfer"><![CDATA[Annuler le transfert de passeport numérique \?]]></string>
+    <string name="what_is_the_cancellation_reason">Quelle est la raison de l\'annulation \?</string>
+    <string name="buy_only">Je veux acheter uniquement du vin, je n’ai pas besoin de sécurité supplémentaire.</string>
+    <string name="not_buy">Je n\'achète plus le vin.</string>
+    <string name="back">Dos</string>
+    <string name="confirm">Confirmer</string>
+    <string name="select_wine">Selectionner vin</string>
+    <string name="currency">Devise</string>
+    <string name="next">Suivant</string>
+    <string name="cancel">Annuler</string>
+    <string name="delivery_instruction_due_date">Date d\'échéance des instructions de livraison</string>
+    <string name="provide_delivery_instructions_myself">Je fournirai moi-même les instructions de livraison</string>
+    <string name="buyer_information">Informations acheteur</string>
+    <string name="billing_information">Informations de facturation</string>
+    <string name="who_paying_for_digital_passports">Qui paie les passeports numériques \?</string>
+    <string name="seller">Vendeur</string>
+    <string name="buyer">Acheteur</string>
+    <string name="gift_or_promotion">Cadeau ou promotion</string>
+    <string name="digital_passports_price">Prix ​​​​des passeports numériques</string>
+    <string name="royalty_rate">Taux de redevance</string>
+    <string name="total">Total</string>
+    <string name="rate_the_wine">Évaluez le vin</string>
+    <string name="how_much_did_you_enjoy_the_wine">Dans quelle mesure avez-vous apprécié le vin \?</string>
+    <string name="tell_us_few_words_about_the_wine">Dites-nous quelques mots sur le vin</string>
+    <string name="add_wine">Ajouter du vin</string>
+    <string name="max_qty">Qté max</string>
+    <string name="stack_qty">Quantité de pile</string>
+    <string name="wine_has_been_drunk">Le vin a été bu</string>
+
+    <string name="nfc_not_support">NFC n\'est pas pris en charge sur cet appareil</string>
+
+    <string name="nfc_disabled">NFC désactivé sur cet appareil. Allumez pour continuer</string>
+    <string name="all">Tous</string>
+
+    <string name="hold_phone_near_bottle">Tenez le téléphone près de la bouteille avec l\'étiquette NFC (code)</string>
+    <string name="ready_to_scan">Prêt à numériser</string>
+    <string name="scan_complete">Analyse complété</string>
+    <string name="scan_incomplete">Analyse incomplète</string>
+    <string name="nfc">NFC</string>
+    <string name="qr_code">QR Code</string>
+    <string name="product_detected">Produit détecté</string>
+    <string name="product_not_detected">Produit non détecté</string>
+    <string name="email_confirmation">confirmation de l\'émail</string>
+    <string name="email_text"><![CDATA[<span style=\"color:#000000\">Nous avons envoyé un email à </span><span style=\"color:#3498db\">frederic.nouet\@fidewine.com</span> <span style=\"color:# 000000\">pour confirmer la validité de votre adresse Email. Après avoir reçu l\'email, suivez le lien fourni pour finaliser votre inscription.</span>]]></string>
+    <string name="email_text_start">Nous avons envoyé un email à </string>
+    <string name="email_text_finish"> pour confirmer la validité de votre adresse Email. Après avoir reçu l\'email, suivez le lien fourni pour finaliser votre inscription.</string>
+
+    <string name="email_resend_html"><![CDATA[<span style=\"color:#000000\">Si vous n\'avez reçu aucun courrier <br></span><span style=\"color:#3498db\">renvoyer le courrier de confirmation</span>]]></string>
+    <string name="email_resend_start">Si vous n\'avez reçu aucun courrier</string>
+    <string name="email_resend_end">renvoyer le mail de confirmation</string>
+    <string name="email_resend_time">il est temps de renvoyer l\'email</string>
+    <string name="return_to">Retourner à</string>
+    <string name="shipping_information">Informations sur la livraison</string>
+    <string name="shipping_type">Type d\'expédition</string>
+    <string name="delivery_to">Livraison à</string>
+    <string name="no_wine_in_cellar">Pas de vin en cave</string>
+    <string name="package_list_is_empty">La liste des packages est vide</string>
+    <string name="list_is_empty">La liste est vide</string>
+    <string name="picking_date">Date de cueillette</string>
+    <string name="wine_details">Détails vin</string>
+    <string name="scores">Notation</string>
+    <string name="description">Description</string>
+    <string name="log_out">Se déconnecter</string>
+    <string name="print_case_label">Étiquette de caisse d\'impression</string>
+    <string name="print_case_text">Veuillez fermer le boîtier, coller l\'étiquette imprimée sur le boîtier et appuyer sur “Continuer”.</string>
+    <string name="printer_error">Erreur de connexion de l\'imprimante</string>
+    <string name="printer_error_text">Connexion à l\'imprimante perdue. Veuillez résoudre ce souci et cliquez sur "Continuer" pour reprendre le traitement</string>
+    <string name="continue_tx">Continuer</string>
+    <string name="connect_printer">Connecter l\'imprimante</string>
+    <string name="skip_this_step">Passer cette étape</string>
+    <string name="mark_all_as_read">Tout marquer comme lu</string>
+    <string name="notifications">Notifications</string>
+    <string name="delete">Supprimer</string>
+    <string name="connecting">En attente de connexion</string>
+    <string name="printing_case_label">Impression d\'étiquette caisse en cours</string>
+    <string name="create_pass_tooltip">Le prix des passeports et les frais de transfert seront à la charge du Vendeur.</string>
+    <string name="no_price_error">Veuillez ajouter le prix original du vin pour procéder au transfert des passeports de ce vin.</string>
+    <string name="first_digital_passports">Le premier transfert de passeports numériques est gratuit pour votre acheteur.</string>
+    <string name="you_cancel_digital_passport">Si vous annulez le transfert de passeport numérique, votre commande sera créée, mais les passeports ne seront pas transférés.</string>
+    <string name="digital_passport_transfer_created">DPT a été créé avec succès</string>
+    <string name="order_scanned">Commande scannée</string>
+    <string name="restore_connection">Impossible de récupérer de données du serveur, veuillez vérifier votre connexion.</string>
+    <string name="quantity_error">La quantité ne peut pas être 0</string>
+    <string name="first_name">Prénom</string>
+    <string name="last_name">Nom de famille</string>
+    <string name="zip_code">Zip Code</string>
+    <string name="save">Sauver</string>
+    <string name="data_saved">Données enregistrées avec succès</string>
+    <string name="accept_policy">J\'accepte la</string>
+    <string name="and">et</string>
+    <string name="privacy_policy">Politique de Confidentialité</string>
+    <string name="terms_of_use">Conditions d\'utilisation</string>
+    <string name="status">Statut</string>
+    <string name="box_changed_title">Le contenu de la boîte a été modifié</string>
+    <string name="box_changed_content">Attention, le contenu de cette boîte a été modifié. Vous devrez scanner chaque bouteille à l’intérieur de la boîte..</string>
+    <string name="box_changing_title">Modifiez-vous le contenu de la boîte ?</string>
+    <string name="box_changing_content">Si vous souhaitez modifier le contenu de la boîte, veuillez appuyer sur le bouton \'Bouteilles modifiées\'. Si vous souhaitez conserver le contenu de la boîte, veuillez appuyer sur le bouton \'Remain box\'.</string>
+    <string name="bottles_changed">Bouteilles changées</string>
+    <string name="remain_box">Reste la boîte</string>
+    <string name="percents">Pourcentages</string>
+    <string name="view">Voir</string>
+    <string name="forget_success">Veuillez suivre les instructions de l\'email pour continuer</string>
+    <string name="inventory">Inventaire</string>
+    <string name="incoming">Arrivant</string>
+    <string name="outcoming">Sortant</string>
+    <string name="processed">Traité</string>
+    <string name="transfered">Transféré</string>
+    <string name="clear">Clair</string>
+    <string name="scan_code">Scannez le code de la bouteille ou de la сaisse</string>
+    <string name="canceled">Annulé</string>
+    <string name="put_in_cases">Mettre en caisse ?</string>
+    <string name="case_type">Type de Caisse</string>
+    <string name="clear_all">Effacer Tout</string>
+    <string name="filters">Filtres</string>
+    <string name="sale_status">Statut du stock</string>
+    <string name="domains">Domaines</string>
+    <string name="order_status">Statut de commande</string>
+    <string name="transfer_type">Type de transfert</string>
+    <string name="transfer_status">Statut du transfert</string>
+    <string name="in_process">En cours de traitement</string>
+    <string name="in_progress">En cours</string>
+    <string name="completed">Complété</string>
+    <string name="single">Unique</string>
+    <string name="bottle_has_passport">Cette bouteille possède déjà un passeport</string>
+    <string name="cant_use_box">Impossible d\'utiliser le code OU la caisse</string>
+    <string name="box_not_match">La caisse ne correspond pas</string>
+    <string name="bottle_not_match">La bouteille ne correspond pas</string>
+    <string name="scan_bottle">Scanner bouteille</string>
+    <string name="for_registered_only">Réservé aux utilisateurs enregistrés</string>
+    <string name="owner">Propriétaire</string>
+    <string name="transaction_count">Nombre de transactions</string>
+    <string name="bottling_date">Date de mise en bouteille</string>
+    <string name="map">Carte</string>
+    <string name="reviews">Avis</string>
+    <string name="email_confirmed">Votre adresse email est confirmée.\n  Vous pouvez maintenant vous connecter.</string>
+    <string name="wine_added">Vin ajouté</string>
+    <string name="box_not_implement">Scan de caisse indisponible</string>
+    <string name="case_completed">Caisse complétée!</string>
+    <string name="stock_qty">Qté stock</string>
+    <string name="alc">ABV</string>
+    <string name="pending_approval">En attente d\'approbation</string>
+    <string name="pending_payment">En attente de paiement</string>
+    <string name="paid">Payé</string>
+    <string name="approved">Approuvé</string>
+    <string name="rejected_passport">Passeport rejeté</string>
+    <string name="closed">Fermé</string>
+    <string name="submitted">Soumis</string>
+    <string name="submitted_no_transfer">Soumis sans transfert</string>
+    <string name="completed_no_transfer">Complété sans transfert</string>
+    <string name="winemaker">Vigneron</string>
+    <string name="cant_be_sell">Ne peut êtrevendu</string>
+    <string name="information">Information</string>
+
+    <string name="external">Externe</string>
+    <string name="destination_points">Points de destination</string>
+    <string name="untracked">Non-tracé</string>
+    <string name="add_untracked_wine">Ajouter vin non-tracé</string>
+    <string name="find_wine">Trouver un vin</string>
+    <string name="add_wine_to_my_cellar">Ajouter ce vin à ma cave</string>
+    <string name="add_vendor">Ajouter vendeur</string>
+    <string name="add_unit_price">Ajouter prix d\'achat unitaire</string>
+    <string name="capacity">Volume</string>
+    <string name="add_to_my_cellar">Ajouter à ma cave</string>
+    <string name="purchase_history">Historique d\'achat</string>
+    <string name="my_reviews">Mes critique</string>
+    <string name="date_of_tasting">Date de dégustation</string>
+    <string name="vendor">Vendeur</string>
+    <string name="unit_price">Prix unitaire</string>
+    <string name="date_of_purchase">Date d\'achat</string>
+    <string name="location_of_tasting">Lieu de dégustation</string>
+    <string name="add_rating">Ajouter note</string>
+    <string name="tasting_with">Dégustation avec</string>
+    <string name="course">Plat</string>
+    <string name="add_review">Ajouter critique</string>
+    <string name="rating">Note</string>
+    <string name="review">Critique</string>
+    <string name="producer_name">Nom du producteur</string>
+    <string name="appellation">Appellation</string>
+    <string name="classification">Classification</string>
+    <string name="location">Lieu</string>
+    <string name="color">Couleur</string>
+    <string name="review_added">Avis ajouté</string>
+    <string name="select_vintage">Sélectionner millésime</string>
+    <string name="only_bottles_can_be_scanned">Seules les bouteilles peuvent être scannées. Veuillez autoriser le scan des cartons</string>
+    <string name="information_not_found">Information non trouvée</string>
+
+    <string name="wallet_address">Addresse du portefeuille FIDEwine, veuillez l\'utiliser uniquement pour recevoir des passeports dans le réseau FIDEwine</string>
+    <string name="please_scan">Veuillez scanner le code QR à l\'aide\nd\'un scanner externe</string>
+    <string name="login_error_incorrect_phone">Numéro de téléphone incorrect</string>
+    <string name="login_error_incorrect_country">Le pays ne peut pas être vide</string>
+    <string name="km">%s km</string>
+    <string name="search_printers">Rechercher des imprimantes</string>
+    <string name="printer_settings">Paramètres de l\'imprimante</string>
+    <string name="type">Type</string>
+    <string name="region">Région</string>
+    <string name="add_wine_name">Ajouter nom vin</string>
+    <string name="add_domain">Ajouter domaine</string>
+    <string name="wine_color">Couleur du vin</string>
+    <string name="white">Blanc</string>
+    <string name="red">Rouge</string>
+    <string name="orange">Orange</string>
+    <string name="rose">Rose</string>
+    <string name="add_producer_name">Ajouter producteur</string>
+    <string name="add_country">Ajouter pays</string>
+    <string name="add_region">Ajouter région</string>
+    <string name="add_custom_wine">Ajouter vin sur mesure</string>
+    <string name="app_update_title">Mettre à jour l\'application</string>
+    <string name="app_update_message">L\'application doit être mise à jour</string>
+    <string name="agreement">Agrêment</string>
+    <string name="wine_type">Type de vin</string>
+    <string name="profile">Profil</string>
+    <string name="still">Tranquille</string>
+    <string name="fuzzy">Effervescent</string>
+    <string name="scan_results">Résultats de L\'analyse</string>
+    <string name="recovery_password">Récupérer le mot de passe</string>
+    <string name="sync_error_batchId">Problème de synchronisation. Veuillez contacter le support. Erreur n°%s</string>
+    <string name="transfer_label">Transfert n°</string>
+
+    <string name="delete_account">Supprimer le compte</string>
+    <string name="really_delete_account">Votre compte va être supprimé. Etes-vous sûr? Appuyez sur « Confirmer » pour terminer ce processus. Des informations supplémentaires seront envoyées à votre adresse e-mail.</string>
+    <string name="notify_delete_account">Votre compte ne peut pas être supprimé dans l\'application mobile. Veuillez procéder à sa suppression sur la plateforme FIDEwine et vous assurer que vous avez les autorisations nécessaires pour effectuer cette action.</string>
+    <string name="account_in_deletion_state">Votre compte a été marqué pour suppression depuis </string>
+    <string name="please_authorize_permissions">Merci d\'autoriser ces permissions.\nCes permissions sont nécessaires pour l\'accès au scanner externe.</string>
+
+
+    <string name="wine_detail_description"><![CDATA[<p><b>Un vrai millésime pour le plaisir</b></p>
+        Avec de grandes amplitudes de températures et de précipitations, 2012 a été une année difficile pour le vignoble.
+        Après un retour aux conditions favorables mi-juillet, ce millésime, bien que démarré tôt, tarde à atteindre sa maturité optimale à partir du 8 octobre.
+        <span style=\"color:#3498db\">Dégustation après dégustation, 2012 ne cesse de nous étonner et de nous charmer.</span>]]></string>
+    <string-array name="acc_types">
+        <item>Vigneron</item>
+        <item>Distributeur ou Importateur</item>
+        <item>Caviste ou restaurant</item>
+        <item>Consommateur</item>
+<!--        <item>Service à service</item>-->
+<!--        <item>Administrateur FideWine</item>-->
+<!--        <item>Holding</item>-->
+    </string-array>
+
+    <string-array name="role_types">
+        <item>Propriétaire</item>
+        <item>Employé</item>
+        <item>Super administrateur</item>
+        Propriétaire
+        Employé
+        Super administrateur
+    </string-array>
+
+    <string-array name="transaction_types">
+        <item>Arrivant</item>
+        <item>Sortant</item>
+        <item>Transféré</item>
+        <item>Annulé</item>
+    </string-array>
+    <string-array name="transaction_states">
+        <item>EN ATTENTE DE PAIEMENT</item>
+        <item>EN ATTENTE DE VALIDATION</item>
+        <item>EXPIRÉ</item>
+        <item>ANNULÉ</item>
+        <item>PAYÉ</item>
+    </string-array>
+
+    <string-array name="transaction_menu">
+        <item>Copier dans le presse-papier</item>
+        <item>Télécharger la facture</item>
+    </string-array>
+
+    <string-array name="currency_types">
+        <item>euro</item>
+        <item>Dollars américain</item>
+    </string-array>
+    <string-array name="transfer_status_ui">
+        <item>Tous</item>
+        <item>En attente</item>
+        <item>Traité</item>
+        <item>Transféré</item>
+    </string-array>
+</resources>

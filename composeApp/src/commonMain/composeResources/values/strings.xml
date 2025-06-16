@@ -1,0 +1,487 @@
+<resources>
+    <string name="app_name">FIDEwine</string>
+    <string name="app_name_dev" translatable="false">FIDEwine DEV</string>
+    <string name="app_name_qa" translatable="false">FIDEwine QA</string>
+    <string name="app_url">https://fidewine.com</string>
+    <string name="notification_channel_name">FIDEwine</string>
+    <string name="notification_channel_description">Notifications relating to FideWine</string>
+    <string name="notification_title">FideWine</string>
+    <string name="error">Error</string>
+    <string name="success">Success</string>
+
+    <string name="retry">Retry</string>
+    <string name="password">Password *</string>
+    <string name="password_placeholder">Password</string>
+    <string name="password_is_visible">Password is visible</string>
+    <string name="password_is_not_visible">Password is not visible</string>
+    <string name="sign_in">Sign In</string>
+    <string name="change_pass">Change Password</string>
+    <string name="current_pass">Current Password</string>
+    <string name="new_pass">New Password</string>
+    <string name="confirm_pass">Confirm Password</string>
+    Créer un mot de passe
+    <string name="create_pass">Create Password</string>
+    <string name="email">Email</string>
+    <string name="email_placeholder">Email</string>
+    <string name="invalid_email_message">Email is not valid</string>
+    <string name="forgot_password_label">Forgot Password ?</string>
+    <string name="forget_password_title">Forget Password</string>
+    <string name="support_title">Support</string>
+
+    <string name="reset_password">Reset Password</string>
+    <string name="login_error_unable_to_connect">Unable to connect</string>
+    <string name="login_error_generic">Error logging in</string>
+    <string name="login_error_incorrect_details">Incorrect Login Details</string>
+    <string name="login_error_captcha_required">The account is temporarily blocked due to too many unsuccessful logins</string>
+    <string name="login_error_empty_fields">Enter your email and password</string>
+    <string name="login_error_empty_email">Enter your email</string>
+    <string name="login_error_wrong_password">Your password must contain at least\n8 characters long\n1 uppercase &amp; 1 lowercase character\n1 special character\n1 number</string>
+    <string name="login_error_password_mismatch">Password mismatch</string>
+    <string name="login_error_no_connection">Make sure you are connected to the internet</string>
+    <string name="login_error_incorrect_email">Incorrect Email</string>
+    <string name="login_error_server_header">Can not change password</string>
+    <string name="error_something_went_wrong">Something went wrong</string>
+    <string name="error_server">Server Error</string>
+    <string name="error_incorrect_params">Incorrect Parameters</string>
+    <string name="error_incorrect_value">Incorrect Value</string>
+    <string name="help_support">Help and Support</string>
+
+    <string name="OK">OK</string>
+
+    <string name="version">Version</string>
+    <string name="build">Build</string>
+    <string name="settings_description">Settings</string>
+
+    <string name="debug_log_requests_count">Udp: %d Tcp: %d</string>
+    <string name="debug_log_filter">Filter</string>
+    <string name="debug_log_filter_done">Done</string>
+    <string name="debug_filter_message_info">MessageInfo</string>
+    <string name="debug_filter_message_ignored_type">MessageIgnoredType</string>
+    <string name="debug_filter_message_filtered">MessageFiltered</string>
+    <string name="debug_filter_other_info">OtherInfo</string>
+    <string name="debug_filter_analytics">Analytics</string>
+    <string name="debug_filter_error">Error</string>
+
+    <string name="login_to_your_account">Login to your Account</string>
+    <string name="register_your_account">Register your Account</string>
+    <string name="habillage_processing">Habillage Processing</string>
+    <string name="reset_password_content">Enter your Email address which is linked to your account and we’ll send you instructions to reset your password.</string>
+    <string name="application_description">Application Description</string>
+    <string name="application_description_content">An application, also referred to as an application program or application software, is a computer software package that performs a specific function directly for an end user or, in some cases, for another application.</string>
+    <string name="describe_issue">Describe your Issue</string>
+    <string name="send">Send</string>
+    <string name="orders">Orders</string>
+    <string name="order">Order</string>
+    <string name="client_name">Client\'s name</string>
+    <string name="details">Details</string>
+    <string name="company">Company</string>
+    <string name="full_name">Full Name</string>
+    <string name="describe_your_issue">Describe your Issue</string>
+    <string name="position">Position</string>
+    <string name="client">Client</string>
+    <string name="package_text">Package</string>
+    <string name="sync_status">Synchronization Status:</string>
+    <string name="sync_all">Sync All</string>
+    <string name="reset">Reset</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="resume_scanning">Resume Scanning</string>
+    <string name="bottles_scanned">Bottles Scanned:</string>
+    <string name="cases_scanned">Cases Scanned:</string>
+    <string name="cases_created">Cases Created:</string>
+    <string name="single_bottles">Single Bottles:</string>
+    <string name="bottles_in_cases">Bottles in Cases:</string>
+
+    <string name="scanning">Scanning</string>
+    <string name="not_scanned">Not scanned</string>
+    <string name="pending">Pending</string>
+    <string name="sync">Sync</string>
+    <string name="reference">Reference</string>
+    <string name="order_id">Order Id:</string>
+    <string name="delivery">Delivery:</string>
+    <string name="completion">Completion</string>
+    <string name="start_scanning">Start Scanning</string>
+    <string name="clients_name"> Client’s Name</string>
+    <string name="wine">Wine</string>
+    <string name="cases">Cases</string>
+    <string name="quantity">Quantity</string>
+    <string name="bottles">Bottles</string>
+    <string name="bottle">Bottle</string>
+    <string name="comments">Comments</string>
+    <string name="qty">Qty</string>
+    <string name="search">Search</string>
+    <string name="tank_number">Tank Number</string>
+    <string name="already_scanned_error">This bottle has been already scanned. Please, take next bottle.</string>
+    <string name="confirm_check">Confirm that all data is correct</string>
+    <string name="finish">Finish</string>
+    <string name="box_id">Case ID</string>
+    <string name="bottle_id">Bottle ID</string>
+    <string name="role">Role</string>
+
+
+    <string name="account_type">Account Type</string>
+    <string name="country">Country</string>
+    <string name="not_have_account">Do not have an account?</string>
+    <string name="have_account">Have an account?</string>
+    <string name="sign_up">Sign Up</string>
+
+    <string name="create_new_password">Create New Password</string>
+    <string name="repeat_new_password">Repeat New Password</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="wallet_number">Wallet Address</string>
+    <string name="fidewine_wallet">FIDEwine Wallet</string>
+
+    <string name="nft_id">NFT ID</string>
+
+    <string name="create_acc">To create a business account, please visit the %1$s platform.</string>
+    <string name="fidewine_com">fidewine.com</string>
+    <string name="wallet">Wallet</string>
+    <string name="my_cellar">My cellar</string>
+    <string name="digital_passports_transfer">Digital Passports Transfer</string>
+    <string name="my_cellar_value">My cellar value</string>
+    <string name="digital_passports">Digital Passports</string>
+    <string name="transactions">Transactions</string>
+    <string name="vintage">Vintage</string>
+    <string name="vintages">Vintages</string>
+    <string name="en_primeur">En Primeur</string>
+    <string name="en_livrable">En Livrable</string>
+    <string name="create_digital_passport_transfer">Create Digital Passport Transfer</string>
+    <string name="transfers">Transfers</string>
+    <string name="transfer">Transfer</string>
+
+    <string name="creation_date">Creation Date</string>
+    <string name="expiration_date">Expiration Date</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="pay">pay</string>
+    <string name="approve">approve</string>
+    <string name="accept">accept</string>
+    <string name="cancel_passports_transfer">Cancel passports transfer</string>
+    <string name="total_qty">Total qty</string>
+    <string name="total_price">Total price</string>
+    <string name="price">Price</string>
+    <string name="address">Address</string>
+    <string name="phone">Phone</string>
+
+    <string name="digital_passport_iD">Digital Passport ID</string>
+    <string name="create_passports_transfer">Create passports transfer</string>
+    <string name="create_transfer">Create transfer</string>
+    <string name="create_passport">Create passport</string>
+
+    <string name="cancel_digital_passport_transfer">Cancel Digital Passport Transfer?</string>
+    <string name="what_is_the_cancellation_reason">What is the cancellation reason?</string>
+    <string name="buy_only">I want to buy only wine, i don’t need extra security.</string>
+    <string name="not_buy">I’m not buying the wine anymore.</string>
+    <string name="back">Back</string>
+    <string name="confirm">Confirm</string>
+    <string name="select_wine">Select wine</string>
+    <string name="currency">Currency</string>
+    <string name="next">Next</string>
+    <string name="cancel">Cancel</string>
+    <string name="delivery_instruction_due_date">Delivery instruction due date</string>
+    <string name="provide_delivery_instructions_myself">I’ll provide Delivery Instructions myself</string>
+    <string name="buyer_information">Buyer Information</string>
+    <string name="billing_information">Billing Information</string>
+    <string name="who_paying_for_digital_passports">Who’s paying for Digital Passports?</string>
+    <string name="seller">Seller</string>
+    <string name="buyer">Buyer</string>
+    <string name="gift_or_promotion">Gift or Promotion</string>
+    <string name="digital_passports_price">Digital Passports Price</string>
+    <string name="royalty_rate">Royalty Rate</string>
+    <string name="total">Total</string>
+    <string name="rate_the_wine">Rate the Wine</string>
+    <string name="how_much_did_you_enjoy_the_wine">How much did you enjoy the wine?</string>
+    <string name="tell_us_few_words_about_the_wine">Tell us a few words about the wine</string>
+    <string name="add_wine">Add Wine</string>
+    <string name="max_qty">Max Qty</string>
+    <string name="stack_qty">Stack Qty</string>
+    <string name="wine_has_been_drunk">Wine has been drunk</string>
+
+    <string name="nfc_not_support">NFC is not supported on this device</string>
+
+    <string name="nfc_disabled">NFC disabled on this device. Turn on to proceed</string>
+    <string name="all">All</string>
+    <string name="hold_phone_near_bottle">Hold phone near bottle with NFC tag (code)</string>
+    <string name="ready_to_scan">Ready to Scan</string>
+    <string name="scan_complete">Scan Complete</string>
+    <string name="scan_incomplete">Scan Incomplete</string>
+    <string name="nfc">NFC</string>
+    <string name="qr_code">QR code</string>
+    <string name="product_detected">Product Detected</string>
+    <string name="product_not_detected">Product Not Detected</string>
+    <string name="email_confirmation">Email Confirmation</string>
+    <string name="email_text">
+    <![CDATA[
+            <span style="color:#000000">We have sent Email to </span><span style="color:#3498db">frederic.nouet@fidewine.com</span> <span style="color:#000000">to confirm the validity of your Email address. After receiving the Email follow the link provided to complete your registration.</span>
+    ]]>
+    </string>
+    <string name="email_text_start">We have sent Email to </string>
+    <string name="email_text_finish"> to confirm the validity of your Email address. After receiving the Email follow the link provided to complete your registration.</string>
+
+    <string name="email_resend_html">
+        <![CDATA[
+        <span style="color:#000000">If you not got any mail <br></span><span style="color:#3498db">resend confirmation mail</span>
+            ]]>
+    </string>
+    <string name="email_resend_start">If you not got any mail</string>
+    <string name="email_resend_end">resend confirmation mail</string>
+    <string name="email_resend_time">time to resend email</string>
+    <string name="return_to">Return to</string>
+    <string name="shipping_information">Shipping Information</string>
+    <string name="shipping_type">Shipping Type</string>
+    <string name="delivery_to">Delivery to</string>
+    <string name="no_wine_in_cellar">No wine in the cellar</string>
+    <string name="package_list_is_empty">Package list is empty</string>
+    <string name="list_is_empty">List is empty</string>
+    <string name="picking_date">Picking Date</string>
+    <string name="wine_details">Wine Details</string>
+    <string name="scores">Scores</string>
+    <string name="description">Description</string>
+    <string name="log_out">Log Out</string>
+    <string name="print_case_label">Printing Case Label</string>
+    <string name="print_case_text">Please close the case, stick the printed label on the case and tap “Continue”.</string>
+    <string name="printer_error">Printer connection error</string>
+    <string name="printer_error_text">Lost connection with Printer. Fix the issue and tap “Continue” to resume process.</string>
+    <string name="continue_tx">Continue</string>
+    <string name="connect_printer">Connect Printer</string>
+    <string name="skip_this_step">Skip this step</string>
+    <string name="mark_all_as_read">Mark all as read</string>
+    <string name="notifications">Notifications</string>
+    <string name="delete">Delete</string>
+    <string name="printing_case_label">Printing Case label</string>
+
+    <string name="connecting">Connecting</string>
+
+    <string name="create_pass_tooltip">The passports price and transfer fee will be paid by the Seller.</string>
+    <string name="no_price_error">Please, add the Original Wine Price to proceed with Passports Transfer of this wine</string>
+    <string name="first_digital_passports">The first digital passports transfer is free of charge for your buyer.</string>
+    <string name="you_cancel_digital_passport">If you cancel the Digital Passport Transfer, your order will be created, but the passports will not be transferred.</string>
+    <string name="digital_passport_transfer_created">DPT has been successfully created</string>
+    <string name="order_scanned">Order scanned</string>
+    <string name="restore_connection">Could not load data. Please check your internet connection.</string>
+    <string name="quantity_error">Quantity can\'t be 0</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="zip_code">Zip Code</string>
+    <string name="save">Save</string>
+    <string name="data_saved">Data saved successfully</string>
+    <string name="accept_policy">I accept the</string>
+    <string name="and">and</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="terms_of_use">Terms of Use</string>
+    <string name="status">Status</string>
+    <string name="box_changed_title">The contents of the box has been changed</string>
+    <string name="box_changed_content">Please note, that the content of this box has been changed. You will need to scan each bottle inside the box.</string>
+    <string name="box_changing_title">Are you changing the box contents?</string>
+    <string name="box_changing_content">If you are going to change the box contents, please tap the \'Bottles changed\' button. If you will remain the box content, please, tap \'Remain box\' button.</string>
+    <string name="bottles_changed">Bottles Changed</string>
+    <string name="remain_box">Remain Box</string>
+    <string name="percents">Percents</string>
+    <string name="view">View</string>
+    <string name="forget_success">Please follow the instruction from the email to continue</string>
+    <string name="inventory">Inventory</string>
+    <string name="incoming">Incoming</string>
+    <string name="outcoming">Outcoming</string>
+    <string name="processed">Processed</string>
+    <string name="transfered">Transferred</string>
+    <string name="clear">Clear</string>
+    <string name="scan_code">Scan code of the bottle or the case</string>
+    <string name="canceled">Canceled</string>
+    <string name="put_in_cases">Put in cases</string>
+    <string name="case_type">Case type</string>
+    <string name="clear_all">Clear All</string>
+    <string name="filters">Filters</string>
+    <string name="sale_status">Sale Status</string>
+    <string name="domains">Domains</string>
+    <string name="order_status">Order Status</string>
+    <string name="transfer_type">Transfer Type</string>
+    <string name="transfer_status">Transfer Status</string>
+    <string name="in_process">In Process</string>
+    <string name="in_progress">In Progress</string>
+
+    <string name="completed">Completed</string>
+    <string name="single">Single</string>
+    <string name="bottle_has_passport">This bottle already has a passport</string>
+    <string name="cant_use_box">Can\'t use Case OR code</string>
+    <string name="box_not_match">Box doesn\'t match</string>
+    <string name="bottle_not_match">Bottle doesn\'t match</string>
+    <string name="scan_bottle">Scan bottle</string>
+    <string name="for_registered_only">For registered only</string>
+    <string name="owner">Owner</string>
+    <string name="transaction_count">Transaction count</string>
+    <string name="bottling_date">Bottling date</string>
+    <string name="map">Map</string>
+    <string name="reviews">Reviews</string>
+    <string name="email_confirmed">Your email is confirmed.\n  Now you can log in</string>
+    <string name="wine_added">Wine added</string>
+    <string name="box_not_implement">Box scan not available</string>
+    <string name="case_completed">Case completed!</string>
+    <string name="stock_qty">Stock Qty</string>
+    <string name="alc">alc.</string>
+
+    <string name="pending_approval">Pending Approval</string>
+    <string name="pending_payment">Pending Payment</string>
+    <string name="paid">Paid</string>
+    <string name="approved">Approved</string>
+    <string name="rejected_passport">Rejected Passport</string>
+    <string name="closed">Closed</string>
+    <string name="submitted">Submitted</string>
+    <string name="submitted_no_transfer">Submitted no Transfer</string>
+    <string name="completed_no_transfer">Completed no Transfer</string>
+    <string name="winemaker">Winemaker</string>
+    <string name="cant_be_sell">Can\'t be sell</string>
+    <string name="information">Information</string>
+
+    <string name="only_bottles_can_be_scanned">Only bottles can be scanned. please authorize to scan boxes</string>
+    <string name="external">External</string>
+    <string name="destination_points">Destination Points</string>
+    <string name="untracked">Untracked</string>
+    <string name="add_untracked_wine">Add Untracked Wine</string>
+    <string name="find_wine">Find a wine</string>
+    <string name="add_wine_to_my_cellar">Add This Wine to My Cellar</string>
+    <string name="add_vendor">Add Vendor</string>
+    <string name="add_unit_price">Add Unit Price</string>
+    <string name="capacity">Capacity</string>
+    <string name="add_to_my_cellar">Add to my cellar</string>
+    <string name="purchase_history">Purchase History</string>
+    <string name="my_reviews">My Reviews</string>
+    <string name="date_of_tasting">Date of Tasting</string>
+    <string name="vendor">Vendor</string>
+    <string name="unit_price">Unit Price</string>
+    <string name="date_of_purchase">Date of Purchase</string>
+    <string name="location_of_tasting">Location of Tasting</string>
+    <string name="add_rating">Add Rating</string>
+    <string name="tasting_with">Tasting With</string>
+    <string name="course">Course</string>
+    <string name="add_review">Add Review</string>
+    <string name="rating">Rating</string>
+    <string name="review">Review</string>
+    <string name="producer_name">Producer Name</string>
+    <string name="appellation">Appellation</string>
+    <string name="classification">Classification</string>
+    <string name="location">Location</string>
+    <string name="color">Color</string>
+    <string name="review_added">Review added</string>
+    <string name="select_vintage">Select vintage</string>
+    <string name="wallet_address">This is the FIDEwine wallet address. Please use only to receive digital passports inside the FIDEwine network</string>
+    <string name="please_scan">Please scan QR code using\n External Scanner</string>
+    <string name="login_error_incorrect_phone">Incorrect Phone</string>
+    <string name="login_error_incorrect_country">Country can\'t be empty</string>
+    <string name="km">%s km</string>
+    <string name="search_printers">Search Printers</string>
+    <string name="printer_settings">Printer Settings</string>
+    <string name="type">Type</string>
+    <string name="region">Region</string>
+
+    <string name="add_wine_name">Add Wine Name</string>
+    <string name="add_domain">Add Domain</string>
+    <string name="wine_color">Wine Color</string>
+    <string name="white">White</string>
+    <string name="red">Red</string>
+    <string name="orange">Orange</string>
+    <string name="rose">Rose</string>
+    <string name="add_producer_name">Add Producer Name</string>
+    <string name="add_country">Add Country</string>
+    <string name="add_region">Add Region</string>
+    <string name="add_custom_wine">Add Custom Wine</string>
+    <string name="app_update_title">Update Application</string>
+    <string name="app_update_message">Need To Update Application</string>
+    <string name="information_not_found">Information not found</string>
+    <string name="still">Still</string>
+    <string name="fuzzy">Fizzy</string>
+    <string name="wine_type">Wine Type</string>
+    <string name="agreement">Agreement</string>
+    <string name="profile">Profile</string>
+    <string name="recovery_password">Recovery Password</string>
+    <string name="scan_results">Scan Results</string>
+    <string name="sync_error_batchId">Synchronization problem. Please contact support. Batch ID %s"</string>
+    <string name="transfer_label">Transfer #</string>
+    <string name="delete_account">Delete account</string>
+    <string name="really_delete_account">Your account will be removed. Are you sure? Press ‘Confirm’ to complete this process. Additional information will be sent to your email address.</string>
+    <string name="notify_delete_account">Your account can not be removed in mobile application. Please proceed deletion process on FIDEwine platform and make sure that you have permissions to perform that action.</string>
+    <string name="account_in_deletion_state">Your account has been marked for deletion since </string>
+    <string name="please_authorize_permissions">Please authorize permissions\nThese permissions are required to provide functionality of scanner</string>
+
+
+    <string name="wine_detail_description">
+  <![CDATA[
+        <p><b>A true vintage for pleasure</b></p>
+        With wide ranges in temperature and rainfall, 2012 was a challenging year for the vineyard.
+        After favorable conditions returned mid-July, this vintage, though off to an early start, proved to be late in reaching its optimum maturity beginning on 8th October.
+        <span style="color:#3498db">Tasting after tasting, 2012 never ceases to amaze and charm us.</span>
+    ]]>
+    </string>
+    <string-array name="acc_types">
+        <item>Winemaker</item>
+        <item>Intermediate</item>
+        <item>WS and Restaurant</item>
+        <item>Consumer</item>
+<!--        <item>Service to service</item>-->
+<!--        <item>FideWine Admin</item>-->
+<!--        <item>Holding</item>-->
+    </string-array>
+    <string-array name="role_types">
+        <item>Owner</item>
+        <item>Employee</item>
+        <item>Superadmin</item>
+    </string-array>
+
+    <string-array name="transaction_types">
+        <item>Incoming</item>
+        <item>Outcoming</item>
+        <item>Transfered</item>
+        <item>Canceled</item>
+    </string-array>
+    <string-array name="transaction_types_new">
+        <item>Incoming</item>
+        <item>Outcoming</item>
+    </string-array>
+
+    <string-array name="transaction_states">
+        <item>PENDING PAYMENT</item>
+        <item>PENDING APPROVAL</item>
+        <item>EXPIRED</item>
+        <item>CANCELED</item>
+        <item>PAID</item>
+    </string-array>
+
+    <string-array name="transaction_menu">
+        <item>Copy to clipboard</item>
+        <item>Download invoice</item>
+    </string-array>
+
+    <string-array name="currency_types">
+        <item>Euro</item>
+        <item>US Dollar</item>
+    </string-array>
+
+    <string-array name="transfer_status_ui">
+        <item>All</item>
+        <item>Pending</item>
+        <item>Processed</item>
+        <item>Transferred</item>
+    </string-array>
+
+    <string-array name="classification_types">
+        <item>Premier cru</item>
+        <item>Deuxième cru</item>
+        <item>Troisième cru</item>
+        <item>Quatrième cru</item>
+        <item>Cinquième cru</item>
+        <item>Premier grand cru classé A</item>
+        <item>Premier grand cru classé B</item>
+        <item>Grand cru classé</item>
+        <item>Grand cru de Bourgogne</item>
+        <item>Premier cru de Bourgogne</item>
+    </string-array>
+    <string-array name="wine_colors">
+        <item>White</item>
+        <item>Red</item>
+        <item>Orange</item>
+        <item>Rose</item>
+    </string-array>
+    <string-array name="wine_types">
+        <item>Still</item>
+        <item>Fizzy</item>
+    </string-array>
+</resources>
