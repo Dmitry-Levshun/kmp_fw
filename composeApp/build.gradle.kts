@@ -125,6 +125,7 @@ kotlin {
 
             implementation(libs.barcode.generator.qr)
             implementation(libs.barcode.generator.oned)
+            implementation(libs.paging.compose.common)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -201,10 +202,19 @@ buildkonfig {
     targetConfigs {
         create("android") {
             buildConfigField(STRING, "name2", "value2")
+            buildConfigField(STRING, "target", "android")
         }
 
         create("ios") {
             buildConfigField(STRING, "name", "valueIos")
+            buildConfigField(STRING, "target", "ios")
+
+        }
+        create("jvm") {
+            buildConfigField(STRING, "target", "jvm")
+        }
+        create("desktop") {
+            buildConfigField(STRING, "target", "desktop")
         }
     }
     // flavor is passed as a first argument of targetConfigs

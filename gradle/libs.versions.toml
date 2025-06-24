@@ -4,20 +4,20 @@ android-compileSdk = "35"
 android-minSdk = "24"
 android-targetSdk = "35"
 androidx-activity = "1.10.1"
-androidx-appcompat = "1.7.0"
+androidx-appcompat = "1.7.1"
 androidx-constraintlayout = "2.2.1"
 androidx-core = "1.16.0"
 androidx-espresso = "3.6.1"
 androidx-lifecycle = "2.9.0"
 androidx-testExt = "1.2.1"
 composeHotReload = "1.0.0-alpha10"
-compose_multiplatform = "1.8.1"
+compose_multiplatform = "1.8.2"
 junit = "4.13.2"
 kotlin = "2.1.21"
 kotlinx-coroutines = "1.10.2"
 
 androidx-activityCompose = "1.10.1"
-androidx-ui-tooling = "1.8.2"
+androidx-ui-tooling = "1.8.3"
 coil = "3.2.0"
 koin = "4.1.0-RC1" #"4.1.0-Beta11"
 koinExt = "2.2.2"
@@ -35,6 +35,7 @@ composeWebview = "1.9.40"
 buildKonfig = "0.17.1"
 barcode-generator = "1.0.1"
 kotlinx-datetime = "0.6.2"
+pagingCommonVersion = "3.3.0-alpha02-0.5.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -91,6 +92,7 @@ compose-webview = { module = "io.github.kevinnzou:compose-webview-multiplatform"
 barcode-generator-qr = { module = "io.github.alexzhirkevich:qrose", version.ref = "barcode-generator"}
 # For single-dimension barcodes (UPC,EAN, Code128, ...)
 barcode-generator-oned = { module = "io.github.alexzhirkevich:qrose-oned", version.ref = "barcode-generator" }
+paging-compose-common = { module = "app.cash.paging:paging-compose-common", version.ref = "pagingCommonVersion" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

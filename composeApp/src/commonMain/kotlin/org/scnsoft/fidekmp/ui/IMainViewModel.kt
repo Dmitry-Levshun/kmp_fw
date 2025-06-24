@@ -3,6 +3,7 @@ package org.scnsoft.fidekmp.ui
 import org.scnsoft.fidekmp.domain.model.profile.ProfileInfo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import org.scnsoft.fidekmp.domain.model.FilterEntity
 
 interface LoadingInterface {
     val isloadingState: StateFlow<Boolean>
@@ -16,15 +17,18 @@ interface IProfileInfo {
     val isConsumer: StateFlow<Boolean>
     val isIntermediate: StateFlow<Boolean>
 }
-/*
+
 interface IFilter {
     val filterItemsState: StateFlow<Map<String, List<FilterEntity>>>
     fun updateFilter()
     fun clearFilter()
 }
+
 interface IConnection{
     fun isConnected(): Boolean
 }
+/*
+
 interface IExternalQrCode{
     val nfcCodeState: StateFlow<NfcData>
     val nfcAvailabilityState: StateFlow<Boolean>
