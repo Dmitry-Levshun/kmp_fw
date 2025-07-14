@@ -126,6 +126,7 @@ kotlin {
             implementation(libs.barcode.generator.qr)
             implementation(libs.barcode.generator.oned)
             implementation(libs.paging.compose.common)
+            implementation(libs.lens.logger)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -201,7 +202,7 @@ buildkonfig {
 
     targetConfigs {
         create("android") {
-            buildConfigField(STRING, "name2", "value2")
+            buildConfigField(STRING, "name2", "valueAndroid")
             buildConfigField(STRING, "target", "android")
         }
 

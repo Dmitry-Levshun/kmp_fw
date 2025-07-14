@@ -22,27 +22,29 @@ import org.scnsoft.fidekmp.domain.model.PackageItem
 import org.scnsoft.fidekmp.utils.currentUtcDateTime
 
 interface ICellarUntracked {
-    val untrackedUserWineListState: Flow<List<UntrackedUserWineItem>>
+//    val untrackedUserWineListState: Flow<List<UntrackedUserWineItem>>
     val untrackedUserWines: Flow<PagingData<UntrackedUserWineItem>>
+    val untrackedWineListState: Flow<List<UntrackedWineItem>>
+    val untrackedUserWineInfoState: Flow<List<UntrackedUserWineItemById>>
     fun getUntrackedUserWineById(id: Int)
-    fun onUntrackWineSearch(query: String)
+    fun onUntrackMainWineSearch(query: String)
 }
 
 interface IUntrackedModel : UiResultInterface, ICellarUntracked {
-    val untrackedWineListState: Flow<List<UntrackedWineItem>>
+//    val untrackedWineListState: Flow<List<UntrackedWineItem>>
 //    val untrackedUserWineListState: Flow<List<UntrackedUserWineItem>>
     val untrackedSearchText: StateFlow<String>
     val untrackedSelectedWine: StateFlow<PackageItem>
     val untrackedWineDetailsInfo: StateFlow<PackageItem>
-    val untrackedUserWineInfoState: Flow<List<UntrackedUserWineItemById>>
     val untrackedWineInfoState: Flow<List<UntrackedWineItem>>
     val untrackedWines: Flow<PagingData<UntrackedWineItem>>
 //    val untrackedUserWines: Flow<PagingData<UntrackedUserWineItem>>
     val bottleList: StateFlow<List<DptDeliveryInstructionItemBottleType>>
     val untrackedCustomWines: Flow<List<UntrackedWineItem>>
     val untrackedCustomWineProducers: Flow<List<UntrackedWineItem>>
+    val errorToast: StateFlow<String>
 
-    fun onUntrackMainWineSearch(query: String)
+//    fun onUntrackMainWineSearch(query: String)
     fun addUntrackedWine(vintage: Int, bottleVolume: Double,externalWineIdUrl: String, qty: Int, price: Double, vendorName: String, dateOfPurchase: LocalDateTime)
     fun getUntrackedUserWines()
     fun getUntrackedWineById(id: Int)
@@ -51,11 +53,13 @@ interface IUntrackedModel : UiResultInterface, ICellarUntracked {
     fun onUntrackCustomProducerSearch(query: String)
     fun addUntrackedCustomWine(vintage: Int, bottleVolume: Double,wineType: String, qty: Int, price: Double, name: String, producerName: String,vendorName: String,
                                country: String, region: String, appellation: String, classification: String, color: String, dateOfPurchase: LocalDateTime)
-    }
+    fun onUntrackWineSearch(query: String)
+
+}
 
 class UntrackedModelPreview : IUntrackedModel {
     override val untrackedWineListState: Flow<List<UntrackedWineItem>> get() = flowOf()
-    override val untrackedUserWineListState: Flow<List<UntrackedUserWineItem>> get() = flowOf()
+//    override val untrackedUserWineListState: Flow<List<UntrackedUserWineItem>> get() = flowOf()
 
     override val untrackedSearchText: StateFlow<String> get() = MutableStateFlow("")
     override val untrackedSelectedWine: StateFlow<PackageItem> get() = MutableStateFlow(PackageItem( "Wine Name $1", "Max Qty: 1000 | Stock Qty: 900 | 13% alc.", "Domain Name $1", query = "nam", vintage = "2019"))
@@ -73,7 +77,7 @@ class UntrackedModelPreview : IUntrackedModel {
     override val bottleList: StateFlow<List<DptDeliveryInstructionItemBottleType>> get() = MutableStateFlow(listOf())
     override val untrackedCustomWines: Flow<List<UntrackedWineItem>> = flowOf()
     override val untrackedCustomWineProducers: Flow<List<UntrackedWineItem>> = flowOf()
-
+    override val errorToast: StateFlow<String> = MutableStateFlow("")
     override fun onUntrackWineSearch(query: String){}
 
     override fun onUntrackMainWineSearch(query: String){}

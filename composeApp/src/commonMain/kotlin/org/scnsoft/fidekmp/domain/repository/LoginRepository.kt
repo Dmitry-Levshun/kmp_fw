@@ -1,4 +1,4 @@
-package org.scnsoft.fidekmp.data.repository
+package org.scnsoft.fidekmp.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow

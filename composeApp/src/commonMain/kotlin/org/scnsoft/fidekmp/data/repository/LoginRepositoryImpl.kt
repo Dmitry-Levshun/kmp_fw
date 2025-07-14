@@ -1,4 +1,4 @@
-package org.scnsoft.fidekmp.domain.repository
+package org.scnsoft.fidekmp.data.repository
 
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
@@ -15,17 +15,17 @@ import org.scnsoft.fidekmp.data.api.auth.AuthApi
 import org.scnsoft.fidekmp.data.api.auth.Authenticator
 import org.scnsoft.fidekmp.data.api.auth.dto.ChangePasswordRequestDto
 import org.scnsoft.fidekmp.data.api.auth.dto.ForgetPasswordRequestDto
-import org.scnsoft.fidekmp.data.repository.LoginRepository
 import org.scnsoft.fidekmp.data.settings.AppSettingsDataSource
 import org.scnsoft.fidekmp.data.api.auth.dto.LoginRequestDto
 import org.scnsoft.fidekmp.data.api.auth.dto.LoginResponseDto
 import org.scnsoft.fidekmp.data.api.auth.dto.ResetPasswordRequestDto
 import org.scnsoft.fidekmp.data.api.auth.dto.SignUpRequestDto
-import org.scnsoft.fidekmp.data.repository.ChangePasswordResult
-import org.scnsoft.fidekmp.data.repository.CountryListResult
-import org.scnsoft.fidekmp.data.repository.LoginResult
-import org.scnsoft.fidekmp.data.repository.LoginState
-import org.scnsoft.fidekmp.data.repository.SignApiResult
+import org.scnsoft.fidekmp.domain.repository.ChangePasswordResult
+import org.scnsoft.fidekmp.domain.repository.CountryListResult
+import org.scnsoft.fidekmp.domain.repository.LoginRepository
+import org.scnsoft.fidekmp.domain.repository.LoginResult
+import org.scnsoft.fidekmp.domain.repository.LoginState
+import org.scnsoft.fidekmp.domain.repository.SignApiResult
 import org.scnsoft.fidekmp.utils.NetworkUtils
 
 class LoginRepositoryImpl(

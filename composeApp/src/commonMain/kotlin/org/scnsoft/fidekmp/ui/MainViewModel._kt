@@ -1,0 +1,3591 @@
+package org.scnsoft.fidekmp.ui
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.filter
+import androidx.paging.map
+import org.scnsoft.fidekmp.utils.currencyToSymbol
+import org.scnsoft.fidekmp.utils.getTickCount
+import org.scnsoft.fidekmp.utils.jsonToObject
+import org.scnsoft.fidekmp.utils.objectToJson
+import org.scnsoft.fidekmp.utils.symbolToCurrency
+import org.scnsoft.fidekmp.utils. toSimpleMonthBackEndString
+import org.scnsoft.fidekmp.utils.toSimpleString
+import org.scnsoft.fidekmp.utils.volumeDoubleToString
+import org.scnsoft.fidekmp.domain.repository.CommonResult
+import org.scnsoft.fidekmp.domain.repository.deliveryinstructions.ContactResult
+import org.scnsoft.fidekmp.data.api.deliveryinstructions.dto.CreateDigitalPassportTransferData
+import org.scnsoft.fidekmp.repository.deliveryinstructions.CustomerResult
+import org.scnsoft.fidekmp.repository.deliveryinstructions.DeliveryInstructionsRepository
+import org.scnsoft.fidekmp.repository.deliveryinstructions.DigitalPassportTransferResult
+import org.scnsoft.fidekmp.repository.deliveryinstructions.DptResult
+import org.scnsoft.fidekmp.repository.deliveryinstructions.QrBoxCodeInfoResult
+import org.scnsoft.fidekmp.repository.deliveryinstructions.QrCodeInfoResult
+import org.scnsoft.fidekmp.repository.deliveryinstructions.QrCodeInfoResultNoLogin
+import org.scnsoft.fidekmp.repository.deliveryinstructions.SyncResult
+import org.scnsoft.fidekmp.repository.deliveryinstructions.TransferHistoryResult
+import com.fidewine.app.repository.deliveryinstructions.UntrackedUserWineListResult
+import com.fidewine.app.repository.deliveryinstructions.UntrackedUserWineResult
+import com.fidewine.app.repository.deliveryinstructions.UntrackedWineListResult
+import com.fidewine.app.repository.deliveryinstructions.UntrackedWineResult
+import com.fidewine.app.repository.deliveryinstructions.VersionResult
+import com.fidewine.app.repository.deliveryinstructions.WinesExtResult
+import com.fidewine.app.repository.deliveryinstructions.WinesResult
+import com.fidewine.app.repository.device.ProfileResult
+import com.fidewine.app.repository.device.UserRepository
+import com.fidewine.app.repository.login.LoginRepository
+import com.fidewine.app.repository.notifications.NotificationItem
+import com.fidewine.app.repository.notifications.NotificationRepository
+import com.fidewine.app.repository.notifications.NotificationResult
+import com.fidewine.app.repository.settings.AppSettingsDataSource
+import com.fidewine.app.repository.untracked.UntrackedWineRepository
+import com.fidewine.app.service.deliveryinstructions.dto.ContactItem
+import com.fidewine.app.service.deliveryinstructions.dto.CreateDigitalPassportTransferRequestWine
+import com.fidewine.app.service.deliveryinstructions.dto.DigitalPassportTransferStatus
+import com.fidewine.app.service.deliveryinstructions.dto.DptDeliveryInstructionItem
+import com.fidewine.app.service.deliveryinstructions.dto.IntermediateSyncInstructionItem
+import com.fidewine.app.service.deliveryinstructions.dto.InventoryBottle
+import com.fidewine.app.service.deliveryinstructions.dto.InventoryPassportAuthData
+import com.fidewine.app.service.deliveryinstructions.dto.InventoryRequestDto
+import com.fidewine.app.service.deliveryinstructions.dto.NoLoginWine
+import com.fidewine.app.service.deliveryinstructions.dto.Organisation
+import com.fidewine.app.service.deliveryinstructions.dto.QrBoxCodeInfoResponse
+import com.fidewine.app.service.deliveryinstructions.dto.QrCodeInfoRequest
+import com.fidewine.app.service.deliveryinstructions.dto.QrCodeInfoWine
+import com.fidewine.app.service.deliveryinstructions.dto.QrCodeInstantSellingRequest
+import com.fidewine.app.service.deliveryinstructions.dto.SyncBottle
+import com.fidewine.app.service.deliveryinstructions.dto.SyncCase
+import com.fidewine.app.service.deliveryinstructions.dto.SyncDeliveryInstructionItem
+import com.fidewine.app.service.deliveryinstructions.dto.SyncDeliveryInstructionItemBottle
+import com.fidewine.app.service.deliveryinstructions.dto.SyncInstructionRequestDtoNew
+import com.fidewine.app.service.deliveryinstructions.dto.SyncPassportAuthData
+import com.fidewine.app.service.deliveryinstructions.dto.WineExtendedInfo
+import com.fidewine.app.service.deliveryinstructions.dto.WineItem
+import org.scnsoft.fidekmp.data.api.untracked.dto.AddUntrackedWineRequest
+import org.scnsoft.fidekmp.data.api.untracked.dto.UntrackedCustomWineRequest
+import org.scnsoft.fidekmp.data.api.untracked.dto.UntrackedUserWineItem
+import org.scnsoft.fidekmp.data.api.untracked.dto.UntrackedUserWineItemById
+import org.scnsoft.fidekmp.data.api.untracked.dto.UntrackedWineItem
+import org.scnsoft.fidekmp.data.api.untracked.dto.UntrackedWineReviewRequest
+import org.scnsoft.fidekmp.data.api.untracked.dto.UntrackedWineReviewRequestDrunkItem
+import org.scnsoft.fidekmp.ui.TransferDetailsInfo.Companion.getTranferStatusTextId
+import org.scnsoft.fidekmp.ui.notification.NotificationInterface
+import org.scnsoft.fidekmp.ui.postlogin.cellar.ICellarModel
+import org.scnsoft.fidekmp.ui.postlogin.cellar.untracked.IUntrackedModel
+import org.scnsoft.fidekmp.ui.postlogin.cellar.untracked.VolumesToBottleMutable
+import org.scnsoft.fidekmp.ui.postlogin.inventory.IInventoryModel
+import org.scnsoft.fidekmp.ui.postlogin.profile.IProfileModel
+import org.scnsoft.fidekmp.ui.postlogin.scanning.IHabillageModel
+import org.scnsoft.fidekmp.ui.postlogin.transfer_passport.FilterType
+import org.scnsoft.fidekmp.ui.postlogin.transfer_passport.ITransferModel
+import org.scnsoft.fidekmp.ui.postlogin.transfer_passport.WineFilterItf
+import org.scnsoft.fidekmp.ui.qrcode.IQrCodeModel
+import org.scnsoft.fidekmp.ui.qrcode.infoList1
+import org.scnsoft.fidekmp.ui.qrcode.scanned
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.scnsoft.fidekmp.domain.model.profile.PersonInfo
+import org.scnsoft.fidekmp.domain.model.profile.ProfileInfo
+import kotlin.reflect.full.memberProperties
+import kotlin.time.Duration.Companion.seconds
+import org.scnsoft.fidekmp.domain.repository.ProfileRepository
+import org.scnsoft.fidekmp.data.repository.LoginRepository
+import org.scnsoft.fidekmp.ui.postlogin.notification.NotificationInterface
+
+const val CASE_PREFIX = "FDW_BX_"
+const val CLEAR_SCANNED = false
+
+class MainViewModel  constructor(
+    private val userRepository: ProfileRepository,
+    private val loginRepository: LoginRepository,
+    private val deliveryInstructionsRepository: DeliveryInstructionsRepository,
+    private val appSettingsDataSource: AppSettingsDataSource,
+    private val zebraPrinterController: ZebraController,
+    private val zebraScannerController: ZebraScannerController,
+    private val notificationRepository: NotificationRepository,
+    private val untrackedWineRepository: UntrackedWineRepository,
+    private val dispatcherProvider: DispatcherProvider,
+) : ViewModel(), KoinComponent, LoadingInterface, NotificationInterface, WineFilterItf, IInventoryModel,
+    IUntrackedModel, UiResultInterface, IProfileModel, IHabillageModel, ITransferModel, ICellarModel,
+    IQrCodeModel {
+    val closeAppWhenUserCancelsVpn: Boolean
+        get() = true
+
+//    private lateinit var zebraScannerController: ZebraScannerController
+
+    private val _minAppVersion = MutableStateFlow("")
+    val minAppVersion: StateFlow<String> get() = _minAppVersion
+
+    private var lastToggleFromUser: Boolean = false
+    private val _errorToast = MutableStateFlow("")
+    val errorToast: StateFlow<String> get() = _errorToast
+    private val _errorToastId = MutableStateFlow(0)
+    val errorToastId: StateFlow<Int> get() = _errorToastId
+    private val _restartEvent = MutableStateFlow(false)
+    val restartEvent: StateFlow<Boolean> get() = _restartEvent
+
+    private val _isScanCodePassportState: MutableStateFlow<PassInfo> = MutableStateFlow(PassInfo.LOADING)
+    val isScanCodePassportState: StateFlow<PassInfo?> get() = isScanCodePassportState
+
+//    private val _vpnToggleState = MutableStateFlow(VpnToggleState.UNKNOWN)
+//    override val vpnToggleState: StateFlow<VpnToggleState> get() = _vpnToggleState
+
+    //    private val _vpnState = MutableStateFlow<VpnServiceState?>(null)
+//    val loginState = loginRepository.loginStateFlow//flowOf(false) //-- loginRepository.loginStateFlow
+    private val connectflow = appSettingsDataSource.isConnectedFlow
+
+    val loginState =
+        combine(loginRepository.loginStateFlow, appSettingsDataSource.isConnectedFlow, appSettingsDataSource.refreshToken) { loginState, connect, token ->
+//            Timber.d("loginState login:$loginState connect:$connect token:${token?.take(6)}")
+            if (connect && !loginState && !token.isNullOrBlank()) {loginRefresh(); delay(2000); true}
+            loginState || (!connect && !token.isNullOrBlank())
+        }
+    override val profileInfo:StateFlow<ProfileInfo> = userRepository.profileFlow
+    override val isConsumer: StateFlow<Boolean> = userRepository.isConsumerFlow
+    override val isIntermediate: StateFlow<Boolean> = userRepository.isIntermediateFlow  //MutableStateFlow(true) //userRepository.isIntermediateFlow
+    override val personInfo:StateFlow<PersonInfo> = userRepository.personInfoFlow
+    override val isScannerConnected: StateFlow<Boolean> = zebraScannerController.isConnected
+    override val externalQRCodeState: Flow<String> = zebraScannerController.qrCodeState
+//        .transform {
+//        value ->
+//        Timber.d("ExtQr value: $value ")
+//        emit(value)
+//        val v = value
+//        delay(3000)
+//        Timber.d("ExtQr delay value: $value v: $v")
+//        if (v == value) emit("") }
+
+    val splashState = flow {
+        emit(true)
+        delay(1000)
+        emit(false)
+    }
+
+    private val _isloadingState = MutableStateFlow(false)
+    override val isloadingState: StateFlow<Boolean> get() = _isloadingState
+
+    private val _toHomeScreen = MutableStateFlow(false)
+    val toHomeScreen: StateFlow<Boolean> get() = _toHomeScreen
+    override val uiResult: StateFlow<UiResult?> get() = _uiResult
+    private val _uiResult: MutableStateFlow<UiResult?> = MutableStateFlow(null)
+
+    private val _showDebug = MutableStateFlow(false)
+    val showDebug: StateFlow<Boolean> get() = _showDebug
+    private val _retryEvent = MutableStateFlow("")
+    val retryEvent: StateFlow<String> get() = _retryEvent
+
+    private val _homeTabIndexState = MutableStateFlow(0)
+    private val _intermediateHomeTabFilterState = MutableStateFlow(1)
+    override val homeTabIndexState: StateFlow<Int> get() = _homeTabIndexState
+    override val intermediateHomeTabFilterState: StateFlow<Int> get() = _intermediateHomeTabFilterState
+
+
+    private val _searchText = MutableStateFlow("")
+    val searchText = _searchText.asStateFlow()
+
+    private val _logcatLine = MutableStateFlow("")
+    val logcatLine: StateFlow<String> get() = _logcatLine
+
+    private val _cellarTabIndexState = MutableStateFlow(0)
+    override val cellarTabIndexState: StateFlow<Int> get() = _cellarTabIndexState
+    private val _scanSourceTabIndexState = MutableStateFlow(0)
+    override val scanSourceTabIndexState: StateFlow<Int> get() = _scanSourceTabIndexState
+
+    private val _clientListState = MutableStateFlow(listOf(ClientInfo.Empty()))
+/*
+    val clientListState = searchText
+        .debounce(300)
+        .combine(_clientListState) { text, list ->
+            val list1 = clientInfoFilter(list)
+            Timber.d(" clientListState text:$text size:${list.size}")
+            if (text.isBlank()) list1
+            else list1.filter { it.contains(text) }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), clientInfoFilter(_clientListState.value))
+ */
+    override val clientListState: Flow<List<ClientInfo>> get() = combine(_clientListState, clientFilterState, _intermediateHomeTabFilterState) { list, _, _->
+        clientInfoFilter(list)
+    }
+
+    /*
+    val clientListState = _clientListState
+    .combine(searchText) { list, text ->
+        val list1 = clientInfoFilter(list)
+        Timber.d(" clientListState text:$text size:${list.size}")
+        if (text.isBlank()) list1
+        else list1.filter { it.contains(text) }
+    }
+    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), clientInfoFilter(_clientListState.value))
+ */
+    private val _packageListState = MutableStateFlow(listOf(PackageInfo.Empty()))
+    override val packageListState = searchText
+        .debounce(300)
+        .combine(_packageListState) { text, list ->
+            Timber.d(" packageListState text:$text size:${list.size}")
+            if (text.isBlank()) list
+            else list.filter { it.contains(text) }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _packageListState.value)
+
+    private val _domainListState = MutableStateFlow(listOf<DomainInfo>())
+    private val _domainPrimeurListState = MutableStateFlow(listOf<DomainInfo>())
+    private val _domainLivrableListState = MutableStateFlow(listOf<DomainInfo>())
+/*
+    val domainListState = searchText
+        .debounce(300)
+        .combine(_domainListState, tranferFilterState) { text, list, filter ->
+            Timber.d(" domainListState text:$text size:${list.size}")
+            if (text.isBlank()) list
+            else list.filter { it.contains(text) }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _domainListState.value)
+ */
+    override val domainListState: Flow<List<DomainInfo>> get() = combine(_domainListState, cellarFilterState) { list, filter ->
+        domainInfoFilter(list, filter)
+    }
+    override val inventoryListState: Flow<List<DomainInfo>> get() = combine(_domainLivrableListState, inventoryFilterState) { list, filter ->
+        domainInfoFilter(list, filter)
+    }
+    override val clientWineListState: StateFlow<List<WineInfoItem>> get() = _clientWineListState
+    private val _clientWineListState = MutableStateFlow(listOf(WineInfoItem.Empty()))
+
+    val habillageScanResultInfoState: StateFlow<HabillageScanResultInfo> get() = _habillageScanResultInfoState
+    private val _habillageScanResultInfoState = MutableStateFlow(HabillageScanResultInfo.Empty())
+    val wineDetailInfoState: StateFlow<PackageItem> get() = _wineDetailInfoState
+    private val _wineDetailInfoState = MutableStateFlow(PackageItem.Empty())
+    override val findCodeInfoResultState: StateFlow<FindCodeInfoResult> get() = _findCodeInfoResultState
+    private val _findCodeInfoResultState = MutableStateFlow(FindCodeInfoResult.Empty())
+
+    val findCodeNoLoginInfoResultState: StateFlow<NoLoginWineDetails> get() = _findCodeNoLoginInfoResultState
+    private val digitalPassportTransfers = deliveryInstructionsRepository.digitalPassportTransfers//= mutableListOf<DigitalPassportTransfer>()
+
+    private val _findCodeNoLoginInfoResultState = MutableStateFlow(NoLoginWineDetails.Empty())
+//    private lateinit var deliveryInstructionItems: List<DptDeliveryInstructionItem>
+
+    private var contacts: List<ContactItem> = listOf()
+//    private lateinit var wineList: List<WineItem>
+    private val wineList = deliveryInstructionsRepository.wineList
+    private lateinit var organisations: List<Organisation>
+    private var language: String = "en"
+
+    val vintageListState: StateFlow<Array<String>> get() = _vintageListState
+    private val _vintageListState = MutableStateFlow(arrayOf(""))
+
+    val filterDataValueState: StateFlow<Int> get() = _filterDataValueState
+    private val _filterDataValueState = MutableStateFlow(4)
+    val filterDataValueStateNew: StateFlow<Int> get() = _filterDataValueStateNew
+    private val _filterDataValueStateNew = MutableStateFlow(0)
+
+//    val transferDetailsInfoListState: Flow<List<TransferDetailsInfo>> get() = combine(_transferDetailsInfoListState, _filterDataValueState, _filterDataValueStateNew) { list, filter, filterNew ->
+//        filterTransferDetailsData(filter, filterTransferDetailsStatusData(filterNew, list))
+//    }
+    val transferDetailsInfoListState: Flow<List<TransferDetailsInfo>> get() = combine(_transferDetailsInfoListState, tranferFilterState) { list, filter ->
+        transferDetailsInfoFilter(list)
+    }
+    private val _transferDetailsInfoListState = MutableStateFlow(listOf<TransferDetailsInfo>())
+
+    val wineDetailsPairListState: StateFlow<List<Pair<String, String>>> get() = _wineDetailsPairListState
+    private val _wineDetailsPairListState = MutableStateFlow(listOf(Pair("", "")))
+    val wineDetailsNftIdState: StateFlow<String> get() = _wineDetailsNftIdState
+    private val _wineDetailsNftIdState = MutableStateFlow("")
+    val wineDetailsDescriptionState: StateFlow<String> get() = _wineDetailsDescriptionState
+    private val _wineDetailsDescriptionState = MutableStateFlow("")
+    override val cellarWineDetails: StateFlow<CellarWineDetails> get() = _cellarWineDetails
+    private val _cellarWineDetails = MutableStateFlow(CellarWineDetails.Empty())
+    val createPassportWineListState: StateFlow<List<TransferDetailWineItem>> get() = _createPassportWineListState
+    private val _createPassportWineListState = MutableStateFlow(listOf<TransferDetailWineItem>())
+
+    //    val wineInfoListState : StateFlow<List<WineItem>> get() = _wineInfoListState
+//    private val _wineInfoListState = MutableStateFlow(listOf(TransferDetailsInfo.Empty()))
+    override val agreementInfoState: StateFlow<AgreementInfo> get() = _agreementInfoState
+    private val _agreementInfoState = MutableStateFlow(AgreementInfo.Empty())
+
+    override val nfcCodeState: StateFlow<NfcData> get() = _nfcCodeState
+    private val _nfcCodeState = MutableStateFlow(NfcData.Empty())
+    override val nfcAvailabilityState: StateFlow<Boolean> get() = _nfcAvailabilityState
+    private val _nfcAvailabilityState = MutableStateFlow(true)
+
+    val applink: StateFlow<Uri> get() = _applink
+//    val applink = _applink.asStateFlow()
+    private val _applink = MutableStateFlow(Uri.EMPTY)
+//    private val _applink = SingleEventStateFlow<Uri>(Uri.EMPTY)
+    val scanTypeState: StateFlow<String> get() = _scanTypeState
+    private val _scanTypeState = MutableStateFlow("")
+
+    override val isPrintingState: StateFlow<Boolean> get() = _isPrintingState
+    private val _isPrintingState = MutableStateFlow(false)
+    override val savedScanDataState: StateFlow<ScannedInfo> get() = _savedScanDataState
+    private val _savedScanDataState = MutableStateFlow(ScannedInfo.Empty())
+
+    override val notifications = notificationRepository.notifications
+    override val notificationCount = notificationRepository.notificationTotalCount
+    override val notificationNotReadCount = notificationRepository.notificationNotReadCount
+    val customerList = deliveryInstructionsRepository.customerList
+    override val caseList = deliveryInstructionsRepository.caseList
+    override val bottleList = deliveryInstructionsRepository.bottleList
+
+    private val _filterState = MutableStateFlow(mutableMapOf<FilterType, Boolean>())
+    override val filterState: StateFlow<Map<FilterType, Boolean>> = _filterState
+    private val _showFilterDialog = MutableStateFlow(false)
+    override val showFilterDialog: StateFlow<Boolean> = _showFilterDialog
+    val _filterItemsState = MutableStateFlow(mapOf<String, List<FilterEntity>>())
+    override val filterItemsState: StateFlow<Map<String, List<FilterEntity>>> = _filterItemsState
+    private val _dptScanMode = MutableStateFlow(false)
+    val dptScanMode: StateFlow<Boolean> get() = _dptScanMode
+
+    private val _dptScanModeWine = MutableStateFlow<WineItem?>(null)
+    val dptScanModeWine: StateFlow<WineItem?> get() = _dptScanModeWine
+    private val _inventoryStartInfo = MutableStateFlow<InventoryStartInfo?>(null)
+    override val inventoryStartInfo: StateFlow<InventoryStartInfo?> get() = _inventoryStartInfo
+    private val _transferHistoryInfo = MutableStateFlow<List<MapItemInfo>>(listOf())
+    val transferHistoryInfo: StateFlow<List<MapItemInfo>> get() = _transferHistoryInfo
+    private val _untrackedSearchText = MutableStateFlow("")
+    private val _untrackedCustomWineSearchText = MutableStateFlow("")
+    private val _untrackedCustomProducerSearchText = MutableStateFlow("")
+
+    private val _untrackedWineListState = MutableStateFlow<List<UntrackedWineItem>>(listOf())
+    override val untrackedSearchText: StateFlow<String> get() = _untrackedSearchText
+//    override val untrackedWineListState: Flow<List<UntrackedWineItem>> get() = combine(_untrackedWineListState, _untrackedSearchText) { list, text ->
+//        untrackWineSearch(list, text)
+//    }
+    override val untrackedWineListState: Flow<List<UntrackedWineItem>> get() = _untrackedWineListState
+
+    //---
+    private val _untrackedUserWineListState = MutableStateFlow<List<UntrackedUserWineItem>>(listOf())
+    override val untrackedUserWineListState: Flow<List<UntrackedUserWineItem>> get() = _untrackedUserWineListState
+    private val _untrackedUserWineInfoState = MutableStateFlow<List<UntrackedUserWineItemById>>(listOf())
+    override val untrackedUserWineInfoState: Flow<List<UntrackedUserWineItemById>> get() = _untrackedUserWineInfoState
+    private val _untrackedWineInfoState = MutableStateFlow<List<UntrackedWineItem>>(listOf())
+    override val untrackedWineInfoState: Flow<List<UntrackedWineItem>> get() = _untrackedWineInfoState
+
+    //---
+    private val _untrackedSelectedWine = MutableStateFlow<PackageItem>(PackageItem.Empty())
+    override val untrackedSelectedWine: StateFlow<PackageItem> get() = _untrackedSelectedWine
+    private val _untrackedWineDetailsInfo = MutableStateFlow<PackageItem>(PackageItem.Empty())
+    override val untrackedWineDetailsInfo: StateFlow<PackageItem> get() = _untrackedWineDetailsInfo
+    private val jobList = mutableListOf<Job>()
+    init {
+        Timber.d("INIT ${isEmul()}")
+        FilterType.values().forEach{_filterState.value[it] = true}
+//        generateClientList()
+//        generatePackageList()
+//        generateDomainList()
+        language = Locale.getDefault().language.lowercase()
+        viewModelScope.launch(dispatcherProvider.io()) {
+            if (BuildConfig.DEBUG && CLEAR_SCANNED) appSettingsDataSource.setScannedData("")
+            Timber.d("VM init  getCountryList")
+            loginRepository.getCountryList()
+            loginState.distinctUntilChanged().collect {
+                if (it) {
+                    jobList.clear()
+                    val ts = System.currentTimeMillis()
+                    Timber.d("VM init  getCurrentProfile")
+                    getCurrentProfile()
+//                    Timber.d("VM init  getDeliveryInstructions")
+//                    deliveryInstructionsRepository.getDeliveryInstructions()
+//                    Timber.d("VM init  getDigitalPassports")
+//                    deliveryInstructionsRepository.getDigitalPassports()
+//                    Timber.d("VM init  getContacts")
+//                    jobList.add(launch {  getContacts() })
+                    Timber.d("VM init  getWines")
+                    jobList.add(launch {  getWinesInternal(true) })
+                    Timber.d("VM init  refreshData")
+                    jobList.add(launch { refreshDptInternal(false) })
+                    jobList.add(launch { getNotificationsInternal() })
+                    jobList.add(launch { getBottleListInternal() })
+                    jobList.add(launch { getCaseListInternal() })
+                    jobList.add(launch { if (!isEmul()) notificationRepository.setDeviceInfo() })
+
+                    jobList.joinAll()
+//                    Timber.d("VM init  getCaseList")
+//                    getCaseListInternal()
+                    val time = System.currentTimeMillis() - ts
+                    _filterItemsState.value = getFilterItems()
+                    Timber.d("VM init  time $time")
+                }
+
+            }
+        }
+    }
+    fun isEmul() = Build.MODEL.contains("google_sdk")
+        || Build.MODEL.contains("Emulator")
+        || Build.MODEL.contains("Android SDK built for x86")
+
+    fun showLog(isShow: Boolean) {
+//        viewModelScope.launch {
+            _showDebug.value = isShow
+//        }
+    }
+    private fun getVersion() {
+        _errorToast.value = ""
+        _minAppVersion.value = ""
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val  res = deliveryInstructionsRepository.getVersion()
+            Timber.d("getVersion $res")
+            if (res !is VersionResult.Success) {
+                _errorToast.value = res.toString()
+            } else {
+                Timber.d("getVersion Success ${res.response.android}")
+                if(!res.response.android.isNullOrBlank()) _minAppVersion.value = res.response.android
+            }
+        }
+    }
+
+    override fun isConnected() = appSettingsDataSource.isConnected()
+
+    val displayToggle = userRepository.profileFlow.map {
+        when (it) {
+            null -> false
+            else -> true
+        }
+    }
+
+    override fun selectHomeTab(tabInd: Int) {
+        _homeTabIndexState.value = tabInd
+    }
+    override fun selectIntermediateHomeFilterTab(tabInd: Int) {
+        _intermediateHomeTabFilterState.value = tabInd
+    }
+
+    override fun selectCellarTab(tabInd: Int) {
+        Timber.d("selectCellarTab $tabInd, prev: ${_cellarTabIndexState.value}")
+        _cellarTabIndexState.value = tabInd
+        _domainListState.value = when(tabInd) {
+            0 -> _domainPrimeurListState.value
+            1 -> _domainLivrableListState.value
+//            2 -> listOf()
+            else -> _domainPrimeurListState.value + _domainLivrableListState.value
+        }
+    }
+    override fun selectScanSourceTab(tabInd: Int) {
+        Timber.d("selectScanSourceTab $tabInd")
+        _scanSourceTabIndexState.value = tabInd
+    }
+
+    fun filterVintage(vintageYear: String): List<DomainInfo> {
+        if (vintageYear.isEmpty()) return _domainListState.value
+        return _domainListState.value.filter { it.wines.map {it.itemName }.contains(vintageYear) }
+    }
+
+    override fun showSnackMessage(text: String) {
+//        viewModelScope.launch {
+            _errorToast.value = text
+//            delay(1000)
+//            _errorToast.value = ""
+//
+//        }
+    }
+    override fun showSnackMessage(id: Int) {
+//        viewModelScope.launch {
+            _errorToastId.value = id
+//        }
+    }
+
+    fun consumeLastInputFromUserFlag(): Boolean {
+        val result = lastToggleFromUser
+        lastToggleFromUser = false
+        return result
+    }
+
+    fun clickRetry(action: String) {
+        _retryEvent.value = action
+    }
+
+    fun consumeRetryEvent() {
+        _retryEvent.value = "NO_ACTION"
+    }
+    override fun resetUiResult() {
+        _uiResult.value = null
+    }
+
+    override fun getCurrentProfile() {
+        viewModelScope.launch(dispatcherProvider.io()) {
+            _errorToast.value = ""
+            val res = userRepository.getCurrentProfile()
+            if (res !is ProfileResult.Success) {
+                _errorToast.value = res.toString()
+                if (res is ProfileResult.Failure && res.apiFailure.errorCode == 401) loginRefresh()
+            }
+        }
+    }
+    val invisibles = listOf(
+        "id",
+        "idUrl",
+        "imageUrl",
+        "nftId",
+        "stripeProductId",
+        "bottleAmount",
+        "isPrimeurse",
+        "type",
+        "sulfites",
+        "description",
+        "domaine",
+        "producer",
+        "images",
+        "originalPrice",
+        "passportPrice",
+        "prices",
+        "royaltyRates",
+        "reviews",
+        "packageList",
+        "maxQty",
+        "stockQty",
+        "appellationType",
+        "countryType",
+        "regionType",
+        "producerType",
+    )
+    val frenchMap = mapOf(
+        "alcohol" to "degré d'alcool", "appellation" to "appellation", "color" to "couleur",  "country" to "pays",
+        "classification" to "classification",
+        "domain" to "domaine", "grapeVarieties" to "cépages", "name" to "nom", "region" to "région",
+        "vintage" to "millésime",  "wineType" to "type de vin", "bottleVolume" to "volume de la bouteille" )
+    val englishMap = mapOf("wineType" to "type of wine", "grapeVarieties" to "grape varieties","bottleVolume" to "bottle volume")
+
+    override fun setWineDetailInfo(info: PackageItem) {
+        Timber.d("setWineDetailInfo")
+        _wineDetailInfoState.value = info
+        val id = info.id.toIntOrNull() ?: return
+        if (wineList.isNullOrEmpty()) return
+        val item = wineList.find { it.id == id } ?: return
+        getWineByIdExt(id)
+        var nftId = ""
+        val l = mutableListOf<Pair<String, String>>()
+        val map = if (language == "fr") frenchMap else englishMap
+        item::class.memberProperties.forEach { fld ->
+            if (fld.name !in invisibles) {
+                val name = map[fld.name] ?: fld.name
+                val pr = Pair(name, fld.getter.call(item).toString())
+                if (pr.first != null && pr.first != "null" && pr.second != null && pr.second != "null") l += pr
+            }
+        }
+        Timber.d("setWineDetailInfo list:${l.map{it.first}}")
+        if (!item.nftId.isNullOrBlank()) _wineDetailsNftIdState.value = item.nftId
+        val descList = item.description ?: emptyList()
+        val desc = if (descList.size > 1) descList.firstOrNull { it.language.lowercase() == language }?.text ?: descList[0].text
+            else if (descList.size == 1) descList.first().text else ""
+        _wineDetailsPairListState.value = l
+        _wineDetailsDescriptionState.value = desc
+        val reviewList = mutableListOf<Pair<String, String>>()
+
+        val reviews = if(item.reviews.isNullOrEmpty()) null else item.reviews.sortedBy { it.reviewer }
+        reviews?.forEachIndexed() { ind, review ->
+            if (review != null) {
+                review::class.memberProperties.forEach { fld ->
+                    if (fld.name !in invisibles) reviewList += Pair(
+                        fld.name,
+                        fld.getter.call(review).toString()
+                    )
+                    if (fld.name == "description") reviewList += Pair(
+                        fld.name,
+                        fld.getter.call(review).toString()
+                    )
+                }
+            }
+            if (ind < reviews.size - 1) reviewList += Pair("--------", "--------")
+        }
+        val wineExtended = _cellarWineDetails.value.wineExtended
+        val details = CellarWineDetails(info = info, wineDetailsPairs= l, description = desc, scoresPairs = reviewList, wine = item, nftId = item.nftId, wineExtended = wineExtended)
+        _cellarWineDetails.value = details
+        Timber.d("setWineDetailInfo finish")
+    }
+
+    override fun logout() {
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val ts = System.currentTimeMillis()
+            jobList.forEach { if (it.isActive) it.cancel() }
+            launch { deliveryInstructionsRepository.logout()}
+            scanned.clear()
+            _transferDetailsInfoListState.value = listOf()
+            _createPassportWineListState.value = listOf()
+            _clientListState.value = listOf()
+            _packageListState.value = listOf()
+            _domainListState.value = listOf()
+            _domainPrimeurListState.value = listOf()
+            _domainLivrableListState.value = listOf()
+            _clientWineListState.value = listOf()
+            launch { loginRepository.logout() }
+            userRepository.logout()
+            appSettingsDataSource.clearData()
+            _restartEvent.value = true
+            val time = System.currentTimeMillis() - ts
+            Timber.d("logout $time")
+        }
+    }
+
+    private suspend fun getContacts() {
+        return
+        Timber.d("getContacts")
+        _errorToast.value = ""
+        while (true) {
+            val ts = System.currentTimeMillis()
+            val resCont = deliveryInstructionsRepository.getContacts()
+            if (resCont is ContactResult.Success) {
+                contacts = resCont.list
+                val time = System.currentTimeMillis() - ts
+                Timber.d("getContacts contacts:${contacts.size} time $time")
+                return
+            } else {
+                if (resCont is ContactResult.Error) _errorToastId.value = R.string.restore_connection
+                else _errorToast.value = resCont.toString()
+                delay(30.seconds )
+            }
+        }
+    }
+    private suspend fun getDigitalPassportTransfers(isRefresh: Boolean = false) {
+        _errorToast.value = ""
+        var isSuccess = false
+        Timber.d("getDigitalPassportTransfers")
+//        digitalPassportTransfers.clear()
+        var isRefreshInternal = isRefresh
+        while(true) lb@{
+            val ts = System.currentTimeMillis()
+            for (page in 1 until 50 ) {
+                val resDpt = deliveryInstructionsRepository.getDigitalPassportTransfers(
+                    page = page,
+                    itemsPerPage = 30, isRefreshInternal
+                )
+                isSuccess = resDpt is DigitalPassportTransferResult.Success
+                if (resDpt is DigitalPassportTransferResult.Success && resDpt.list.isNotEmpty()) {
+                    Timber.d("getDigitalPassportTransfers pg:$page sz:${resDpt.list.size}")
+//                    digitalPassportTransfers += resDpt.list
+                }
+                else {
+                    Timber.d("getDigitalPassportTransfers success ${digitalPassportTransfers.size}")
+//                    if (digitalPassportTransfers.isEmpty()) {
+                        if (resDpt is DigitalPassportTransferResult.Error) _errorToastId.value = R.string.restore_connection
+                        else if (resDpt is DigitalPassportTransferResult.Failure && resDpt.apiFailure.errorCode == 401) loginRefresh()
+                        if (resDpt !is DigitalPassportTransferResult.Success) _errorToast.value = resDpt.toString()
+//                    }
+                    break
+                }
+            }
+            val idList = digitalPassportTransfers.map {it.id}
+            if (idList.size != idList.toSet().size) {
+                Timber.d("getDigitalPassportTransfers time incorrect data")
+                isRefreshInternal = true
+                continue
+            }
+            val time = System.currentTimeMillis() - ts
+            Timber.d("getDigitalPassportTransfers time $time")
+            if(digitalPassportTransfers.isNotEmpty()) {
+                processDigitalPassportTransfers()
+                return
+            } else if (isSuccess) {
+                return
+            } else {
+                delay(50.seconds)
+            }
+        }
+    }
+    private fun processDigitalPassportTransfers() {
+        Timber.d("processDigitalPassportTransfers ${digitalPassportTransfers.size}")
+        val ts = System.currentTimeMillis()
+        if (digitalPassportTransfers.isEmpty()) return
+        val l = mutableListOf<TransferDetailsInfo>()
+        digitalPassportTransfers.sortedByDescending { it.createdAt }.forEach cont@ { dpt ->
+//            Timber.d("processDigitalPassportTransfers dpt issub:${dpt.isSubmitted} statusEnum:${dpt.statusEnum} v:${dpt.statusEnum?.value} st: ${dpt.status}")
+            if (!dpt.deliveryInstruction.items.isNullOrEmpty()) {
+                dpt.deliveryInstruction.items.forEach {
+                    it.dptId = dpt.id
+                    it.caseType?.lang = language
+                    it.caseType?.bottleType?.lang = language
+                    it.bottleType?.lang = language
+                }
+            }
+            val currency = currencyToSymbol(dpt.currency)
+            val contactSell = contacts.firstOrNull { it.idUrl == dpt.sellerContact?.idUrl }
+            val contactBuy = contacts.firstOrNull { it.idUrl == dpt.buyerContact?.idUrl }
+//            val contactBuy = contacts.firstOrNull { it.email == dpt.buyerEmail }
+            val seller = WineClient(
+                name = dpt.sellerContact?.person ?: contactSell?.person ?: dpt.sellerContact?.email ?: dpt.sellerEmail ?: "",
+                address = contactSell?.billingAddress ?: dpt.sellerOrganization?.address ?: "",
+                email = dpt.sellerEmail,
+                phone = dpt.sellerContact?.phone ?: contactSell?.phone ?: ""
+            )
+            val buyer = WineClient(
+                    name = dpt.buyerContact?.person ?: contactBuy?.person ?: dpt.buyerContact?.email ?: dpt.buyerEmail ?: "",
+                    address = contactBuy?.billingAddress ?: dpt.buyerOrganization?.address ?: "",
+                    email = dpt.buyerEmail,
+                    phone = dpt.buyerContact?.phone ?: contactBuy?.phone ?: ""
+            )
+
+            val id = "${dpt.id}" //String.format("%08d", dpt.id)
+            val wines = dpt.items.map {
+                var pr = it.price.toDoubleOrNull()
+                if (pr == null) pr = 0.0
+                TransferDetailWineItem(
+                    name = it.wine.name,
+                    domain = it.wine.domain ?: it.wine.producer ?: "Empty Domain",
+                    qty = it.qty,
+                    maxQty = 0,
+                    price = PriceWithSymbol(pr, currency),
+                    alc = String.format("%.1f", it.wine.alcohol),
+                    passportPrice = it.passportPrice,
+                    vintage = "${it.wine.vintage}",
+                    isPrimeur = it.wine.isPrimeurse,
+                    imageUrl = it.wine.imageUrl
+                )
+            }
+            val stickStatus = if (dpt.items[0].wine.isPrimeurse) getString(R.string.en_primeur) else getString(R.string.en_livrable)
+            var qty = 0
+            var price = 0.0
+            dpt.items.forEach { qty += it.qty }
+            wines.forEach { price += it.passportPrice * it.qty }
+            l += TransferDetailsInfo(
+                seller = seller,
+                buyer = buyer,
+                dptId = id,
+                dptIdInt = dpt.id,
+                createDate = dpt.createdAt.toSimpleString(),
+                expiryDate = dpt.deliveryInstructionsDueDate.toSimpleString(),
+                wines = wines,
+                stickStatus = stickStatus,
+                qty = qty,
+                price = PriceWithSymbol(price, currency).toString(),
+                transferStatus = dpt.status,
+                transferStatusEnum = dpt.statusEnum,
+                isIncoming = dpt.isIncoming,
+                isSubmitted = dpt.isSubmitted,
+                paymentUrl = dpt.paymentUrl ?: "",
+                sellerIsPayer = dpt.sellerIsPayer
+            )
+        }
+        val time = System.currentTimeMillis() - ts
+        Timber.d("processDigitalPassportTransfers time $time")
+        _transferDetailsInfoListState.value = l
+
+    }
+
+    fun getDptBiId(id: String): TransferDetailsInfo? {
+        val list = _transferDetailsInfoListState.value
+        return list.firstOrNull{ it.dptId.contains(id) }
+    }
+    fun getDptByToken(token: String): TransferDetailsInfo? {
+        Timber.d("getDptByToken   token:$token")
+        if (token.isNullOrBlank()) return null
+        val list = _transferDetailsInfoListState.value
+        val dpt = digitalPassportTransfers.firstOrNull{ it.token.contains(token) }
+        Timber.d("getDptByToken   dpt:${dpt?.id}")
+        val tdi = list.firstOrNull{ it.dptId == dpt?.id?.toString() }
+        Timber.d("getDptByToken   tdi:${tdi?.dptId}")
+        return tdi
+    }
+
+    fun getWineItemById(id: String): PackageItem? {
+        Timber.d("getWineItemById $id")
+        val primeur = _domainPrimeurListState.value
+        val livr = _domainLivrableListState.value
+        val winesprimeur = primeur.flatMap{ it.wines }
+        val item = winesprimeur.firstOrNull() {it.id == id}
+        if (item != null) return item
+        val winesLivr  = livr.flatMap{ it.wines }
+        return winesLivr.firstOrNull() {it.id == id}
+    }
+    fun getWineById(id: Int): WineItem? {
+        val r = wineList.firstOrNull{it.id == id}
+        Timber.d("getWineById $id res:${r?.name}")
+        return r
+    }
+
+    private suspend fun loginRefresh() {
+        _errorToast.value = ""
+        val res = loginRepository.loginRefresh()
+        Timber.d("loginRefresh result:$res")
+//        val msg = (res as? LoginResult.Error)?.e?.message ?: ""
+//        if (res !is LoginResult.Success && !msg.contains("refresh token error")) _errorToast.value = res.toString()
+    }
+
+    private fun onChangeLanguage(){
+        Timber.d("onChangeLanguage :$language")
+        System.exit(0)
+    }
+
+    fun onResume() {
+        Timber.d("onResume lang:${Locale.getDefault().language}")
+        if (language != Locale.getDefault().language) {
+            language = Locale.getDefault().language.lowercase()
+            onChangeLanguage()
+        }
+        getVersion()
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val loggedIn = loginRepository.loginStateFlow.first()
+            Timber.d("onResume islogged:$loggedIn " )
+            if (!loggedIn) {
+                loginRefresh()
+            }
+        }
+    }
+
+    fun payDigitalPassport(dptId: String) {
+        val ids = dptId.trimStart('0')
+        _errorToast.value = ""
+        _errorToastId.value = 0
+        _toHomeScreen.value = false
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val res = deliveryInstructionsRepository.payDigitalPassport(ids)
+            Timber.d("payDigitalPassport res: $res")
+            when (res) {
+                is DptResult.Success -> {
+                    refreshDptInternal()
+                    _toHomeScreen.value = true
+                    delay(200)
+                    _toHomeScreen.value = false
+                }
+                is DptResult.Error -> _errorToastId.value = R.string.restore_connection
+                is DptResult.Failure -> _errorToast.value = res.toString()
+            }
+        }
+    }
+    override fun approveDigitalPassport(dptId: String) {
+        val ids = dptId.trimStart('0')
+        _errorToast.value = ""
+        _errorToastId.value = 0
+        _toHomeScreen.value = false
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val res = deliveryInstructionsRepository.approveDigitalPassport(ids)
+            Timber.d("suspend fun payDigitalPassport(id: String): DptResult res: $res")
+            when (res) {
+                is DptResult.Success -> {
+                    refreshDptInternal()
+                    _toHomeScreen.value = true
+                    delay(200)
+                    _toHomeScreen.value = false
+                }
+                is DptResult.Error -> _errorToastId.value = R.string.restore_connection
+                is DptResult.Failure -> _errorToast.value = res.toString()
+            }
+        }
+    }
+    override fun cancelDigitalPassport(dptId: String, isReject: Boolean) {
+        val ids = dptId.trimStart('0')
+        _errorToast.value = ""
+        _errorToastId.value = 0
+        _toHomeScreen.value = false
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val res = deliveryInstructionsRepository.cancelDigitalPassport(ids, isReject)
+            Timber.d("cancelDigitalPassport res: $res")
+            when (res) {
+                is DptResult.Success -> {
+                    refreshDptInternal()
+                    _toHomeScreen.value = true
+                    delay(200)
+                    _toHomeScreen.value = false
+                }
+                is DptResult.Error -> _errorToastId.value = R.string.restore_connection
+                is DptResult.Failure -> _errorToast.value = res.toString()
+            }
+        }
+    }
+
+    private suspend fun getWinesInternal(isRefresh: Boolean = false) {
+        Timber.d("getWines")
+        _errorToast.value = ""
+        _errorToastId.value = 0
+//        if (_domainPrimeurListState.value.size > 1 || _domainLivrableListState.value.size > 1) return
+        while (true) {
+            val ts = System.currentTimeMillis()
+            val res = deliveryInstructionsRepository.getWines(isRefresh)
+            if (res is WinesResult.Success) {
+                Timber.d("getWines wines:${wineList.size}")
+                val time = System.currentTimeMillis() - ts
+                Timber.d("getWines read time $time")
+
+                val lprim = mutableListOf<PackageItem>()
+                val lliv = mutableListOf<PackageItem>()
+
+                val ldPrim = mutableListOf<DomainInfo>()
+                val ldLiv = mutableListOf<DomainInfo>()
+                val vintageSet = mutableSetOf<Int>()
+
+                val doms = wineList.filter { it.domain != null }.map { it.domain }.toMutableSet()
+                if (doms.size < wineList.size) doms += if (language == "fr") "Domaine vide" else "Empty Domain"
+
+                wineList.forEach { item ->
+                    val alc = String.format("%.1f", item.alcohol)
+                    vintageSet += item.vintage
+                    if (item.isPrimeurse) {
+                        lprim += PackageItem(
+                            itemName = "${item.name}",
+//                            itemData = "Max Qty: ${item.maxQty} | Stock Qty: ${item.stockQty} | $alc% alc.",
+                            itemData = "${getString(R.string.max_qty)}: ${item.maxQty} | ${getString(R.string.stock_qty)}: ${item.stockQty} | $alc% ${getString(R.string.alc)}",
+                            domainName = item.domain
+                                    ?: if (language == "fr") "Domaine vide" else "Empty Domain",
+                            id = item.id.toString(),
+                            price = if (!item.prices.isNullOrEmpty()) item.prices.first()
+                                .toPriceWithSymbol() else PriceWithSymbol(0.0),
+                            imageUrl = item.imageUrl,
+                            vintage = "${item.vintage}",
+                            bottleSize = volumeDoubleToString(item.bottleVolume),
+                            bottleType = item.getBottleTypeName(language),
+                            color = item.color,
+                            )
+                    } else {
+                        lliv += PackageItem(
+                            itemName = "${item.name}",
+//                            itemData = "Max Qty: ${item.maxQty} | Stock Qty: ${item.stockQty} | $alc% alc.",
+                            itemData = "${getString(R.string.max_qty)}: ${item.maxQty} | ${getString(R.string.stock_qty)}: ${item.stockQty} | $alc% ${getString(R.string.alc)}",
+                            domainName = item.domain
+                                ?: if (language == "fr") "Domaine vide" else "Empty Domain",
+                            id = item.id.toString(),
+                            price = if (!item.prices.isNullOrEmpty()) item.prices.first()
+                                .toPriceWithSymbol() else PriceWithSymbol(0.0),
+                            imageUrl = item.imageUrl,
+                            vintage = "${item.vintage}",
+                            bottleSize = volumeDoubleToString(item.bottleVolume),
+                            bottleType = item.getBottleTypeName(language),
+                            alcohol = "$alc%",
+                            color = item.color,
+                        )
+                    }
+                }
+                doms.forEachIndexed { ind, dom ->
+                    val p = lprim.filter { it.domainName == dom }
+                    val l = lliv.filter { it.domainName == dom }
+                    if (p.isNotEmpty()) ldPrim += DomainInfo(ind, dom, p)
+                    if (l.isNotEmpty()) ldLiv += DomainInfo(ind, dom, l)
+                }
+                _vintageListState.value =
+                    vintageSet.map { it.toString() }.toTypedArray().sortedArrayDescending()
+                _domainPrimeurListState.value = ldPrim
+                _domainLivrableListState.value = ldLiv
+                val time1 = System.currentTimeMillis() - ts
+                Timber.d("getWines full time $time1")
+                return
+            } else {
+                if (res is WinesResult.Error) _errorToastId.value = R.string.restore_connection
+                else if (res is WinesResult.Failure && res.apiFailure.errorCode == 401) {
+                    loginRefresh()
+                    delay(2000)
+                    continue
+                } else _errorToast.value = res.toString()
+                delay(50.seconds)
+            }
+        }
+    }
+    override fun prepareCreatePassportWines(stickStatus: String, wineItem: PackageItem?): String {
+//        if (_createPassportWineListState.value.size > 1 && _createPassportWineListState.value[0].is) return
+        Timber.d("prepareCreatePassportWines $stickStatus $wineItem")
+        val ti = mutableListOf<TransferDetailWineItem>()
+        val id = wineItem?.id?.toIntOrNull() ?: 0
+        val interStickStatus = if (id != 0) {
+            if (wineList.find { it.id == id }?.isPrimeurse == true) "Primeur" else "Livrable"
+        } else stickStatus
+
+        val list = if (interStickStatus.contains("prime", true)) wineList.filter { it.isPrimeurse }
+        else wineList.filter { it.isPrimeurse.not() }
+
+        list.forEach { wine ->
+            val wi = TransferDetailWineItem(
+                name = wine.name,
+                domain = wine.domain ?: if (language == "fr") "Domaine vide" else "Empty Domain",
+                alc = String.format("%.1f", wine.alcohol),
+                qty = 0, maxQty = wine.stockQty,
+                price = if (!wine.prices.isNullOrEmpty()) wine.prices.first()
+                    .toPriceWithSymbol() else PriceWithSymbol(0.0),
+                id = wine.id,
+                idUrl = wine.idUrl,
+                selected = wine.id == id,
+                passportPrice = wine.passportPrice,
+                imageUrl = wine.imageUrl
+            )
+            wi.price.value = wine.originalPrice
+            if (wine.stockQty > 0) ti += wi
+        }
+        _createPassportWineListState.value = ti
+        return interStickStatus
+    }
+    private val createQrCodePassportWineList = mutableListOf<TransferDetailWineItem>()
+    override fun clearPassportWineList() {
+        _createPassportWineListState.value = listOf()
+        createQrCodePassportWineList.clear()
+    }
+    fun prepareQrCodeCreatePassportWine(foundInfo:  FindCodeInfoResult?) {
+//        if (_createPassportWineListState.value.size > 1 && _createPassportWineListState.value[0].is) return
+        Timber.d("prepareQrCodeCreatePassportWine ${foundInfo?.winePackageInfo?.id}")
+        val ti = mutableListOf<TransferDetailWineItem>()
+        val qrWineInfoName = foundInfo?.qrWineInfo?.wineName
+        val qrWineInfoId = foundInfo?.qrWineInfo?.wineId
+        val wineId = foundInfo?.winePackageInfo?.id?.toIntOrNull() ?: return
+
+        foundInfo?.headInfo?.id?.let { if (it.isNotBlank()) scanned += it }
+        val wine = getWineById(wineId) ?: return
+        val butVol = foundInfo.headInfo.bottleSize
+        val wi = TransferDetailWineItem(name = wine.name,
+            domain = wine.domain ?: if (language == "fr") "Domaine vide" else "Empty Domain",
+            alc = String.format("%.1f", wine.alcohol),
+            qty = 0, maxQty = wine.stockQty,
+            price = if (!wine.prices.isNullOrEmpty()) wine.prices.first().toPriceWithSymbol() else PriceWithSymbol(0.0),
+            vintage = "${wine.vintage}",
+            id = wine.id,
+            idUrl = wine.idUrl,
+            selected = wine.id == wineId,
+            passportPrice = wine.passportPrice,
+            imageUrl = wine.imageUrl,
+            bottleVolume = butVol,
+            bottlesInBox = if (foundInfo.boxInfo.boxId.isNotBlank()) foundInfo.boxInfo.bottles.size else 0,
+            caseQty = if (foundInfo.boxInfo.boxId.isNotBlank()) 1 else 0,
+            bottleQty = if(foundInfo.boxInfo.boxId.isNotBlank()) 0 else 1,
+            passId = foundInfo.passId,
+            caseId = foundInfo.boxInfo.boxId
+        )
+        ti += wi
+        createQrCodePassportWineList.clear()
+        createQrCodePassportWineList += wi
+        _createPassportWineListState.value = ti
+    }
+
+    fun addQrCodePassportWine(foundInfo:  FindCodeInfoResult?) {
+        Timber.d("addQrCodePassportWine ")
+        val wineId = foundInfo?.winePackageInfo?.id?.toIntOrNull() ?: return
+        val wine = getWineById(wineId) ?: return
+        val butVol = foundInfo.headInfo.bottleSize
+        val wi = TransferDetailWineItem(name = wine.name,
+            domain = wine.domain ?: if (language == "fr") "Domaine vide" else "Empty Domain",
+            alc = String.format("%.1f", wine.alcohol),
+            qty = 0, maxQty = wine.stockQty,
+            price = if (!wine.prices.isNullOrEmpty()) wine.prices.first().toPriceWithSymbol() else PriceWithSymbol(0.0),
+            vintage = "${wine.vintage}",
+            id = wine.id,
+            idUrl = wine.idUrl,
+            selected = wine.id == wineId,
+            passportPrice = wine.passportPrice,
+            imageUrl = wine.imageUrl,
+            bottleVolume = butVol,
+            bottlesInBox = if (foundInfo.boxInfo.boxId.isNotBlank()) foundInfo.boxInfo.bottles.size else 0,
+            caseQty = if (foundInfo.boxInfo.boxId.isNotBlank()) 1 else 0,
+            bottleQty = if(foundInfo.boxInfo.boxId.isNotBlank()) 0 else 1,
+            passId = foundInfo.passId,
+            caseId = foundInfo.boxInfo.boxId
+        )
+        val ti = _createPassportWineListState.value.toMutableList()
+        val fnd = ti.firstOrNull{ it.name == wi.name && it.bottleVolume == wi.bottleVolume }
+        if (fnd == null) ti += wi
+        else {
+            fnd.caseQty += wi.caseQty
+            fnd.bottlesInBox = if (fnd.bottlesInBox > wi.bottlesInBox) fnd.bottlesInBox else wi.bottlesInBox
+            fnd.bottleQty += wi.bottleQty
+        }
+        createQrCodePassportWineList += wi
+        _createPassportWineListState.value = ti
+    }
+    override fun deleteQrCodePassportWine(item: TransferDetailWineItem) {
+        Timber.d("deleteQrCodePassportWine ")
+        var w =_createPassportWineListState.value
+        val v = w.first{it.name == item.name && it.bottleVolume == item.bottleVolume }
+        w = w.minus(v)
+        _createPassportWineListState.value = w
+        val wc = createQrCodePassportWineList.filter { it.name == item.name && it.bottleVolume == item.bottleVolume }
+        val w1 = createQrCodePassportWineList.minus(wc).toMutableList()
+        createQrCodePassportWineList.clear()
+        createQrCodePassportWineList += w1
+        scanned.clear()
+    }
+    override fun syncInstantSelling(type: Int,  addr: String) {
+        Timber.d("syncInstantSelling ${createQrCodePassportWineList.size}")
+        _uiResult.value = null
+        _errorToast.value = ""
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val wl = createQrCodePassportWineList
+            var cases: List<String>? = wl.map {it.caseId }.filter { it.isNotBlank() }
+            if (cases?.isEmpty() == true) cases = null
+            var bottles: List<Int>? = wl.map {it.passId }.filter{ it != 0 }
+            if (bottles?.isEmpty() == null) bottles = null
+            val buyerEmail = if (type == 1) addr else null
+            val buyerId = if (type == 0) addr else null
+            val req = QrCodeInstantSellingRequest(cases, bottles, buyerEmail, buyerId)
+            Timber.d("syncInstantSelling $req")
+//            _uiResult.value = UiResult.Success
+//            return@launch
+            val res = deliveryInstructionsRepository.syncInstantSelling(req)
+            Timber.d("syncInstantSelling res: $res")
+            _uiResult.value = when (res) {
+                is SyncResult.Success -> {
+                    UiResult.Success
+                }
+                is SyncResult.Failure -> {
+//                    removeScannedDataItem(dptDeliveryInstructionId)
+                    UiResult.Error(res.toString())
+                }
+                is SyncResult.Error -> UiResult.Error(res.e.toString())
+                is SyncResult.SyncError -> UiResult.SyncError(res.batchId)
+            }
+            if (res is SyncResult.Success) {
+                delay(2000)
+                refreshDptInternal()
+            }
+            if (res is SyncResult.Failure && res.apiFailure.errorCode == 401) {
+                loginRefresh()
+            }
+        }
+    }
+
+    fun updatePassportWines(wines: List<TransferDetailWineItem>) {
+        Timber.d("updatePassportWines $wines")
+        _createPassportWineListState.value = wines
+    }
+    private suspend fun refreshDptInternal(isRefresh: Boolean = false) {
+        _isloadingState.value = true
+        getDigitalPassportTransfers(isRefresh)
+        prepareClientList()
+        preparePackageList()
+        getCustomerListInternal()
+        _isloadingState.value = false
+    }
+    override fun refreshDptData() {
+        if (!isConnected()) return
+//        _isloadingState.value = true
+        viewModelScope.launch(dispatcherProvider.io()) {
+            refreshDptInternal(isRefresh = true)
+//            _isloadingState.value = false
+        }
+    }
+    fun refreshTransactions() {
+        Timber.d("refreshTransactions")
+        if (!appSettingsDataSource.isConnected()) return
+        viewModelScope.launch(dispatcherProvider.io()) {
+            deliveryInstructionsRepository.getDigitalPassports()
+        }
+    }
+
+    lateinit var createDigitalPassportTransferData: CreateDigitalPassportTransferData
+    fun preparePassportPage(page: Int, wineListTrans: List<TransferDetailWineItem> = listOf(), diDueDate:Date = Date(), deliveryChecked: Boolean = false, address: String = "", sellerIsPayeer: Boolean = false, isGift: Boolean = false) {
+        val list = wineListTrans.map { CreateDigitalPassportTransferRequestWine(qty = it.qty, wine = it.idUrl, price = String.format("%.2f", it.price.value * it.qty).replace(",", "."),
+            passportPrice = it.passportPrice * it.qty) }
+        Timber.d("preparePasswordPage $list")
+        _uiResult.value = null
+        _errorToast.value = ""
+        _toHomeScreen.value = false
+        if (page == 1) {
+            createDigitalPassportTransferData = CreateDigitalPassportTransferData(
+                deliveryInstructionsDueDate = diDueDate,
+                domainName = wineList.find { it.id == wineListTrans[0].id }?.domain ?: "",
+                selfProvideDeliveryInstruction = deliveryChecked,
+                organizationId = null,
+                recipientId = null,
+                buyerEmail = address,
+                items = list,
+                currency = symbolToCurrency(wineListTrans[0].price.priceSymbol),
+                sellerIsPayeer = sellerIsPayeer,
+                isGift = isGift,
+            )
+        } else {
+//            _errorToast.value = "_errorToast.value addDigitalPassportTransfers addDigitalPassportTransfers addDigitalPassportTransfers "
+//            _uiResult.value = UiResult.Error("_errorToast.value addDigitalPassportTransfers addDigitalPassportTransfers addDigitalPassportTransfers addDigitalPassportTransfers addDigitalPassportTransfersaddDigitalPassportTransfers addDigitalPassportTransfers ")
+
+            _isloadingState.value = true
+            createDigitalPassportTransferData.sellerIsPayeer = sellerIsPayeer
+            createDigitalPassportTransferData.isGift = isGift
+            viewModelScope.launch(dispatcherProvider.io()) {
+                val res = deliveryInstructionsRepository.addDigitalPassportTransfers(
+                    createDigitalPassportTransferData
+                )
+                Timber.d("addDigitalPassportTransfers result: $res")
+//                _errorToast.value = res.toString()
+                _uiResult.value = when (res) {
+                    is DptResult.Success -> {
+                        refreshDptInternal()
+                        UiResult.Success
+                    }
+                    is DptResult.Failure -> UiResult.Error(res.apiFailure.toString())
+                    is DptResult.Error -> UiResult.Error(res.e.toString())
+                }
+                if (res is DptResult.Failure && res.apiFailure.errorCode == 401) {
+                    loginRefresh()
+                }
+                _isloadingState.value = false
+            }
+        }
+    }
+    private suspend fun prepareClientList(){
+        Timber.d("prepareClientList")
+        val ts = System.currentTimeMillis()
+
+        val l= mutableListOf<ClientInfo>()
+        if (digitalPassportTransfers.isEmpty()) return
+        val showAbleDptList = digitalPassportTransfers.filter { it.isShowAble }
+        val infoStr = appSettingsDataSource.scannedData.first()
+        val infoMap: ScannedInfoMap = jsonToObjectEx(infoStr) ?: ScannedInfoMap()
+
+        val clients = showAbleDptList.asSequence().map { it.buyerEmail }.toSet().toList().sortedByDescending { it }
+                .toList()
+        clients.forEach lb@{ client ->
+            var orders = showAbleDptList.filter { it.buyerEmail == client }.map { dpt ->
+//                val hasNotProceddedItem = dpt.deliveryInstruction.items.map{di-> di.isProcessed }.count() <  dpt.deliveryInstruction.items.size
+                val v = dpt.deliveryInstruction.shippingInformation?.typeOfDelivery
+                val inProgress = (dpt.deliveryInstruction.items.map{ it.isProcessed }.count{it} > 0) || infoMap.map.contains(dpt.id)
+                val isCompleted = dpt.deliveryInstruction.items.map{ it.isProcessed }.count{it} == dpt.deliveryInstruction.items.size
+                val vintages = dpt.items.map{it.wine.vintage.toString()}.toSet().toList()
+                val domains = dpt.items.map{it.wine.domain}.toSet().toList()
+                val isPrimeur = dpt.items.map { it.wine.isPrimeurse }.isNotEmpty()
+
+//                Timber.d("prepareClientList ${dpt.deliveryInstruction.shippingInformation}")
+                ClientOrder(
+//                    orderId = String.format("%08d", dpt.id),
+                    orderId = "${dpt.id}",
+                    orderDateStart = dpt.deliveryInstruction.shippingInformation?.dateFrom ?: dpt.deliveryInstructionsDueDate,
+                    orderDateEnd = dpt.deliveryInstruction.shippingInformation?.dateTo ?: dpt.deliveryInstructionsDueDate,
+                    status = dpt.status,
+                    vintages = vintages,
+                    domains = domains,
+                    isPrimeur = isPrimeur,
+                    isIncoming = dpt.isIncoming,
+                    isCompleted = isCompleted, //dpt.isCompleted,
+//                    synthStatus = if (dpt.status.contains("Completed", true)) getString(R.string.completed) else if (inProgress) getString(R.string.in_progress) else getString(R.string.pending),
+                    synthStatus = if (isCompleted) getString(R.string.completed) else if (inProgress) getString(R.string.in_progress) else getString(R.string.pending),
+                )
+            }
+            if (orders.isEmpty()) return@lb
+            orders = orders.sortedByDescending { it.orderDateStart }
+            val ci = ClientInfo(
+                id = client,
+                clientName = showAbleDptList.firstOrNull { it.buyerEmail == client }?.buyerContact?.person ?: client,
+                reference = "",
+                orders = orders
+            )
+            if (ci.clientName.isBlank()) ci.clientName = client
+            l += ci
+        }
+        val time = System.currentTimeMillis() - ts
+        Timber.d("prepareClientList time $time")
+        _clientListState.value = l
+    }
+    data class PreparePackageWine(
+        var winaName: String,
+        var casesQty: Int,
+        var bottleInCase: Int,
+        val diItemIds: MutableList<Int> = mutableListOf(),
+        val imageUrl: String? = null,
+        var vintage: Int = 0,
+        )
+    data class PreparePackagePkg(
+        val packageName: String,
+        var wines: MutableList<PreparePackageWine>
+    )
+    data class SerializedPackage(
+        val packageName: String,
+        var wine: PreparePackageWine
+    )
+
+    fun preparePackageList() {
+        Timber.d("preparePackageList")
+        val ts = System.currentTimeMillis()
+        if (digitalPassportTransfers.isEmpty()) return
+        val l = mutableListOf<PackageInfo>()
+        var packages = mutableListOf<String>()
+        var diItems =  mutableListOf<DptDeliveryInstructionItem>()
+        digitalPassportTransfers.forEach lb1@ { dpt ->
+            if (!dpt.isShowAble) return@lb1
+            val instruction = dpt.deliveryInstruction
+            packages += instruction.items.map {
+//                Timber.d("preparePackageList items ${it.caseType?.name} ${it.bottleType?.name}")
+
+//                if (it.caseType != null) "${it.caseType.name} | ${it.caseType.materialName}" else ""
+                "${it.caseType?.name}" + if (it.withCase) " | ${it.caseType?.materialName}" else ""
+                it.caseType?.bottleType?.name ?: ""
+
+            }
+            diItems += instruction.items
+        }
+        packages = packages.toSet().sorted()/*.groupBy { it.substringAfter(" ")}.flatMap { it.value }*/.toMutableList()
+        packages.removeIf{it.isBlank()}
+
+        Timber.d("preparePa packages: $packages")
+
+//        Timber.d("preparePackageList pks:${packages} dii:${diItems.size}")
+        val wines = diItems.map {it.wine.name}
+        val pkList = mutableListOf<PreparePackagePkg>()
+        packages.forEachIndexed { pkgIndex,  pName ->
+            val lp = PreparePackagePkg(pName, mutableListOf())
+            diItems.forEach { diItem ->
+                var casesQty = 0
+                var bottlesQtyInCase = 0
+                var wName = ""
+                val bottleInCase = diItem.bottlesQty
+                casesQty = if (diItem.withCase) diItem.qty else 0
+//                val diPkgName = "${diItem.caseType?.name}" + if (diItem.withCase) " | ${diItem.caseType?.materialName}" else ""
+                val diPkgName = "${diItem.caseType?.name}"
+//                if (diPkgName == pName) { // || (!diItem.withCase && pkgIndex == 0)) {
+                if (diPkgName.contains(pName, true)) {
+                    if (diItem.wine.name in lp.wines.map { it.winaName }) {
+                        var l = lp.wines.find{ it.winaName == diItem.wine.name}
+                        l!!.casesQty += casesQty
+                        l!!.bottleInCase += bottleInCase
+                        l!!.vintage = diItem.wine.vintage
+                        l!!.diItemIds+= diItem.id
+                    } else {
+                        val lw = PreparePackageWine(diItem.wine.name, casesQty, bottleInCase, imageUrl = diItem.wine.imageUrl, vintage = diItem.wine.vintage)
+                        lw.diItemIds += diItem.id
+                        lp.wines += lw
+                    }
+                }
+//                pkList += lp
+//                Triple(pName, casesQty, bottlesQtyInCase)
+            }
+//            Timber.d("preparePackageList lp:$lp")
+
+            pkList += lp
+        }
+            val packageInfos = pkList.map { pk ->
+                val pi = pk.wines.map {
+                    val sp = SerializedPackage(pk.packageName, it)
+                    val id = objectToJsonEx(sp)
+                    val caseText = if (it.casesQty != 0) "${it.casesQty} ${getString(R.string.cases)} |" else ""
+                    PackageItem(
+                        itemName = it.winaName,
+                        itemData = "$caseText ${it.bottleInCase} ${getString(R.string.bottles)}",
+                        id = id,
+                        imageUrl = it.imageUrl,
+                        vintage = it.vintage.toString()
+                    )
+
+                }
+                PackageInfo( packageName = pk.packageName,
+                    additionalInfo = "",
+                    packageItems = pi
+                )
+            }
+            l += packageInfos
+        val time = System.currentTimeMillis() - ts
+        Timber.d("preparePackageList time $time")
+        _packageListState.value = l
+    }
+
+    override suspend fun prepareClientWineList(orderId: String) {
+        Timber.d("prepareClientWineList $orderId")
+        val ts = System.currentTimeMillis()
+//        viewModelScope.launch(dispatcherProvider.io()) {
+            val l = mutableListOf<WineInfoItem>()
+            val orderIdInt = orderId.trimStart('0').toIntOrNull() ?: return//@launch
+            if (appSettingsDataSource.isConnected()) {
+                val res = deliveryInstructionsRepository.getDigitalPassportTransferById(orderIdInt)
+                if (res is  DigitalPassportTransferResult.Success) processDigitalPassportTransfers()
+                else if (res is DigitalPassportTransferResult.Failure && res.apiFailure.errorCode == 401) loginRefresh()
+//                prepareClientList()
+            }
+            val currentDpt = digitalPassportTransfers.firstOrNull { it.id == orderIdInt } ?: return//@launch
+            val wines = currentDpt.items.map { it.wine }
+            Timber.d("prepareClientWineList ${currentDpt.deliveryInstruction.shippingInformation}")
+            val bottlesText = getString(R.string.bottles).lowercase()//if (language == "fr") "Bouteilles" else "Bottles"
+            val bottlesTextWine = getString(R.string.bottles)
+
+            val bottleText = getString(R.string.bottle).lowercase()//if (language == "fr") "Bouteilles" else "Bottles"
+            val casesText = getString(R.string.cases)//if (language == "fr") "Caisse" else "Cases"
+            val infoStr = appSettingsDataSource.scannedData.first()
+            val infoMap: ScannedInfoMap? = jsonToObjectEx(infoStr)
+
+
+        wines.forEach { wine ->
+                val inItems = currentDpt.deliveryInstruction.items.filter { it.wine.id == wine.id }
+                val subInfos = inItems.map { di ->
+                    val bottleInCase = di.caseType?.bottlesQty ?: 1
+                    val scanned = infoMap?.map?.get(di.id)
+                    val scannedBottlesQty = scanned?.currentQty ?: 0
+                    SubInfoItem(
+                        deliveryId = di.id.toString(),
+                        itemName = "${di.caseType?.name}" + if (di.withCase) " | ${di.caseType?.materialName}" else "",
+                        qty = if (di.withCase) di.qty.toString() else "",
+                        itemData = "${di.bottlesQty}" + if (di.bottlesQty == 1) " $bottleText" else " $bottlesText",
+                        itemData1 = if (di.regie?.name != null) "${di.regie?.name} | " else "" + if (di.wine.certification.isNotBlank()) "${di.wine.certification} | " else "" + if (di.habillage?.name!= null) "${di.habillage?.name} | " else "",
+                        isProcessed = di.isProcessed,
+                        bottlesQty = di.bottlesQty,
+                        scannedBottlesQty = scannedBottlesQty * bottleInCase
+                    )
+                }
+                var cases = 0
+                var processedCases = 0
+                var bottles = 0
+                var processedBottles = 0
+                inItems.forEach {
+                    if (it.withCase) cases += it.qty else bottles += it.bottlesQty
+                    if (it.withCase && it.isProcessed) processedCases += it.qty
+                    if (!it.withCase && it.isProcessed) processedBottles += it.bottlesQty
+                }
+                val casesTextItem = if (cases == 0) "" else " $cases $casesText |"
+                val scanned = inItems.filter { it.isProcessed }
+                val progress =
+                    if (inItems.isNotEmpty()) (scanned.size.toDouble() / inItems.size * 100).toInt() else 100
+                l += WineInfoItem(
+                    itemName = wine.name,
+                    itemData = if (cases == 0) "" else "$processedCases / $cases $casesText", //"$casesTextItem $bottles $bottlesText",
+                    itemData1 = if (bottles == 0) "" else "$processedBottles / $bottles $bottlesTextWine",
+                    subInfoItems = subInfos,
+                    progress = progress,
+                    imageUrl = wine.imageUrl,
+                    vintage = wine.vintage
+                )
+            }
+            _clientWineListState.value = l
+            val time = System.currentTimeMillis() - ts
+            Timber.d("prepareClientWineList time $time")
+//        }
+    }
+
+    override fun preparePackageWineList(combinedId: String): String {
+        Timber.d("preparePackageWineList $combinedId")
+        var dtoId = ""
+        val pklItem: SerializedPackage = jsonToObjectEx(combinedId) ?: return dtoId
+        val l = mutableListOf<WineInfoItem>()
+        val l1 = mutableListOf<SubInfoItem>()
+//        repeat(4) { l1 += SubInfoItem(itemName = "Client Name $it", qty = "2/19", itemData = "Bottles 360 | CRD | ENG label |" ) }
+//        repeat(1) { ind -> l += WineInfoItem("Wine Name $ind", "76 Cases | 120 Bottles | Wood", l1, 20+ ind * 20) }
+
+        val pkName = pklItem.packageName
+        val wineName = pklItem.wine.winaName
+        val vintage = pklItem.wine.vintage
+        val cases = pklItem.wine.casesQty
+        val bottles = pklItem.wine.bottleInCase
+        val diIds = pklItem.wine.diItemIds
+        val imageurl = pklItem.wine.imageUrl
+        val dptSubmited = digitalPassportTransfers.filter{ it.isShowAble }
+        val diItems = dptSubmited.flatMap{it.deliveryInstruction.items}.filter { it.id in diIds}
+
+        Timber.d("preparePackageWineList di:${diItems.size} ")
+        val bottlesText = getString(R.string.bottles).lowercase()//if (language == "fr") "Bouteilles" else "Bottles"
+        val bottleText = getString(R.string.bottles).lowercase()//if (language == "fr") "Bouteilles" else "Bottles"
+        val bottlesTextWine = getString(R.string.bottles)
+
+        val caseText = getString(R.string.cases)//if (language == "fr") "Caisse" else "Cases"
+        val caseInfo = if (cases != 0) "$cases $caseText |" else ""
+        val subInfos = diItems.map { di ->
+            val dto = dptSubmited.first { it.id == di.dptId }
+            dtoId = dto.id.toString()
+            SubInfoItem(
+                itemName = dto.buyerContact?.person ?: dto.buyerEmail,
+                qty = if (di.withCase) di.qty.toString() else "",
+                itemData = "${di.bottlesQty}" + if (di.bottlesQty == 1) " $bottleText" else " $bottlesText",
+                itemData1 = if (di.regie?.name != null) "${di.regie?.name} | " else "" + if (di.wine.certification.isNotBlank()) "${di.wine.certification} | " else "" + if (di.habillage?.name!= null) "${di.habillage?.name} | " else "",
+                deliveryId = di.id.toString(),
+                isProcessed = di.isProcessed,
+                bottlesQty = di.bottlesQty
+            )
+        }
+        val scanned = diItems.filter {it.isProcessed }
+        val progress = if (diItems.isNotEmpty()) (scanned.size.toDouble() / diItems.size * 100).toInt() else 100
+        var casesN = 0
+        var processedCases = 0
+        var bottlesN = 0
+        var processedBottles = 0
+        diItems.forEach {
+            if (it.withCase) casesN += it.qty else bottlesN += it.bottlesQty
+            if (it.withCase && it.isProcessed) processedCases += it.qty
+            if (!it.withCase && it.isProcessed) processedBottles += it.bottlesQty
+        }
+        val casesTextItem = if (cases == 0) "" else " $cases $caseText |"
+        l += WineInfoItem(
+            itemName = wineName,
+            itemData = if (cases == 0 || processedCases == 0) "" else "$processedCases / $cases $caseText", //"$casesTextItem $bottles $bottlesText",
+            itemData1 = if (bottles == 0 || processedBottles == 0) "" else "$processedBottles / $bottles $bottlesTextWine",
+            subInfoItems = subInfos,
+            progress = progress,
+            imageUrl = imageurl,
+            vintage = vintage
+        )
+
+//        l += WineInfoItem(wineName, " $caseInfo $bottles $bottText" , subInfos, progress = progress, imageUrl = imageurl, vintage = vintage)
+        _clientWineListState.value = l
+        return dtoId
+    }
+
+    lateinit var currentDiItem: DptDeliveryInstructionItem
+    var dptDeliveryInstructionId: Int = 0
+    override fun isValidInstruction(diId:String): Boolean {
+        _savedScanDataState.value = ScannedInfo.Empty()
+        val t = System.currentTimeMillis()
+        Timber.d("isValidInstruction $diId")
+        val diIdInt = diId.toIntOrNull() ?: return false
+        val deliveryInstructionItems =
+            digitalPassportTransfers.flatMap { it.deliveryInstruction.items }
+        val di = deliveryInstructionItems.find { it.id == diIdInt } ?: return false
+        dptDeliveryInstructionId = diIdInt
+        currentDiItem = di
+        val v = System.currentTimeMillis() - t
+        Timber.d("isValidInstruction time $v")
+        return  true
+    }
+
+    override fun selectInstruction(diId:String) {
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val isIntermed = isIntermediate.first()
+            val t = System.currentTimeMillis()
+            val di = currentDiItem
+            val infoStr = appSettingsDataSource.scannedData.first()
+            val infoMap: ScannedInfoMap? = jsonToObjectEx(infoStr)
+            val scanned = infoMap?.map?.get(di.id)
+            if (!scanned?.codeToId.isNullOrEmpty()) codeToIdMap.putAll(scanned!!.codeToId)
+            if (di.isProcessed && scanned != null) removeScannedDataItem(di.id)
+            Timber.d("selectInstruction di:${di}")
+            var dpt = digitalPassportTransfers.find { it.id == di.dptId } ?: return@launch
+            Timber.d("selectInstruction dpt:${dpt.id}")
+//        val di = digitalPassportTransfers.map { dto ->
+//            dpd = dto
+//            dto.deliveryInstruction.items.first{it.id == diIdInt} }.first()
+            val bottlesQtyInCase = di.caseType?.bottlesQty ?: 1
+            val vlm = di.caseType?.amountInLiters ?: di.caseType?.bottleType?.amountInLiters
+            ?: di.bottleType?.amountInLiters ?: di.wine.bottleVolume
+            val caseTypeId =  di.caseType?.id
+            val volume = volumeDoubleToString(vlm)
+            val scannedBottlesQty = if (di.isProcessed) {
+                if (di.withCase && isIntermed) di.qty else di.bottlesQty
+            } else scanned?.currentQty ?: 0
+//            val scannedBottlesQty = if (di.isProcessed) di.bottlesQty else scanned?.currentQty ?: 0
+            val info = AgreementInfo(
+                clientName = dpt.buyerContact?.person ?: dpt.buyerEmail,
+                reference = "",
+                wine = di.wine.name,
+                cases = di.caseType?.name ?: "",
+                caseQuantity = if (di.withCase) di.qty.toString() else "",
+                bottles = di.caseType?.bottleType?.typeName ?: di.bottleType?.typeName ?: "",
+                bottleQuantity = (di.bottlesQty).toString(),
+                details = "${di.wine.certification} | ${di.habillage?.name ?: ""}",
+                volume = volume,
+                comments = di.comments ?: "",
+                hasBoxes = di.withCase,
+                scannedBottlesQty = scannedBottlesQty,
+                isProcessed = di.isProcessed || scanned?.currentQty == di.bottlesQty,
+                isIncoming = dpt.isIncoming,
+                bottlesInCase = if (di.withCase) di.caseType?.bottlesQty ?: 0 else 0,
+                dptId = dpt.id,
+                caseTypeId = caseTypeId
+            )
+            Timber.d("selectInstruction AgreementInfo:$info")
+            _agreementInfoState.value = info
+            if (scanned != null) _savedScanDataState.value = scanned
+            val v = System.currentTimeMillis() - t
+            Timber.d("selectInstruction time $v")
+        }
+//        val info1 = AgreementInfo(
+//            clientName ="Frank Giroud",
+//            reference = "",
+//            wine = "Original Wine Name (2002)",
+//            cases ="6 Standart Wood", caseQuantity ="60",
+//            details = "ACQ | ENG label"
+//            volume = "Standart 750 ml", "360",
+//            comments = "comment1")
+    }
+    private var tankNum = ""
+    override fun setTankAndScan(tankNm: String, scanType: String) {
+        Timber.d("setTankAndScan")
+        _errorToast.value = ""
+        _errorToastId.value = 0
+        tankNum = tankNm
+        _scanTypeState.value = scanType
+//        val diItemId = currentDiItem.id
+//        viewModelScope.launch(dispatcherProvider.io()) {
+//            appSettingsDataSource.setScannedData("")
+//            val infoStr = appSettingsDataSource.scannedData.first()
+//            val infoMap: ScannedInfoMap = jsonToObjectEx(infoStr) ?: return@launch
+//            val scanned = infoMap.map[diItemId] ?: return@launch
+//            _savedScanDataState.value = scanned
+//        }
+
+    }
+
+    override fun prepareHabillageScanResultInfo(bottleNums: List<String>, qrCodes: List<String>) {
+        Timber.d("prepareHabillageScanResultInfo $bottleNums qr:$qrCodes")
+        _uiResult.value = null
+//        val l1 = mutableListOf<BottleInfo>()
+        val l = mutableListOf<BoxInfo>()
+        val syncInfo = mutableListOf<SyncDeliveryInstructionItemBottle>()
+        val info = _agreementInfoState.value
+        val caseQuantity = info.caseQuantity.toIntOrNull() ?: 1
+        val bottleQuantity = info.bottleQuantity.toIntOrNull() ?: 0
+        val bottlesInBox = bottleQuantity / caseQuantity
+        val wineName = info.wine
+        val volume = info.volume
+        var numsCase = ""
+        val dataTypeST = _scanTypeState.value
+        val dataType = if (dataTypeST.contains("external", true)) "qr" else dataTypeST
+        repeat(caseQuantity) { ind ->
+            val l1 = mutableListOf<BottleInfo>()
+            l1.clear();
+            numsCase =""
+            repeat(bottlesInBox) { indL ->
+                val calcIndex = ind * bottlesInBox + indL
+                val bottleId = if (calcIndex < bottleNums.size) bottleNums[calcIndex] else ""
+                if (bottleId.isNullOrBlank()) Timber.e("Invalid bottleId in prepareHabillageScanResultInfo $calcIndex of ${bottleNums.size}")
+                l1 += BottleInfo(
+                    bottleId = bottleId,
+                    wineName = wineName,
+                    volume = volume,
+                    ""
+                )
+                numsCase += bottleId
+                val authValue = if ( calcIndex < qrCodes.size) qrCodes[calcIndex] else bottleId
+                syncInfo += SyncDeliveryInstructionItemBottle(
+                    vendorSerialNumber = bottleId,
+                    caseId = null,
+                    tankId = tankNum,
+                    passportAuthData = listOf(SyncPassportAuthData(dataType = dataType, value = authValue)),
+                    bottlingDate = getCurrentTimeUtc() / 1000
+                )
+            }
+//            val code = jenkinsHash(numsCase).toLong()
+            val code = if (info.caseQuantity.isNotBlank()) murmurHash(numsCase).toLong() else -1L
+            if (info.caseQuantity.isNotBlank()) {
+                repeat(bottlesInBox) { indL ->
+                    val calcIndex = ind * bottlesInBox + indL
+                    if (calcIndex < syncInfo.size) syncInfo[calcIndex].caseId = CASE_PREFIX + String.format("%08d", code)
+                }
+            }
+            l += BoxInfo(if (code != -1L) CASE_PREFIX + String.format("%08d", code) else "", l1)
+        }
+        _habillageScanResultInfoState.value = HabillageScanResultInfo(info.bottleQuantity, info.bottleQuantity, info.caseQuantity, l, syncInfo, null)
+    }
+
+    override fun prepareIntermediateScanResultInfo(bottleNums: List<String>, qrCodes: List<String>) {
+        Timber.d("prepareIntermediateScanResultInfo $bottleNums qr:$qrCodes")
+        _uiResult.value = null
+//        val l1 = mutableListOf<BottleInfo>()
+        val l = mutableListOf<BoxInfo>()
+        val syncInfo = mutableListOf<IntermediateSyncInstructionItem>()
+        val info = _agreementInfoState.value
+        val hasBoxes = info.hasBoxes
+        val diItemId = currentDiItem.id
+        val dptId = currentDiItem.dptId
+        val caseQuantity = info.caseQuantity.toIntOrNull() ?: 1
+        val bottleQuantity = info.bottleQuantity.toIntOrNull() ?: 0
+        val bottlesInBox = bottleQuantity / caseQuantity
+        val wineName = info.wine
+        val volume = info.volume
+        var numsCase = ""
+//        val dataTypeST = _scanTypeState.value
+//        val dataType = if (dataTypeST.contains("external", true)) "qr" else dataTypeST
+        if (!hasBoxes) {
+            val l1 = mutableListOf<BottleInfo>()
+            l1.clear()
+            repeat(bottleNums.size) { ind ->
+                l1 += BottleInfo(
+                    bottleId = bottleNums[ind],
+                    wineName = wineName,
+                    volume = volume,
+                    ""
+                )
+            }
+            l += BoxInfo("", l1)
+            val bottleIds = bottleNums.map { codeToIdMap[it] }
+            syncInfo += IntermediateSyncInstructionItem(
+                orderId = dptId,
+                deliveryInstructionItemId = diItemId,
+                cases = null, bottles = bottleIds)
+
+        } else {
+            repeat(bottleNums.size) { ind ->
+                val l1 = mutableListOf<BottleInfo>()
+                l1.clear()
+                val boxInfo = boxInfoMap[bottleNums[ind]]
+                Timber.d("prepareIntermediateScanResultInfo id:${bottleNums[ind]} boxInfo: ${boxInfo?.digitalPassports?.size}")
+                if (boxInfo == null) {
+                    val bottleId = ""
+                    l1 += BottleInfo(
+                        bottleId = bottleId,
+                        wineName = wineName,
+                        volume = volume,
+                        ""
+                    )
+                } else {
+                    repeat(boxInfo.digitalPassports.size) { indL ->
+                        val bottleId = boxInfo.digitalPassports[indL].vendorSerialNumber
+                        l1 += BottleInfo(
+                            bottleId = bottleId,
+                            wineName = boxInfo.wine?.name ?: "",
+                            volume = volume,
+                            ""
+                        )
+                    }
+                }
+                l += BoxInfo(bottleNums[ind], l1)
+            }
+            syncInfo += IntermediateSyncInstructionItem(
+                orderId = dptId,
+                deliveryInstructionItemId = diItemId,
+                cases = bottleNums, bottles = null)
+
+        }
+        _habillageScanResultInfoState.value = HabillageScanResultInfo(info.bottleQuantity, info.bottleQuantity, info.caseQuantity, l, null, syncInfo)
+    }
+
+    /*
+    fun syncInstructions()  {
+        Timber.d("syncInstructions ")
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val habillageScanResultInfo = _habillageScanResultInfoState.value
+            val cases: List<SyncCase> = habillageScanResultInfo.boxes.map { box ->
+                val bottles = box.bottles.map { bot ->
+                    SyncBottle(
+                        bottleId = bot.bottleId, linksToPhoto = null,
+                        nfcCodes = null, qrCodes = listOf(bot.bottleId), volume = bot.volume
+                    )
+                }
+                SyncCase(id = box.boxId, qrCode = "case:${box.boxId}", bottles = bottles)
+            }
+            val di = currentDiItem
+            val dtoDi = SyncDeliveryInstruction(
+                diId = dptDeliveryInstructionId,
+                id = di.id,
+                tankId = tankNum,
+                dptId = di.dptId,
+                cases = cases
+            )
+//            deliveryInstructionsRepository.syncInstructions(
+//                SyncInstructionsRequestDto(
+//                    deliveryInstructions = listOf(dtoDi)
+//                )
+//            )
+        }
+    }
+
+ */
+    override fun syncInstructionsNew()  {
+        Timber.d("syncInstructionsNew ")
+        _uiResult.value = null
+        _errorToast.value = ""
+        _toHomeScreen.value = false
+
+//        _uiResult.value = UiResult.Success//UiResult.Error("_errorToast.value addDigitalPassportTransfers addDigitalPassportTransfers addDigitalPassportTransfers addDigitalPassportTransfers addDigitalPassportTransfersaddDigitalPassportTransfers addDigitalPassportTransfers ")
+//       return
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val refresh = launch(dispatcherProvider.io()) {
+                delay(2000)
+                refreshDptInternal()
+//                deliveryInstructionsRepository.getDigitalPassportTransferById(currentDiItem.dptId)
+            }
+            val habillageScanResultInfo = _habillageScanResultInfoState.value
+            val cases: List<SyncCase> = habillageScanResultInfo.boxes.map { box ->
+                val bottles = box.bottles.map { bot ->
+                    SyncBottle(
+                        bottleId = bot.bottleId, linksToPhoto = null,
+                        nfcCodes = null, qrCodes = listOf(bot.bottleId), volume = bot.volume
+                    )
+                }
+                SyncCase(id = box.boxId, qrCode = "case:${box.boxId}", bottles = bottles)
+            }
+            val di = currentDiItem
+            val dtoDi = SyncDeliveryInstructionItem(
+                deliveryItemId = dptDeliveryInstructionId,
+                dptId = di.dptId,
+                bottles = habillageScanResultInfo.syncBottles!!,
+            )
+//            appSettingsDataSource.setSyncInstructions("")
+            val res = deliveryInstructionsRepository.syncInstructions(
+                SyncInstructionRequestDtoNew(
+                    deliveryInstructions = listOf(dtoDi)
+                )
+            )
+            //_errorToast.value = res.toString()
+            _uiResult.value = when (res) {
+                is SyncResult.Success -> {
+                    if (appSettingsDataSource.isConnected()) {
+                        removeScannedDataItem(dptDeliveryInstructionId)
+//                        refresh.join()
+                    }
+                    UiResult.Success
+                }
+                is SyncResult.Failure -> {
+                    removeScannedDataItem(dptDeliveryInstructionId)
+//                    refresh.join()
+                    UiResult.Error(res.toString())
+                }
+                is SyncResult.Error -> UiResult.Error(res.e.toString())
+                is SyncResult.SyncError -> UiResult.SyncError(res.batchId)
+            }
+            if (BuildConfig.DEBUG && CLEAR_SCANNED) appSettingsDataSource.setScannedData("")
+            delay(2000)
+            refreshDptInternal()
+        }
+    }
+
+    override fun syncInstructionsIntermediate()  {
+        Timber.d("syncInstructionsIntermediate ")
+        _uiResult.value = null
+        _errorToast.value = ""
+        _errorToastId.value = 0
+        _toHomeScreen.value = false
+//        _uiResult.value = UiResult.Success//UiResult.Error("_errorToast.value addDigitalPassportTransfers addDigitalPassportTransfers addDigitalPassportTransfers addDigitalPassportTransfers addDigitalPassportTransfersaddDigitalPassportTransfers addDigitalPassportTransfers ")
+//       return
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val habillageScanResultInfo = _habillageScanResultInfoState.value
+            val dtoDi = habillageScanResultInfo.intermediateSyncInfo
+            if (dtoDi.isNullOrEmpty()) {
+                _errorToastId.value = R.string.error_incorrect_params
+                return@launch
+            }
+            val res = deliveryInstructionsRepository.syncInstructionsIntermediate(dtoDi!!)
+//            val res: SyncResult = SyncResult.Success
+            _uiResult.value = when (res) {
+                is SyncResult.Success -> {
+                    if (appSettingsDataSource.isConnected()) {
+                        removeScannedDataItem(dptDeliveryInstructionId)
+                        refreshDptInternal()
+                    }
+                    UiResult.Success
+                }
+                is SyncResult.Failure -> {
+                    removeScannedDataItem(dptDeliveryInstructionId)
+                    UiResult.Error(res.toString())
+                }
+                is SyncResult.Error -> UiResult.Error(res.e.toString())
+                is SyncResult.SyncError -> UiResult.SyncError(res.batchId)
+            }
+            if (BuildConfig.DEBUG && CLEAR_SCANNED) appSettingsDataSource.setScannedData("")
+            delay(2000)
+            refreshDptInternal()
+        }
+    }
+
+    private suspend fun removeScannedDataItem(currentItemId: Int) {
+        Timber.d("removeScannedDataItem")
+        val infoStr = appSettingsDataSource.scannedData.first()
+        Timber.d("removeScannedDataItem $infoStr")
+        val infoMap: ScannedInfoMap = jsonToObjectEx(infoStr) ?: ScannedInfoMap()
+        infoMap.removeItem(currentItemId)
+        appSettingsDataSource.setScannedData(objectToJsonEx(infoMap))
+    }
+
+    override fun syncAllInstructions() {
+        Timber.d("syncAllInstructions ")
+        _errorToast.value = ""
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val res = deliveryInstructionsRepository.syncInstructions(null)
+            if (res is SyncResult.Failure) _errorToast.value = res.apiFailure.detail
+            else _errorToast.value = res.toString()
+        }
+    }
+
+    fun onSearchTextChanged(query: String) {
+//        _clientListState.value = if (query.isNotEmpty()) _nonFilterClientListState.value.filter { it.contains(query)  }
+//        else _nonFilterClientListState.value
+        Timber.d(" onSearchTextChanged query:$query")
+        _searchText.value = query
+    }
+
+    var clearNfcJob: Job? = null
+    fun setNfcCode(code: NfcData) {
+        Timber.d(" setNfcCode $code")
+        _nfcCodeState.value = code
+        clearNfcJob?.cancel()
+        clearNfcJob = viewModelScope.launch(dispatcherProvider.io()) {
+            delay(4000)
+            _nfcCodeState.value = NfcData.Empty()
+        }
+    }
+    fun setNfcAvailability(isAvailable: Boolean) {
+        _nfcAvailabilityState.value = isAvailable
+    }
+    fun save() {
+        val sharedPreferences = context.getSharedPreferences ("MainViewModel", MODE_PRIVATE);
+        val data = sharedPreferences.getString("name", "defaultName")
+        val editor = sharedPreferences.edit ()
+        editor.putString("name", "name.getText().toString()");
+        editor.apply();
+    }
+
+    override suspend fun saveScannedData(bottleList: List<String>, resultList: List<String>, currentQty: Int) {
+        Timber.d("saveScannedData")
+        _savedScanDataState.value = ScannedInfo.Empty()
+        val saved = ScannedInfo(bottleList = bottleList, resultList = resultList, currentQty = currentQty, scanDate = Date(), codeToId = codeToIdMap)
+        val diItemId = currentDiItem.id
+        val infoStr = appSettingsDataSource.scannedData.first()
+        Timber.d("saveScanned $infoStr")
+        val infoMap: ScannedInfoMap = jsonToObjectEx(infoStr) ?: ScannedInfoMap()
+        infoMap.addItem(diItemId, saved)
+        appSettingsDataSource.setScannedData(objectToJsonEx(infoMap))
+        _savedScanDataState.value = saved
+    }
+
+    var currentCaseId = ""
+    override fun saveScanned(bottleList: List<String>, resultList: List<String>, currentQty: Int) {
+        Timber.d("saveScanned start")
+        _isPrintingState.value = false
+        val diItemId = currentDiItem.id
+
+        viewModelScope.launch(dispatcherProvider.io()) {
+            saveScannedData(bottleList = bottleList, resultList = resultList, currentQty = currentQty)
+            val bottlesQtyInCase = currentDiItem.caseType?.bottlesQty ?: 0
+            if (bottlesQtyInCase != 0 && currentQty != 0 && currentQty % bottlesQtyInCase == 0 ) {
+                Timber.d("saveScanned prepare print")
+                val subBottleList = bottleList.takeLast(bottlesQtyInCase)
+                val numsCase = subBottleList.joinToString()
+                val code = murmurHash(numsCase).toLong()
+                currentCaseId = CASE_PREFIX + String.format("%08d", code)
+                _isPrintingState.value = true
+                delay(500)
+                _isPrintingState.value = false
+            }
+        }
+//        if (currentQty >= currentDiItem.bottlesQty) prepareHabillageScanResultInfo(bottleList, resultList)
+    }
+    override suspend fun saveScannedSuspend(bottleList: List<String>, resultList: List<String>, currentQty: Int) {
+        Timber.d("saveScanned start")
+        _isPrintingState.value = false
+        val diItemId = currentDiItem.id
+        saveScannedData(bottleList = bottleList, resultList = resultList, currentQty = currentQty)
+        val bottlesQtyInCase = currentDiItem.caseType?.bottlesQty ?: 0
+        if (bottlesQtyInCase != 0 && currentQty != 0 && currentQty % bottlesQtyInCase == 0 ) {
+            Timber.d("saveScanned prepare print")
+            val subBottleList = bottleList.takeLast(bottlesQtyInCase)
+            val numsCase = subBottleList.joinToString()
+            val code = murmurHash(numsCase).toLong()
+            currentCaseId = CASE_PREFIX + String.format("%08d", code)
+            _isPrintingState.value = true
+            delay(500)
+            _isPrintingState.value = false
+        }
+//        if (currentQty >= currentDiItem.bottlesQty) prepareHabillageScanResultInfo(bottleList, resultList)
+    }
+
+
+    fun checkPasspInfo(scanType: String, code: String) {
+        _isScanCodePassportState.value = PassInfo.LOADING
+        val req = QrCodeInfoRequest(securityType = scanType, value = code)
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val res = deliveryInstructionsRepository.findCodeInfoScanMode(req)
+            if (res is QrCodeInfoResult.Success){
+                _isScanCodePassportState.value = PassInfo.EXIST
+            } else _isScanCodePassportState.value = PassInfo.NOT_EXIST
+        }
+    }
+    override suspend fun checkPasspIsExists(scanType: String, code: String): Boolean {
+        val req = QrCodeInfoRequest(securityType = scanType, value = code)
+            val res = deliveryInstructionsRepository.findCodeInfoScanMode(req)
+        Timber.d(" checkPasspIsExists $scanType $code $res")
+            if (res is QrCodeInfoResult.Success){
+                return true
+            } else return false
+    }
+
+    private val codeToIdMap = mutableMapOf<String, Int>()
+    override suspend fun findCodeInfoIntermediate(scanType: String, code: String): IntermediateBoxInfoData {
+        _errorToast.value = ""
+        _uiResult.value = null
+        Timber.d(" findCodeInfoIntermediate $code")
+        val agreementInfo = _agreementInfoState.value
+
+        val req = QrCodeInfoRequest(securityType = scanType, value = code)
+            val res = deliveryInstructionsRepository.findCodeInfoWalletMode(req)
+            when(res) {
+                is QrCodeInfoResult.Success-> {
+                    val pass = res.passport
+                    val wName = pass.wine.name
+                    val wVolume =  volumeDoubleToString(pass.bottleVolume)
+                    val isSameWine = agreementInfo.wine == wName
+                    val isSameBottle = agreementInfo.volume == wVolume
+                    if (isSameWine && isSameBottle) {
+                        codeToIdMap[code] = pass.id
+                        return IntermediateBoxInfoData(IntermediateBoxInfoResult.SUCCESS, wName, wVolume)
+                    } else {
+                        _errorToastId.value = R.string.box_changed_content
+                        return IntermediateBoxInfoData(IntermediateBoxInfoResult.NOT_MATCH, wName, wVolume)
+                    }
+                }
+                else -> {
+                    //                    _findCodeInfoResultState.value  = getQrFakeBottleInfo()
+                    if (res is QrCodeInfoResult.Failure && res.apiFailure.errorCode == 401) loginRefresh()
+//                    _errorToast.value = res.toString()
+                    return IntermediateBoxInfoData(IntermediateBoxInfoResult.FAIL)
+                }
+
+            }
+    }
+    val bottleinBoxList = mutableListOf<String>()
+
+    override fun findCodeInfo(scanType: String, code: String) {
+        _errorToast.value = ""
+        _uiResult.value = null
+        _findCodeInfoResultState.value  = FindCodeInfoResult.Empty()
+        Timber.d(" findCodeInfo $code")
+        val req = QrCodeInfoRequest(securityType = scanType, value = code)
+        viewModelScope.launch(dispatcherProvider.io()) lbSt@{
+            val appType = if (isIntermediate.first()) 1 else 0 //appTabIndexState.value
+            val res = if (appType == 0) deliveryInstructionsRepository.findCodeInfoScanMode(req) else deliveryInstructionsRepository.findCodeInfoWalletMode(req)
+            var shipInfo: FindCodeShippingInfo? = null// ("Self-picking", "Frederic Nouet", "01-01-2024", "Luxury packaging and prompt delivery required.")
+            var nft = ""
+            var headDetail: PackageItem? = null
+            when(res) {
+                is QrCodeInfoResult.Success-> {
+                    val pass = res.passport
+                    val shipDto = pass.salesOrder?.shippingInformation
+                    val passId = pass.id
+                    shipInfo = if ( shipDto != null) {
+                        FindCodeShippingInfo(
+                            shippingType = shipDto.typeOfDelivery ?: "",
+                            deliveryTo = shipDto.streetAddress ?: "",
+                            pickingDate = pass.packageInfo?.bottlingDate?.toSimpleString() ?: "",
+                            comment = ""
+                        )
+                    } else FindCodeShippingInfo.Empty()
+                    nft = pass.platformSerialNumber ?: ""
+                    headDetail = PackageItem(
+                        itemName = pass.wine.name,
+                        itemData = "${getString(R.string.box_id)}: ${pass.packageInfo?.caseId}", //Case ID: #000000001",
+                        domainName = pass.wine.domain,//"Bottle ID: $code",
+                        bottleSize = volumeDoubleToString(pass.bottleVolume),
+                        imageUrl =pass.wine.imageUrl ?: "",
+                        alcohol = String.format("%.1f", pass.wine.alcohol),
+                        vintage = pass.wine.vintage.toString(),
+                        color = pass.wine.color,
+                        id = code
+                    )
+                    val volume = pass.bottleVolume
+                    val wineId = pass.wine.id
+                    val winePackageItem = getWineItemById(wineId.toString())
+                    val wineItem = getWineById(wineId) ?: getWineInternal(wineId)
+                    val additionalCodeInfo = getWineDetailInfoByCode(pass.wine)
+                    val vol2 = wineItem?.bottleVolume
+                    Timber.d(" findCodeInfo volumes v1$volume v2:$vol2")
+                    _findCodeInfoResultState.value  = FindCodeInfoResult(passId = passId,
+                        headInfo = headDetail,
+                        isSellable = pass.isSellable,
+                        isSealBroken = pass.isSealBroken == true || pass.packageInfo?.isSealBroken == true,
+                        isHasCase = pass.packageInfo?.caseId != null,
+                        boxInfo = BoxInfo.Empty(),
+                        shippingInfo = shipInfo,
+                        owner = pass.owner ?: "",
+                        nftId = nft,
+                        winePackageInfo = winePackageItem,
+                        wineInfo = wineItem,
+                        qrWineInfo = FindCodeQrWineInfo(wineName = pass.wine.name, wineId = pass.wine.id),
+                        additionalCodeInfo = additionalCodeInfo)
+                }
+
+                else -> {
+    //                    _findCodeInfoResultState.value  = getQrFakeBottleInfo()
+                    if (res is QrCodeInfoResult.Failure && res.apiFailure.errorCode == 401) { loginRefresh(); delay(500); return@lbSt }
+                    _errorToast.value = res.toString()
+                }
+
+            }
+
+        }
+    }
+    fun getWineDetailInfoByCode(info: QrCodeInfoWine): AdditionalCodeInfo {
+        Timber.d("getWineDetailInfoByCode")
+        val l = mutableListOf<Pair<String, String>>()
+        val map = if (language == "fr") frenchMap else englishMap
+        info::class.memberProperties.forEach { fld ->
+            if (fld.name !in invisibles) {
+                val name = map[fld.name] ?: fld.name
+                val pr = Pair(name, fld.getter.call(info).toString())
+                if (pr.first != null && pr.first != "null" && pr.second != null && pr.second != "null") l += pr
+
+            }
+        }
+        val descList = info.description ?: emptyList()
+        val desc = if (descList.size > 1) descList.firstOrNull { it.language.lowercase() == language }?.text ?: descList[0].text
+        else if (descList.size == 1) descList.first().text else ""
+        val reviewList = mutableListOf<Pair<String, String>>()
+
+        val reviews = if(info.reviews.isNullOrEmpty()) null else info.reviews.map { WineReview(it.reviewer, it.score, it.description) }
+        reviews?.forEachIndexed() { ind, review ->
+            if (review != null) {
+                review::class.memberProperties.forEach { fld ->
+                    if (fld.name !in invisibles) reviewList += Pair(
+                        fld.name,
+                        fld.getter.call(review).toString()
+                    )
+                    if (fld.name == "description") reviewList += Pair(
+                        fld.name,
+                        fld.getter.call(review).toString()
+                    )
+                }
+            }
+            if (ind < reviews.size - 1) reviewList += Pair("--------", "--------")
+        }
+        return AdditionalCodeInfo(
+            review = reviews,
+            wineDetailsPairs= l,
+            description = desc,
+            scoresPairs = reviewList,
+        )
+
+    }
+
+
+    fun findCodeInfoNoLogin(scanType: String, code: String) {
+        _errorToast.value = ""
+        _errorToastId.value = 0
+            _uiResult.value = null
+        _findCodeNoLoginInfoResultState.value  = NoLoginWineDetails.Empty()
+        Timber.d(" findCodeInfoNoLogin $code")
+        if (code.contains(CASE_PREFIX)) {
+            Timber.d(" findCodeInfoNoLogin can't scan box")
+            _errorToastId.value = R.string.box_not_implement
+            return
+        }
+
+        val req = QrCodeInfoRequest(securityType = scanType, value = code)
+//        val req =   QrCodeInfoRequest(securityType = "qr", value = codeA)
+        viewModelScope.launch(dispatcherProvider.io()) lbSt@{
+            val res = deliveryInstructionsRepository.findCodeInfoScanModeNoLogin(req)
+            var shipInfo: FindCodeShippingInfo? = null// ("Self-picking", "Frederic Nouet", "01-01-2024", "Luxury packaging and prompt delivery required.")
+            var nft = ""
+            var headDetail: PackageItem? = null
+            when(res) {
+                is QrCodeInfoResultNoLogin.Success-> {
+                    val pass = res.passport
+                    val passId = pass.idUrl.substringAfter("/").toIntOrNull() ?: 0
+                    shipInfo = FindCodeShippingInfo.Empty()
+                    nft = ""
+                    headDetail = PackageItem(
+                        itemName = pass.wine.name,
+                        itemData = pass.wine.producerName,
+                        domainName = pass.wine.domain,//"Bottle ID: ${req.value}",
+                        bottleSize = volumeDoubleToString(pass.bottleVolume)
+                    )
+                    val wineId = pass.wine.id
+                    val noLoginWineDet = getWineDetailInfoNoLogin(pass.wine)
+                    _findCodeNoLoginInfoResultState.value  = NoLoginWineDetails(
+                        headInfo = headDetail,
+                        bottlingDate = pass.bottlingDate.toSimpleString(),
+                        vintage = noLoginWineDet.vintage,
+                        owner = pass.owner,
+                        review = noLoginWineDet.review,
+                        wineDetailsPairs = noLoginWineDet.wineDetailsPairs,
+                        description = noLoginWineDet.description,
+                        scoresPairs = noLoginWineDet.scoresPairs,
+                        wineItem = pass.wine)
+                }
+
+                else -> {
+                    Timber.d(" findCodeInfoNoLogin result:$res")
+                    _errorToast.value = res.toString()
+                }
+
+            }
+
+        }
+    }
+
+    fun getWineDetailInfoNoLogin(info: NoLoginWine): NoLoginWineDetails {
+        Timber.d("setWineDetailInfoNoLogin")
+        val l = mutableListOf<Pair<String, String>>()
+        val map = if (language == "fr") frenchMap else englishMap
+
+        info::class.memberProperties.forEach { fld ->
+            if (fld.name !in invisibles) {
+                val name = map[fld.name] ?: fld.name
+                val pr = Pair(name, fld.getter.call(info).toString())
+                if (pr.first != null && pr.first != "null" && pr.second != null && pr.second != "null") l += pr
+
+            }
+        }
+        val descList = info.description ?: emptyList()
+        val desc = if (descList.size > 1) descList.firstOrNull { it.language.lowercase() == language }?.text ?: descList[0].text
+        else if (descList.size == 1) descList.first().text else ""
+        val reviewList = mutableListOf<Pair<String, String>>()
+
+        val reviews = if(info.reviews.isNullOrEmpty()) null else info.reviews.map { WineReview(it.reviewer, it.score, it.description) }
+        reviews?.forEachIndexed() { ind, review ->
+            if (review != null) {
+                review::class.memberProperties.forEach { fld ->
+                    if (fld.name !in invisibles) reviewList += Pair(
+                        fld.name,
+                        fld.getter.call(review).toString()
+                    )
+                    if (fld.name == "description") reviewList += Pair(
+                        fld.name,
+                        fld.getter.call(review).toString()
+                    )
+                }
+            }
+            if (ind < reviews.size - 1) reviewList += Pair("--------", "--------")
+        }
+        val vintage = info.vintage.toString()
+        return NoLoginWineDetails(
+            headInfo = PackageItem.Empty(),
+            bottlingDate = "",
+            vintage = vintage,
+            owner = "",
+            review = reviews,
+            wineDetailsPairs= l, description = desc, scoresPairs = reviewList, wineItem = null)
+
+    }
+
+    override fun breakCase() {
+        Timber.d("breakCase ${_findCodeInfoResultState.value.headInfo.itemData}")
+        _uiResult.value = null
+        if (!isConnected()) return
+        val caseId = _findCodeInfoResultState.value.headInfo.itemData.substringAfterLast(':',"").trim()
+        if (caseId.isNullOrBlank()) {
+            Timber.d("breakCase caseId is Empty $caseId")
+            _uiResult.value = UiResult.Error("caseId is Empty")
+            return
+        }
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val resp = deliveryInstructionsRepository.breakCase(caseId)
+            _uiResult.value = when (resp) {
+                is CommonResult.Success -> UiResult.Success
+                is CommonResult.Failure -> UiResult.Error(resp.toString())
+                is CommonResult.Error -> UiResult.Error(resp.e.toString())
+            }
+        }
+    }
+
+    override fun findCodeBoxInfo(caseId: String) {
+        _errorToast.value = ""
+        _findCodeInfoResultState.value  = FindCodeInfoResult.Empty()
+        Timber.d("findCodeBoxInfo $caseId")
+//        val req =   QrCodeInfoRequest(securityType = "qr", value = codeA)
+        viewModelScope.launch(dispatcherProvider.io()) lbSt@{
+            val res = deliveryInstructionsRepository.findCodeBoxInfo(caseId)
+            var nft = ""
+            when(res) {
+                is QrBoxCodeInfoResult.Success-> {
+                    val pass = res.passport
+                    val shipDto = pass.shippingInformation
+                    val shipInfo = FindCodeShippingInfo(
+                            shippingType = shipDto?.typeOfDelivery ?: "",
+                            deliveryTo = shipDto?.streetAddress ?: "",
+                            pickingDate = pass.bottlingDate.toSimpleString() ?: "",
+                            comment = ""
+                        )
+                    val headDetail =
+                        PackageItem(itemName = pass.wine?.name ?: "",
+                            itemData = "Case ${pass.caseId}",
+                            domainName = "",
+                            bottleSize = if (!pass.digitalPassports.isNullOrEmpty()) volumeDoubleToString(pass.digitalPassports[0].bottleVolume) else "",
+                            id = pass.caseId
+                        )
+
+                    val l1 = res.passport.digitalPassports.map { dp ->
+                        val volume = volumeDoubleToString(dp.bottleVolume)
+//                        BottleInfo("${dp.platformSerialNumber}", "${pass.wine.name}", volume, "${pass.wine.vintage}" )
+                        BottleInfo("${dp.vendorSerialNumber}", "${pass.wine?.name}", volume, "${pass.wine?.vintage}" )
+                    }
+                    val boxInfo = BoxInfo(pass.caseId, l1, pass.isSealBroken)
+                    val wineId = pass.wine?.id ?:0
+                    val winePkItem = getWineItemById(wineId.toString())
+                    val wineItem = if (wineId != 0) getWineById(wineId) ?: getWineInternal(wineId) else null
+                    _findCodeInfoResultState.value  = FindCodeInfoResult(headInfo = headDetail,
+                        boxInfo = boxInfo,
+                        isSellable = pass?.isSellable ?: true,
+                        isSealBroken = pass.isSealBroken,
+                        shippingInfo = shipInfo,
+                        nftId = nft,
+                        winePackageInfo = winePkItem,
+                        wineInfo = wineItem,
+                        qrWineInfo = FindCodeQrWineInfo(wineName = pass.wine?.name ?: "", wineId = wineId))
+
+                }
+                else -> {
+//                    val fakeInfo  = FindCodeInfoResult.Empty()
+//                    fakeInfo.boxInfo.isSealBroken = true
+//                    _findCodeInfoResultState.value  = fakeInfo
+                    if (res is QrBoxCodeInfoResult.Failure && res.apiFailure.errorCode == 401) { loginRefresh(); delay(500); return@lbSt }
+                    _errorToast.value = res.toString()
+                }
+
+            }
+        }
+    }
+    val boxInfoMap: MutableMap<String, QrBoxCodeInfoResponse> = mutableMapOf()
+    override suspend fun intermediateFindCodeBoxInfo(caseId: String): IntermediateBoxInfoData {
+        _errorToast.value = ""
+        _errorToastId.value = 0
+        val agreementInfo = _agreementInfoState.value
+        Timber.d("intermediateFindCodeBoxInfoS $caseId info:${agreementInfo.volume}")
+        val res = deliveryInstructionsRepository.findCodeBoxInfo(caseId)
+        when(res) {
+            is QrBoxCodeInfoResult.Success-> {
+                val passport = res.passport
+                val wName = passport.wine?.name  ?: ""
+                val wVolume = if (!passport.digitalPassports.isNullOrEmpty()) volumeDoubleToString(passport.digitalPassports[0].bottleVolume?.times(passport.digitalPassports.size)) else ""
+                val isSameWine = agreementInfo.wine == wName //|| BuildConfig.DEBUG
+                val isSameBottle = agreementInfo.volume == wVolume //|| BuildConfig.DEBUG
+                val isSamePackage = agreementInfo.caseTypeId == passport.caseTypeId
+                 val isSameBottleNum =  passport.digitalPassports.size == agreementInfo.bottlesInCase
+                Timber.d("intermediateFindCodeBoxInfoS volume:$wVolume isSameWine;$isSameWine isSameBottle:$isSameBottle isSamePackage:$isSamePackage isSameBottleNum:$isSameBottleNum" )
+                if (!passport.isSealBroken && passport.isSellable == true && isSameWine && isSameBottle && isSamePackage && isSameBottleNum) {
+                    boxInfoMap[caseId] = passport
+                    return IntermediateBoxInfoData(IntermediateBoxInfoResult.SUCCESS, wName, wVolume)
+                } else {
+                    return IntermediateBoxInfoData(IntermediateBoxInfoResult.NOT_MATCH, wName, wVolume)
+                    _errorToastId.value = R.string.box_changed_content
+                }
+//                return IntermediateBoxInfoResult.FAIL
+            }
+            else -> {
+                if (res is QrBoxCodeInfoResult.Failure && res.apiFailure.errorCode == 401) loginRefresh()
+//                _errorToast.value = res.toString()
+                return IntermediateBoxInfoData(IntermediateBoxInfoResult.FAIL)
+            }
+        }
+    }
+
+    fun intermediateFindCodeBoxInfoScoped(caseId: String) {
+        _errorToast.value = ""
+        _findCodeInfoResultState.value  = FindCodeInfoResult.Empty()
+        val code1 = "FDW_BX_3375864050" // -
+        Timber.d("intermediateFindCodeBoxInfo")
+//        val req =   QrCodeInfoRequest(securityType = "qr", value = codeA)
+        viewModelScope.launch(dispatcherProvider.io()) lbSt@{
+            val res = deliveryInstructionsRepository.findCodeBoxInfo(caseId)
+            when(res) {
+                is QrBoxCodeInfoResult.Success-> {
+                    boxInfoMap[caseId] = res.passport }
+                else -> {
+//                    val fakeInfo  = FindCodeInfoResult.Empty()
+//                    fakeInfo.boxInfo.isSealBroken = true
+//                    _findCodeInfoResultState.value  = fakeInfo
+                    if (res is QrBoxCodeInfoResult.Failure && res.apiFailure.errorCode == 401) { loginRefresh(); delay(500); return@lbSt }
+                    _errorToast.value = res.toString()
+                }
+
+            }
+
+        }
+    }
+
+    override fun resetQrCodeInfo() {
+        Timber.d("resetQrCodeInfo")
+        zebraScannerController.clearCode()
+        _findCodeInfoResultState.value = FindCodeInfoResult.Empty()
+        _findCodeNoLoginInfoResultState.value  = NoLoginWineDetails.Empty()
+    }
+
+    override fun resetScannedData() {
+        zebraScannerController.clearCode()
+        _agreementInfoState.value = AgreementInfo.Empty()
+        viewModelScope.launch(dispatcherProvider.io()) {
+            appSettingsDataSource.setScannedData("")
+        }
+    }
+    var clearAppLinkJob: Job? = null
+    fun setAppLink(linkUri: Uri){
+        Timber.d("setAppLink $linkUri")
+        _applink.value = linkUri
+        clearAppLinkJob?.cancel()
+        clearAppLinkJob = viewModelScope.launch(dispatcherProvider.io()) {
+            delay(2000)
+            _applink.value = Uri.EMPTY
+        }
+    }
+    fun saveScanInfo(bottleqty: Int, ) {
+
+    }
+    override fun disconnectPrinter() = zebraPrinterController.disconnect()
+
+    private var receiptData: ReceiptInfo? = null
+    override fun printReceipt() {
+        Timber.d("printReceipt case:${currentCaseId} di:${currentDiItem.id}")
+        _errorToast.value = ""
+        viewModelScope.launch(dispatcherProvider.io()) {
+            if (currentDiItem.caseType == null) {
+                _errorToast.value = "printReceipt Fail: no case "
+                Timber.e( _errorToast.value);
+                return@launch
+            }
+            var dpt = digitalPassportTransfers.find { it.id == currentDiItem.dptId }
+            if (dpt == null) {
+                _errorToast.value = "printReceipt Fail: no dpt"
+                Timber.e( _errorToast.value);
+                return@launch
+            }
+            Timber.d("printReceipt dpt:${dpt.id}")
+            val bottlesQtyInCase = currentDiItem.caseType?.bottlesQty ?: 1
+            val vlm = currentDiItem.caseType?.amountInLiters
+                ?: currentDiItem.caseType?.bottleType?.amountInLiters
+                ?: currentDiItem.bottleType?.amountInLiters ?: currentDiItem.wine.bottleVolume
+            val volume = volumeDoubleToString(vlm)
+            val transInfo =
+                _transferDetailsInfoListState.value.find { it.dptIdInt == currentDiItem.dptId }
+            if (transInfo == null) {
+                _errorToast.value = "printReceipt Fail: no transInfo "
+                Timber.e( _errorToast.value);
+                return@launch
+            }
+            val wine = ReceiptWine(
+                name = currentDiItem.wine.name,
+                color = currentDiItem.wine.color,
+                vintage = currentDiItem.wine.vintage,
+                bottlesInBox = bottlesQtyInCase,
+                volume = volume
+            )
+
+            val seller = WineClient(name = transInfo.seller.name, email = transInfo.seller.email, phone = transInfo.seller.phone, address = splitAddr(transInfo.seller.address))
+             //WineClient(name="francois-dupon-owner", address="21 Place de la Perfection,; Marseille, 13005, France", email="francois-dupon-owner@vinexquisite.fr", phone="+33 6 78 90 12 34")
+
+            val buyer = WineClient(name = transInfo.buyer.name, email = transInfo.buyer.email, phone = transInfo.buyer.phone, address = splitAddr(transInfo.buyer.address))
+            //WineClient(name="sophie-lamber-owner", address="21 Place de la Perfection, ;Marseille, 13005, France", email="fidewinebuyer@gmail.com", phone="+33 6 78 90 12 34")
+            val receiptInfo =
+                ReceiptInfo(qrCodeInfo = "$currentCaseId", wine, seller, buyer)
+            receiptData = receiptInfo
+            Timber.d("printReceipt print info:${receiptInfo}")
+            val connected = zebraPrinterController.isConnected.first()
+            if (!connected) {
+                _errorToast.value = "${zebraPrinterController.getPrinterStatusString()}"
+                Timber.e(_errorToast.value);
+                return@launch
+            }
+            val status = zebraPrinterController.printReceiptInfo(receiptInfo)
+            if (status.isNotBlank()) _errorToast.value = status
+        }
+    }
+    fun repeatPrintReceipt() {
+        Timber.d("repeatPrintReceipt ")
+        _errorToast.value = ""
+        if (receiptData == null ) return
+        val status = zebraPrinterController.printReceiptInfo(receiptData!!)
+        if (status.isNotBlank()) _errorToast.value = status
+    }
+    var inventoryReceiptInfo: ShortReceiptInfo? = null
+
+    override fun printReceiptInventory() {
+        val sti = _inventoryStartInfo.value ?: return
+        _errorToast.value = ""
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val caseId = sti.boxes.last().boxId
+            val bottlesQtyInCase = sti.bottleInCase
+            val volume = sti.bottleVolume
+            val wine = ReceiptWine(
+                name = sti.wineName,
+                color = sti.wineColor,
+                vintage = sti.vintage,
+                bottlesInBox = bottlesQtyInCase,
+                volume = volume
+            )
+            val receiptInfo = ShortReceiptInfo(caseId, wine)
+            inventoryReceiptInfo = receiptInfo
+            Timber.d("printReceiptInventory print info:${receiptInfo}")
+            val connected = zebraPrinterController.isConnected.first()
+            if (!connected) {
+                _errorToast.value = "${zebraPrinterController.getPrinterStatusString()}"
+                Timber.e(_errorToast.value);
+                return@launch
+            }
+            val status = zebraPrinterController.printShortInfo(receiptInfo)
+            if (status.isNotBlank()) _errorToast.value = status
+        }
+    }
+
+    private fun splitAddr(addr: String, len: Int = 35): String {
+        Timber.d("splitAddr $addr")
+        if (addr.length < len) return addr
+        val ad1 = addr.split(' ')
+        var s = "${ad1[0]} "
+        var ind = 1
+        while((s + ad1[ind]).length < len) {
+            s += "${ad1[ind]} "
+            ind++
+        }
+        s = s.trimEnd()
+        if (addr.length / s.length > 2) s = addr.take(len)
+        var res = s + ';' + addr.substring(s.length)
+        return res
+    }
+
+    fun selectTransferDataFilter(filterVal: Int) {
+        if (filterVal in 0..5)_filterDataValueState.value = filterVal
+        else Timber.e("selectTransferDataFilter invalid filter $filterVal")
+    }
+
+    fun selectTransferDataStatusFilter(filterVal: Int) {
+        if (filterVal in 0..2)_filterDataValueStateNew.value = filterVal
+        else Timber.e("selectTransferDataStatusFilter invalid filter $filterVal")
+
+
+    }
+
+
+    private fun filterTransferDetailsData(filterVal: Int, data: List<TransferDetailsInfo>): List<TransferDetailsInfo> {
+        val transferredStatuses = listOf(
+            DigitalPassportTransferStatus.Paid,
+            DigitalPassportTransferStatus.Approved,
+            DigitalPassportTransferStatus.Submitted,
+            DigitalPassportTransferStatus.SubmittedNoTransfer,
+            DigitalPassportTransferStatus.Completed,
+            DigitalPassportTransferStatus.CompletedNoTransfer)
+        val incomingStatuses = listOf(DigitalPassportTransferStatus.PendingApproval, DigitalPassportTransferStatus.PendingPayment)
+        val outcomingStatuses = listOf(DigitalPassportTransferStatus.PendingApproval, DigitalPassportTransferStatus.PendingPayment)
+        val canceledStatuses = listOf(DigitalPassportTransferStatus.Closed, DigitalPassportTransferStatus.RejectedPassport)
+
+        return when(filterVal) {
+            0 ->  data.filter { it.isIncoming && it.transferStatusEnum in incomingStatuses }
+            1 -> data.filter { !it.isIncoming && it.transferStatusEnum in outcomingStatuses }
+            2 -> data.filter { it.transferStatusEnum in transferredStatuses}
+            3 -> data.filter { it.transferStatusEnum in canceledStatuses}
+            4 -> data.filter { it.isIncoming }
+            5 -> data.filter { !it.isIncoming }
+            else -> data
+        }
+    }
+    private fun filterTransferDetailsDataNew(data: List<TransferDetailsInfo>): List<TransferDetailsInfo> {
+        val state = _filterState.value
+        return data
+    }
+
+    private fun filterTransferDetailsStatusData(filterVal: Int, data: List<TransferDetailsInfo>): List<TransferDetailsInfo> {
+        val processedStatuses = listOf(
+            DigitalPassportTransferStatus.Paid,
+            DigitalPassportTransferStatus.Approved,
+            DigitalPassportTransferStatus.Submitted,
+            DigitalPassportTransferStatus.SubmittedNoTransfer,
+
+            DigitalPassportTransferStatus.Closed,
+            DigitalPassportTransferStatus.RejectedPassport)
+        val pendingStatuses = listOf(DigitalPassportTransferStatus.PendingApproval, DigitalPassportTransferStatus.PendingPayment)
+        val transferredStatuses = listOf(DigitalPassportTransferStatus.CompletedNoTransfer, DigitalPassportTransferStatus.CompletedNoTransfer)
+        val canceledStatuses = listOf(DigitalPassportTransferStatus.Closed, DigitalPassportTransferStatus.RejectedPassport)
+
+        return when(filterVal) {
+            1 -> data.filter { it.transferStatusEnum in pendingStatuses }
+            2 -> data.filter { it.transferStatusEnum in processedStatuses}
+            3 -> data.filter { it.transferStatusEnum in transferredStatuses}
+            else -> data
+        }
+    }
+
+    fun isFirstOutcomPassports(): Boolean {
+        val outcomingStatuses = listOf(DigitalPassportTransferStatus.PendingApproval, DigitalPassportTransferStatus.PendingPayment)
+        val v = _transferDetailsInfoListState.value.filter {  !it.isIncoming && it.transferStatusEnum in outcomingStatuses }
+        return (v.size == 1)
+    }
+    fun isFirstIncomPassports(): Boolean {
+        val incomingStatuses = listOf(DigitalPassportTransferStatus.PendingApproval, DigitalPassportTransferStatus.PendingPayment)
+        val v = _transferDetailsInfoListState.value.filter {  !it.isIncoming && it.transferStatusEnum in incomingStatuses }
+        return (v.size == 1)
+    }
+
+    override fun markAsRead(id: Int) {
+        if (!isConnected()) return
+        Timber.d("markAsRead $id")
+        viewModelScope.launch(dispatcherProvider.io()) {
+            notificationRepository.markAsRead(id)
+            onApplyActions(Actions.MarkAsRead(id))
+        }
+    }
+    override fun markAsReadAll(){
+        if (!isConnected()) return
+        _isloadingState.value = true
+        Timber.d("markAsReadAll ")
+        viewModelScope.launch(dispatcherProvider.io()) {
+            notificationRepository.markAsReadAll()
+            onApplyActions(Actions.MarkAsReadAll)
+            _isloadingState.value = false
+        }
+    }
+    override fun deleteNotification(id: Int) {
+        if (!isConnected()) return
+        Timber.d("deleteNotification $id")
+        viewModelScope.launch(dispatcherProvider.io()) {
+            notificationRepository.deleteNotification(id)
+            onApplyActions(Actions.Remove(id))
+        }
+    }
+    override fun getWines() {
+        if (!isConnected()) return
+        _isloadingState.value = true
+        viewModelScope.launch(dispatcherProvider.io()) {
+            getWinesInternal(true)
+            _isloadingState.value = false
+        }
+    }
+    override fun getNotifications() {
+        if (!isConnected()) return
+        _isloadingState.value = true
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val resp = notificationRepository.getNotifications()
+            Timber.d("getNotifications $resp")
+            _isloadingState.value = false
+        }
+    }
+    override fun setCurrentUserInfo(person: PersonInfo) {
+        _uiResult.value = null
+        if (!isConnected()) return
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val resp = userRepository.setCurrentUserInfo(person)
+            _uiResult.value = when (resp) {
+                is CommonResult.Success -> {
+                    userRepository.getCurrentProfile()
+                    UiResult.Success
+                }
+                is CommonResult.Failure -> UiResult.Error(resp.toString())
+                is CommonResult.Error -> UiResult.Error(resp.e.toString())
+            }
+        }
+    }
+
+    override fun deleteAccount() {
+        _errorToast.value = ""
+        if (!isConnected()) return
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val resp = userRepository.deleteCurrentUser()
+            when (resp) {
+                is CommonResult.Success -> logout()
+                else -> _errorToast.value = resp.toString()
+            }
+        }
+    }
+
+    fun getNotificationById(id: String): NotificationItem? {
+        val idInt = id.toIntOrNull() ?: return null
+        return notifications.value.firstOrNull{ it.id == idInt }
+    }
+
+    private fun onApplyActions(actions: Actions) {
+        modifications.value += actions
+    }
+    private val modifications = MutableStateFlow<List<Actions>>(emptyList())
+    fun getNotificationsPaged(): Flow<PagingData<NotificationItem>> {
+        Timber.d("actions getNotificationsPaged ")
+        //modifications.value = emptyList()
+        return notificationRepository.getMessagesPaged()
+            .cachedIn(viewModelScope)
+            .combine(modifications) { pagingdata, modifications ->
+                Timber.d("actions conbine $modifications")
+                modifications.fold(pagingdata) { paging, action ->
+                    applyActions(paging, action)
+                }
+            }
+
+//            .launchIn(viewModelScope)
+    }
+
+    private suspend fun getNotificationsInternal() {
+        while (true) {
+            val ts = System.currentTimeMillis()
+            val resp = notificationRepository.getNotifications()
+            val time = System.currentTimeMillis() - ts
+            Timber.d("getNotificationsInternal notif:${notifications.first().size} time $time")
+            if (resp is NotificationResult.Success) return
+            delay(50.seconds)
+        }
+    }
+    private suspend fun getCustomerListInternal() {
+        while (true) {
+            val ts = System.currentTimeMillis()
+            val resp = deliveryInstructionsRepository.getCustomerList()
+            val time = System.currentTimeMillis() - ts
+            Timber.d("getCustomerListInternal items:${customerList.first().size} time $time")
+            if (resp is CustomerResult.Success) return
+            if (resp is CustomerResult.Error && resp.e is java.net.UnknownHostException) return
+            if (resp is CustomerResult.Failure) {
+                val errCode = resp.apiFailure.errorCode
+                if (errCode == 401) loginRefresh()
+                else if (errCode == 500 || errCode == 403) return
+            }
+            delay(50.seconds)
+        }
+    }
+    fun getBottleList() {
+        if (!isConnected()) return
+        viewModelScope.launch(dispatcherProvider.io()) {
+            getBottleListInternal()
+        }
+    }
+
+    private suspend fun getBottleListInternal() {
+            val ts = System.currentTimeMillis()
+            val resp = deliveryInstructionsRepository.getBottleList()
+            val time = System.currentTimeMillis() - ts
+            bottleList.value.forEach {it.lang = language}
+            Timber.d("getBottleListInternal items:${bottleList.first().size} time $time")
+    }
+    fun getCaseList() {
+        if (!isConnected()) return
+        viewModelScope.launch(dispatcherProvider.io()) {
+            getCaseListInternal()
+        }
+    }
+
+    private suspend fun getCaseListInternal() {
+        val ts = System.currentTimeMillis()
+        val resp = deliveryInstructionsRepository.getCaseList()
+        val time = System.currentTimeMillis() - ts
+        caseList.value.forEach {it.lang = language}
+        Timber.d("getCaseListInternal items:${caseList.value.size} time $time")
+    }
+    override fun onFilterUpdate(type: FilterType, state: Boolean) {
+        val newFilter = mutableMapOf<FilterType, Boolean>().apply {
+            putAll(_filterState.value)
+            put(type, state)
+        }
+        _filterState.value = newFilter
+    }
+    fun onFilterClear() {
+        Timber.d("onFilterClear")
+        _filterState.value.clear()
+        FilterType.values().forEach{_filterState.value[it] = false}
+    }
+    fun updateShowFilterDialog(show: Boolean) {
+        _showFilterDialog.value = show
+    }
+
+    private fun applyActions(
+        pagingData: PagingData<NotificationItem>,
+        actions: Actions
+    ): PagingData<NotificationItem> {
+        Timber.d("actions applyActions $actions $pagingData ")
+        return when (actions) {
+            is Actions.Remove -> {
+                pagingData.filter { actions.item != it.id }
+            }
+
+            is Actions.MarkAsRead -> {
+                pagingData.map {
+                    if (actions.item == it.id) { it.isRead = true; return@map it}
+                    else return@map it
+                }
+            }
+            is Actions.MarkAsRead -> {
+                pagingData.map {
+                     it.isRead = true
+                    return@map it
+                }
+            }
+            else -> {
+                pagingData
+            }
+        }
+    }
+    sealed class Actions {
+        data class Remove(val item: Int) : Actions()
+        data class MarkAsRead(val item: Int) : Actions()
+        object MarkAsReadAll : Actions()
+
+        override fun toString(): String {
+            return "Actions." +
+                    when(this) {
+                        is Remove -> "Remove $item"
+                        is MarkAsRead ->"MarkAsRead $item"
+                        is MarkAsReadAll ->"MarkAsReadAll"
+                    }
+        }
+    }
+    private fun getString(id: Int) = context.getString(id)
+    override fun updateFilter() {
+        Timber.d("updateFilter")
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val ts = System.currentTimeMillis()
+            val v = _filterItemsState.value
+            _filterItemsState.value = mapOf()
+            delay(5)
+            _filterItemsState.value = v
+            decodeFilter()
+            val time = System.currentTimeMillis() - ts
+            Timber.d("updateFilter time $time")
+        }
+    }
+    override fun clearFilter() {
+        Timber.d("clearFilter")
+        _filterItemsState.value = getFilterItems()
+    }
+    private fun getFilterItems(): MutableMap<String, List<FilterEntity>> {
+        return mutableMapOf(
+            "cellar_main"  to
+                    listOf(
+                        FilterEntity(name = getString(R.string.domains), id = 41,
+                            data = listOf(
+                                FilterData(getString(R.string.all), true)
+                            ) + _domainListState.value.map{ FilterData(it.domainName) }.toSet().toList()
+                        ),
+                        FilterEntity(name = getString(R.string.vintages), id = 42,
+                            data = listOf(
+                                FilterData(getString(R.string.all), true)
+                            ) + _vintageListState.value.map{ FilterData(it) }
+                        ),
+                        FilterEntity(name = getString(R.string.bottles), id = 43,
+                            data = listOf(
+                                FilterData(getString(R.string.all), true)
+                            ) + bottleList.value.map{
+                                val name = if (language == "fr") it.nameFr else it.nameEn
+                                val vlm = it.amountInLiters
+                                val volume = volumeDoubleToString(vlm)
+                                FilterData("$name ($volume)")
+                            }
+                        ),
+                    ),
+
+            "passport_main" to
+                    listOf(
+                        FilterEntity(name = getString(R.string.transfer_type), id = 1,
+                            data = listOf(
+                                FilterData(getString(R.string.all), true),
+                                FilterData(getString(R.string.incoming)),
+                                FilterData(getString(R.string.outcoming))
+                            )
+                        ),
+                        FilterEntity(name = getString(R.string.sale_status), id = 2,
+                            data = listOf(
+                                FilterData(getString(R.string.all), true),
+                                FilterData(getString(R.string.en_primeur)),
+                                FilterData(getString(R.string.en_livrable))
+                            )
+                        ),
+                        FilterEntity(name = getString(R.string.vintages), id = 3,
+                            data = listOf(
+                                FilterData(getString(R.string.all), true)
+                            ) + _vintageListState.value.map{ FilterData(it) }
+                        ),
+                        FilterEntity(name = getString(R.string.transfer_status), id = 4,
+                            data = listOf(
+                                FilterData(getString(R.string.all), true),
+                            ) + DigitalPassportTransferStatus.values().map { FilterData(getString(getTranferStatusTextId(it))) }.toList(),
+//DigitalPassportTransferStatus.values().map { FilterData(it.value) }.toList(),
+                        )
+                    ),
+
+            "inventory_main" to
+                    listOf(
+                        FilterEntity(name = getString(R.string.domains), id = 21,
+                            data = listOf(
+                                FilterData(getString(R.string.all), true)
+                            ) + _domainListState.value.map{ FilterData(it.domainName) } .toSet().toList()
+                        ),
+                        FilterEntity(name = getString(R.string.vintages), id = 22,
+                            data = listOf(
+                                FilterData(getString(R.string.all), true)
+                            ) + _vintageListState.value.map{ FilterData(it) }
+                        ),
+                        FilterEntity(name = getString(R.string.bottles), id = 23,
+                            data = listOf(
+                                FilterData(getString(R.string.all), true)
+                            ) + bottleList.value.map{
+                                val name = if (language == "fr") it.nameFr else it.nameEn
+                                val vlm = it.amountInLiters
+                                val volume = if (vlm > 1f) String.format("%.1f l", vlm)
+                                else (vlm * 1000).toInt().toString() + " ml"
+                                FilterData("$name ($volume)")
+                            }
+                        ),
+                    ),
+
+            "homeScreen" to
+                    listOf(
+                        FilterEntity(name = getString(R.string.sale_status), id = 31,
+                            data = listOf(
+                                FilterData(getString(R.string.all), true),
+                                FilterData(getString(R.string.en_primeur)),
+                                FilterData(getString(R.string.en_livrable))
+                            )
+                        ),
+                        FilterEntity(name = getString(R.string.domains), id = 32,
+                            data = listOf(
+                                FilterData(getString(R.string.all), true)
+                            ) + _domainListState.value.map{ FilterData(it.domainName) } .toSet().toList()
+                        ),
+                        FilterEntity(name = getString(R.string.order_status), id = 33,
+                            data = listOf(
+                                FilterData(getString(R.string.all), true),
+                                FilterData(getString(R.string.pending)),
+                                FilterData(getString(R.string.in_progress)),
+                                FilterData(getString(R.string.completed))
+                            )
+                        ),
+                        FilterEntity(name = getString(R.string.vintages), id = 34,
+                            data = listOf(
+                                FilterData(getString(R.string.all), true)
+                            ) + _vintageListState.value.map{ FilterData(it) }
+                        ),
+                    ),
+        )
+    }
+    data class HomeFilters(
+        val saleStatus: Int,
+        val domains: List<String>,
+        val orders: List<String>,
+        val vintages: List<String>,
+    )
+    data class CellarFilters(
+        val domains: List<String>,
+        val bottles: List<String>,
+        val vintages: List<String>,
+    )
+    data class TranferFilters(
+        val saleStatus: Int,
+        val tranferType: List<String>,
+        val status: List<String>,
+        val vintages: List<String>,
+    )
+
+    private val clientFilterState: MutableStateFlow<HomeFilters?> = MutableStateFlow(null)
+    private val cellarFilterState: MutableStateFlow<CellarFilters?> = MutableStateFlow(null)
+
+    private val inventoryFilterState: MutableStateFlow<CellarFilters?> = MutableStateFlow(null)
+
+    private val tranferFilterState: MutableStateFlow<TranferFilters?> = MutableStateFlow(null)
+
+    private fun decodeFilter() {
+        Timber.d("decodeFilter")
+        val map = _filterItemsState.value ?: return
+//        _filterItemsState.value = mapOf()
+        val homeScreen = map["homeScreen"]
+        var entity: FilterEntity?
+        if (homeScreen != null) {
+            entity = homeScreen.find { it.id == 31 }
+            val saleStatusMain =
+                if (entity == null) 0 else if (entity.data[0].selected || (entity.data[1].selected && entity.data[2].selected)) 0 else if (entity.data[1].selected) 1 else if (entity.data[2].selected) 2 else 0
+            entity = homeScreen.find { it.id == 32 }
+            val domainsHome = decodeEntity(entity)
+            entity = homeScreen.find { it.id == 33 }
+            val orderStatus = decodeEntity(entity)
+            entity = homeScreen.find { it.id == 34 }
+            val vintageHome = decodeEntity(entity)
+            clientFilterState.value = HomeFilters(
+                saleStatus = saleStatusMain,
+                domains = domainsHome,
+                orders = orderStatus,
+                vintages = vintageHome
+            )
+        }
+
+        val cellarMain = map["cellar_main"]
+        if (cellarMain != null) {
+            entity = cellarMain.find { it.id == 41 }
+            val domainsCellar = decodeEntity(entity)
+            entity = cellarMain.find { it.id == 42 }
+            val vintageCellar = decodeEntity(entity)
+            entity = cellarMain.find { it.id == 43 }
+            val bottlesCellar = decodeEntity(entity)
+            cellarFilterState.value = CellarFilters(
+                domains = domainsCellar,
+                bottles = bottlesCellar,
+                vintages = vintageCellar
+            )
+        }
+
+        val tranfersMain = map["passport_main"]
+        if (tranfersMain != null) {
+            entity = tranfersMain.find { it.id == 1 }
+            val typeTransfer = decodeEntity(entity)
+            entity = tranfersMain.find { it.id == 2 }
+            val saleStatusTransfer =
+                if (entity == null) 0 else if (entity.data[0].selected || (entity.data[1].selected && entity.data[2].selected)) 0 else if (entity.data[1].selected) 1 else if (entity.data[2].selected) 2 else 0
+            entity = tranfersMain.find { it.id == 3 }
+            val vintageTransfer = decodeEntity(entity)
+            entity = tranfersMain.find { it.id == 4 }
+            val statusTransfer = decodeEntity(entity)
+            tranferFilterState.value = TranferFilters(
+                saleStatus = saleStatusTransfer,
+                tranferType = typeTransfer,
+                status = statusTransfer,
+                vintages = vintageTransfer
+            )
+        }
+
+        val inventoryMain = map["inventory_main"]
+        if (inventoryMain != null) {
+            entity = inventoryMain.find { it.id == 21 }
+            val domainsInventory = decodeEntity(entity)
+            entity = inventoryMain.find { it.id == 22 }
+            val vintageInventory = decodeEntity(entity)
+            entity = inventoryMain.find { it.id == 23 }
+            val bottlesInventory = decodeEntity(entity)
+            inventoryFilterState.value = CellarFilters(
+                domains = domainsInventory,
+                bottles = bottlesInventory,
+                vintages = vintageInventory
+            )
+        }
+//        _filterItemsState.value = map
+    }
+    private fun decodeEntity(entity:  FilterEntity?): List<String> {
+        val dataList = mutableListOf<String>()
+        if (entity == null) return dataList
+        var cnt = entity.data.count{ it.selected }
+        if (cnt == entity.data.size - 1) return dataList
+        if (!entity.data[0].selected) {
+            entity.data.forEachIndexed { i, en ->
+                if (i > 0 && en.selected) dataList += en.name
+            }
+        }
+        return dataList
+    }
+    private fun clientInfoFilter(list: List<ClientInfo>): List<ClientInfo> {
+        val ts = System.currentTimeMillis()
+        Timber.d("clientInfoFilter ${list.size} ${clientFilterState.value}")
+//        val saleStatus: Int,
+//        val domains: List<String>,
+//        val orders: List<String>,
+//        val vintages: List<String>,
+        list.forEach { it.setVisibility() }
+        if (isIntermediate.value) {
+            val isIncoming = _intermediateHomeTabFilterState.value == 0
+            list.forEach { ci ->
+                ci.orders.forEach { co ->
+                    co.isVisible = co.isIncoming == isIncoming
+                }
+                if (ci.orders.count { it.isVisible } == 0) ci.isVisible = false
+            }
+        }
+
+        val homeFilter = clientFilterState.value ?: return list
+        var ls = list
+        if (homeFilter.saleStatus != 0) {
+            ls.forEach { ci ->
+                ci.orders.forEach { co ->
+                    co.isVisible = if (homeFilter.saleStatus == 1) co.isPrimeur
+                    else !co.isPrimeur
+                }
+            }
+        }
+        if (homeFilter.domains.isNotEmpty()){
+            ls.forEach { ci ->
+                ci.orders.filter{it.isVisible}.forEach { co ->
+                    co.isVisible = (co.domains.isListContainsList(homeFilter.domains))
+                }
+            }
+        }
+        if (homeFilter.orders.isNotEmpty()) {
+            ls.forEach { ci ->
+                ci.orders.filter { it.isVisible }.forEach { co ->
+                    co.isVisible = (homeFilter.orders.contains(co.synthStatus))
+                }
+            }
+        }
+        if (homeFilter.vintages.isNotEmpty()) {
+            ls.forEach { ci ->
+                ci.orders.filter { it.isVisible }.forEach { co ->
+                    co.isVisible = (co.vintages.isListContainsList(homeFilter.vintages))
+                }
+            }
+        }
+        val time = System.currentTimeMillis() - ts
+        Timber.d("clientInfoFilter ${ls.size} time:$time")
+        return ls
+    }
+    fun domainInfoFilter(list: List<DomainInfo>, filter: CellarFilters?): List<DomainInfo> {
+        Timber.d("domainInfoFilter ${list.size} ${filter}")
+        list.forEach { it.setVisibility() }
+        val cellarFilter = filter ?: return list
+        var ls = list
+        if (cellarFilter.domains.isNotEmpty()) {
+            ls.forEach { ci ->
+                ci.wines.forEach { co ->
+                    co.isVisible = cellarFilter.domains.contains(co.domainName)
+                }
+                if (ci.wines.count{!it.isVisible} == ci.wines.size) ci.isVisible = false
+            }
+        }
+        if (cellarFilter.vintages.isNotEmpty()){
+            ls.forEach { ci ->
+                ci.wines.filter{it.isVisible}.forEach { co ->
+                    co.isVisible = cellarFilter.vintages.contains(co.vintage)
+                }
+            }
+        }
+        if (cellarFilter.bottles.isNotEmpty()) {
+            ls.forEach { ci ->
+                ci.wines.filter { it.isVisible }.forEach { co ->
+                    co.isVisible = co.bottleSize.isBlank() || (cellarFilter.bottles.contains(co.bottleSize))
+                }
+            }
+        }
+
+        ls.forEach { ci ->
+            if (ci.wines.isEmpty() || ci.wines.count{!it.isVisible} == ci.wines.size) ci.isVisible = false
+        }
+
+        return ls
+    }
+
+    fun transferDetailsInfoFilter(list: List<TransferDetailsInfo>): List<TransferDetailsInfo> {
+        Timber.d("transferDetailsInfoFilter ${list.size} ${tranferFilterState.value}")
+//        val saleStatus: Int,
+//        val tranferType: List<String>,
+//        val status: List<String>,
+//        val vintages: List<String>,
+
+        list.forEach { it.isVisible= true }
+        val tranferFilter = tranferFilterState.value ?: return list
+        var ls = list
+        if (tranferFilter.saleStatus != 0) {
+            val isPrim = tranferFilter.saleStatus == 1
+             ls.forEach lbSale@{ ci ->
+                ci.isVisible = ci.wines.count {it.isPrimeur == isPrim} > 0
+            }
+        }
+        val incomStr = getString(R.string.incoming)
+        if (tranferFilter.tranferType.isNotEmpty() && tranferFilter.tranferType.size != 2) {
+            val incom = tranferFilter.tranferType.contains(incomStr)
+            ls.filter{it.isVisible}.forEach { ci ->
+                ci.isVisible = ci.isIncoming == incom
+            }
+        }
+
+        if (tranferFilter.status.isNotEmpty()) {
+            ls.filter{it.isVisible}.forEach { ci ->
+                ci.isVisible = tranferFilter.status.contains(getString(ci.getTranferStatusTextId())) //transferStatus
+            }
+        }
+        if (tranferFilter.vintages.isNotEmpty()){
+            ls.filter{it.isVisible}.forEach { ci ->
+                val vint = ci.wines.map{it.vintage}
+                ci.isVisible = vint.isListContainsList(tranferFilter.vintages)
+            }
+        }
+        return ls
+    }
+
+    override fun setDptScanMode(mode: Boolean){
+        _dptScanMode.value = mode
+        if (!mode) _createPassportWineListState.value = listOf()
+    }
+    private suspend fun getWineInternal(id: Int): WineItem? {
+        val ts = System.currentTimeMillis()
+        val res = deliveryInstructionsRepository.getWine(id)
+        val time = System.currentTimeMillis() - ts
+        Timber.d("getWines read time $time res:$res")
+        if (res is WinesResult.Success) {
+            Timber.d("getWine wines:${res.list.size}")
+            _dptScanModeWine.value = res.list[0]
+            return res.list[0]
+        }
+        else return null
+    }
+    override fun setInventoryStartInfo(wineId: Int, putInCases: Boolean, caseIndex: Int) {
+        Timber.d("setInventoryStartInfo wineId:$wineId putInCases:$putInCases caseIndex:$caseIndex")
+        val ts = System.currentTimeMillis()
+        val wine = _cellarWineDetails.value.wineExtended ?: return
+        Timber.d("setInventoryStartInfo cont")
+        val bottleVolume = volumeDoubleToString(wine.bottleVolume)
+        val (caseTypeId, bottleInCase) = if (putInCases) {
+            if (caseIndex == -1) return
+            val caseList = wine?.packages ?: return
+            val caseName = caseList[caseIndex].name
+            val cases = caseList.filter { it.name == caseName }
+            if (cases.size > 1) {
+                Timber.e("setInventoryStartInfo case contains ${cases.size} cases")
+            }
+            val case = cases[0]
+            val caseTypeId = case.id
+            val bottleInCase = case.bottlesQty
+            Pair(caseTypeId, bottleInCase)
+        } else {
+            Pair(0, 0)
+        }
+        _inventoryStartInfo.value = InventoryStartInfo(wineId = wineId, wineName = wine.name, wineColor = wine.color, vintage = wine.vintage, bottleVolume = bottleVolume, caseTypeId = caseTypeId, bottleInCase = bottleInCase, hasBoxes = putInCases)
+        val t = System.currentTimeMillis() - ts
+        Timber.d("setInventoryStartInfo time:$t")
+    }
+
+    override suspend fun addCodeToInventory(code: String, dataType: String) { // dataType = "qr" or "nfc"
+        Timber.d("addCodeToInventory $code")
+        val sti = _inventoryStartInfo.value ?: return
+        _inventoryStartInfo.value = null
+        _isPrintingState.value = false
+        sti.currentBottleNum++
+        if (sti.hasBoxes && sti.currentBottleNum % sti.bottleInCase == 0) {
+            sti.currBoxId = CASE_PREFIX + String.format("%08d", System.currentTimeMillis() / 1000)
+        }
+        sti.bottlesBox += BottleInfo(bottleId = code,
+            wineName = sti.wineName,
+            volume = sti.bottleVolume,
+            "")
+        sti.bottles += InventoryBottle(vendorSerialNumber = code,
+            passportAuthData = listOf(InventoryPassportAuthData(dataType = dataType, value = code)),
+            caseId = sti.currBoxId,
+            bottlingDate = getCurrentTimeUtc() / 1000
+        )
+        var isPrint = false
+        if (sti.hasBoxes && sti.currentBottleNum % sti.bottleInCase == 0) {
+            val bi = sti.bottlesBox.toMutableList()
+            sti.boxes += BoxInfo(sti.currBoxId!!, bi)
+            sti.bottlesBox.clear()
+            sti.currentCaseNum++
+            isPrint = true
+        }
+        _inventoryStartInfo.value = sti
+
+        if (isPrint) {
+            _isPrintingState.value = true
+            delay(100)
+            _isPrintingState.value = false
+        }
+
+    }
+    override fun onUndoClick(): String {
+        val inventoryInfo = _inventoryStartInfo.value ?: return ""
+        val v = inventoryInfo.copy()
+        val bottle = v.onUndoClick()
+        Timber.d("onUndoClick  ${v === inventoryInfo}")
+        viewModelScope.launch(dispatcherProvider.io()) {
+//            delay(50)
+            _inventoryStartInfo.value = v
+        }
+        return bottle
+    }
+
+    override fun syncInventory() {
+        val inventoryInfo = _inventoryStartInfo.value ?: return
+        Timber.d("syncInventory ${inventoryInfo}")
+        _uiResult.value = null
+        _errorToast.value = ""
+        _errorToastId.value = 0
+        _toHomeScreen.value = false
+        viewModelScope.launch(dispatcherProvider.io()) {
+//            _uiResult.value = UiResult.Success
+//            return@launch
+
+            val wineId = inventoryInfo.wineId
+            val caseTypeId = inventoryInfo.caseTypeId
+
+            val dto = InventoryRequestDto(wineId = inventoryInfo.wineId,
+                caseTypeId = inventoryInfo.caseTypeId,
+                bottles = inventoryInfo.bottles)
+            val res = deliveryInstructionsRepository.syncInventory(dto)
+//            val res: SyncResult = SyncResult.Success
+            _uiResult.value = when (res) {
+                is SyncResult.Success -> {
+//                    if (appSettingsDataSource.isConnected()) {
+//                        removeScannedDataItem(dptDeliveryInstructionId)
+//                        refreshDptInternal()
+//                    }
+                    UiResult.Success
+                }
+                is SyncResult.Failure -> {
+//                    removeScannedDataItem(dptDeliveryInstructionId)
+                    UiResult.Error(res.toString())
+                }
+                is SyncResult.Error -> UiResult.Error(res.e.toString())
+                is SyncResult.SyncError -> UiResult.SyncError(res.batchId)
+            }
+//            if (BuildConfig.DEBUG && CLEAR_SCANNED) appSettingsDataSource.setScannedData("")
+        }
+    }
+    fun getWineByIdExt(id: Int) {
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val res = deliveryInstructionsRepository.getWineExt(id)
+            Timber.d("getWineByIdExt $res")
+            if (res is WinesExtResult.Success) {
+                _cellarWineDetails.value.wineExtended = res.wine
+            }
+        }
+    }
+
+    override fun initExternalScanner(context: Context): Boolean {
+//        viewModelScope.launch(dispatcherProvider.io()) {
+//        zebraScannerController = ZebraScannerControllerImpl(context)
+        _errorToast.value = ""
+        startLogcat()
+        val checkBluetooth = isBluetoothEnabled()
+        val isBluetoothSupported = context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH);
+        val isBluetoothLESupported = context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
+        Timber.d("initExternalScanner checkBt:${checkBluetooth} bt:$isBluetoothSupported ble:$isBluetoothLESupported")
+        if (!checkBluetooth) {
+            _errorToast.value = "Bluetooth not enabled. Please enable it in settings"
+            return false
+        }
+        val model = "Devic:${Build.DEVICE} model:${Build.MODEL} vwrsion:${Build.VERSION.SDK_INT}"
+        Timber.d("initExternalScanner $context $model")
+        val r = zebraScannerController.initialize(context)
+        Timber.d("initExternalScanner res:$r")
+        return r
+    }
+    override fun getBarcodeView() = zebraScannerController.getBarcodeView()
+
+    fun getTransferHistoryInfo(id:Int) {
+        Timber.d("getTransferHistoryInfo id:$id")
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val res = deliveryInstructionsRepository.getTransferHistory(id)
+            if (res is TransferHistoryResult.Success) {
+                if (BuildConfig.DEBUG && res.list.isEmpty()) _transferHistoryInfo.value = infoList1
+                else _transferHistoryInfo.value = res.list.map {
+                    MapItemInfo(geoPoint = GeoPoint(it.latitude, it.longitude), city = it.city, country = it.country, date = it.transferDate, distance = it.distance, sellerType = it.sellerType, sellerTypeName =  it.sellerTypeName, buyerType = it.buyerType, buyerTypeName = it.buyerTypeName)
+                }
+            } //else _errorToast.value = res.toString()
+        }
+    }
+
+    var logcatJob: Job? = null
+    private fun startLogcat() {
+        val contList = listOf("checkBt", "Bluet", "Zebra", "Permission", "initExternalScanner","sdkhandler")
+        logcatJob?.cancel()
+        if (!BuildConfig.DEBUG) return
+        _logcatLine.value = ""
+        logcatJob = viewModelScope.launch(dispatcherProvider.io()) {
+            Runtime.getRuntime().exec("logcat -c") // Clear logs
+            Runtime.getRuntime().exec("logcat") // Start to capture new logs
+                .inputStream
+                .bufferedReader()
+                .useLines { lines ->
+                    // Note that this forEach loop is an infinite loop until this job is cancelled.
+                    lines.forEach { newLine ->
+                        contList.forEach { if (newLine.contains(it, true)) _logcatLine.value += " $newLine\n" }
+                    }
+                }
+
+        }
+    }
+    fun stopLogcat() {
+        Timber.d("stopLogcat")
+        logcatJob?.cancel()
+    }
+//------------ Untracked wines------------
+    private fun untrackWineSearch(list: List<UntrackedWineItem>, query: String): List<UntrackedWineItem> {
+        var list = _untrackedWineListState.value
+        if (query.isEmpty()) {
+            list.forEach { it.query = "" }
+            return list
+        }
+        list = list.filter { it.contains(query) }
+        list.forEach { it.query = query }
+        return list
+    }
+
+    var debounceJob: Job? = null
+    override fun onUntrackMainWineSearch(query: String) {
+        _untrackedWineListState.value = listOf()
+        _untrackedSearchText.value = query
+        debounceJob?.cancel()
+        debounceJob = viewModelScope.launch(dispatcherProvider.io()) {
+            delay(500)
+            val result = untrackedWineRepository.getUntrackedWines(name = query)
+            if (result is UntrackedWineListResult.Success) _untrackedWineListState.value = result.list
+            if (result is UntrackedWineListResult.Failure && result.apiFailure.errorCode == 401) loginRefresh()
+        }
+    }
+    override fun onUntrackWineSearch(query: String) {
+        _untrackedSearchText.value = query
+    }
+
+    override val untrackedCustomWines = _untrackedCustomWineSearchText.debounce(300)
+        .flatMapLatest { query ->
+        untrackedWineRepository.getUntrackedWinesFlow(1, 30, query)
+    }
+
+    override fun onUntrackCustomWineSearch(query: String) {
+        Timber.d("onUntrackCustomWineSearch $query")
+        if (query.isNotBlank()) _untrackedCustomWineSearchText.value = query
+    }
+    override val untrackedCustomWineProducers = _untrackedCustomProducerSearchText.debounce(300)
+    .flatMapLatest { query ->
+        untrackedWineRepository.getUntrackedWineProducers(1, 10, query)
+    }
+
+    override fun onUntrackCustomProducerSearch(query: String) {
+        Timber.d("onUntrackCustomProducerSearch $query")
+        if (query.isNotBlank()) _untrackedCustomProducerSearchText.value = query
+    }
+
+    override val untrackedWines = _untrackedSearchText.debounce(300).flatMapLatest { query ->
+        untrackedWineRepository.getWineItemsPaged(query).cachedIn(viewModelScope)
+    }
+    override val untrackedUserWines = untrackedWineRepository.getUserWineItemsPaged("").cachedIn(viewModelScope)
+
+    override fun getUntrackedUserWineById(id: Int) {
+        _errorToast.value = ""
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val time = measureTimeMillis {
+                val result = untrackedWineRepository.getUntrackedUserWineById(id)
+                if (result is UntrackedUserWineResult.Success) _untrackedUserWineInfoState.value =
+                    listOf(result.userWine)
+                else _errorToast.value = result.toString()
+            }
+            Timber.d("getUntrackedUserWineById time:$time")
+        }
+    }
+
+    override fun addUntrackedWine(vintage: Int, bottleVolume: Double, externalWineIdUrl: String, qty: Int, price: Double, vendorName: String, dateOfPurchase: Date) {
+        Timber.d("addUntrackedWine")
+        _uiResult.value = null
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val dto = AddUntrackedWineRequest(vintage = vintage,
+                bottleVolume = bottleVolume,
+                externalWine = externalWineIdUrl,
+                qty = qty,
+                price = price,
+                vendorName = vendorName,
+                dateOfPurchase = dateOfPurchase.toSimpleMonthBackEndString() )
+            val res = untrackedWineRepository.addUntrackedWine(dto)
+            _uiResult.value = when (res) {
+                is CommonResult.Success -> UiResult.Success
+                is CommonResult.Failure -> UiResult.Error(res.toString())
+                is CommonResult.Error -> UiResult.Error(res.e.toString())
+            }//            if (BuildConfig.DEBUG && CLEAR_SCANNED) appSettingsDataSource.setScannedData("")
+        }
+    }
+    override fun addUntrackedCustomWine(vintage: Int,
+                                        bottleVolume: Double,
+                                        wineType: String,
+                                        qty: Int,
+                                        price: Double,
+                                        name: String,
+                                        producerName: String,
+                                        vendorName: String,
+                                        country: String,
+                                        region: String,
+                                        appellation: String,
+                                        classification: String,
+                                        color: String,
+                                        dateOfPurchase: Date) {
+        Timber.d("addUntrackedCustomWine")
+        _uiResult.value = null
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val dto = UntrackedCustomWineRequest( vintage = vintage,
+                bottleVolume = if (bottleVolume > 0.0)bottleVolume else null,
+                wineType = wineType,
+                qty = qty,
+                price = if (price > 0.0) price else null,
+                vendorName = if (vendorName.isNotBlank()) vendorName else null,
+                dateOfPurchase = dateOfPurchase.toSimpleMonthBackEndString(),
+                name = name,
+                producerName = if (producerName.isNotBlank()) producerName else null,
+                country = if (country.isNotBlank()) country else null,
+                region = if (region.isNotBlank()) region else null,
+                appellation = if (appellation.isNotBlank()) appellation else null,
+                classification = if (classification.isNotBlank()) classification else null,
+                color = color
+                )
+            val res = untrackedWineRepository.addUntrackedCustomWine(dto)
+            _uiResult.value = when (res) {
+                is CommonResult.Success -> UiResult.Success
+                is CommonResult.Failure -> UiResult.Error(res.apiFailure.detail)
+                is CommonResult.Error -> UiResult.Error(res.e.toString())
+            }//            if (BuildConfig.DEBUG && CLEAR_SCANNED) appSettingsDataSource.setScannedData("")
+        }
+    }
+
+    override fun getUntrackedUserWines() {
+        Timber.d("getUntrackedWines")
+        _errorToast.value = ""
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val result = untrackedWineRepository.getUntrackedUserWines()
+            if (result is UntrackedUserWineListResult.Success) _untrackedUserWineListState.value = result.list
+            else _errorToast.value = result.toString()
+        }
+    }
+
+    override fun getUntrackedWineById(id: Int) {
+        Timber.d("getUntrackedWinebyId $id")
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val result = untrackedWineRepository.getUntrackedWineById(id)
+            if (result is UntrackedWineResult.Success) _untrackedWineInfoState.value = listOf(result.wine)
+            else _errorToast.value = result.toString()
+
+        }
+    }
+    override fun addUntrackedWineReview(userExternalWine: String, course: String, rating: Int, dateOfTest: Date, review: String, tastedWith: String?, locationOfTest: String?, volumes: List<VolumesToBottleMutable>) {
+        Timber.d("addUntrackedWineReview userExternalWine:$userExternalWine course:$course rating:$rating dateOfTest:$dateOfTest review:$review tastedWith:$tastedWith locationOfTest:$locationOfTest volumes:$volumes")
+        _uiResult.value = null
+        val drunkList = volumes.map { UntrackedWineReviewRequestDrunkItem( volume = it.volume, qty = it.qty) }
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val dto = UntrackedWineReviewRequest(
+                userExternalWine = userExternalWine,
+                drunkItems = drunkList,
+                course = course,
+                description = review,
+                tastedWith = tastedWith,
+                locationOfTest = locationOfTest,
+                rating = rating,
+                dateOfTest = dateOfTest.toSimpleMonthBackEndString() )
+            val res = untrackedWineRepository.addUntrackedWineReview(dto)
+            _uiResult.value = when (res) {
+                is CommonResult.Success -> UiResult.Success
+                is CommonResult.Failure -> UiResult.Error(res.toString())
+                is CommonResult.Error -> UiResult.Error(res.e.toString())
+            }//            if (BuildConfig.DEBUG && CLEAR_SCANNED) appSettingsDataSource.setScannedData("")
+        }
+    }
+    //----------------------
+    fun generateClientList() {
+        Timber.d("generateClientList")
+        val l= mutableListOf<ClientInfo>()
+        val l1 = mutableListOf<ClientOrder>()
+        repeat(4) { ind -> l1 += ClientOrder("0000000000$ind", Date(), Date(), indToStatus(ind)) }
+        repeat(50) { ind -> l += ClientInfo(ind.toString(), "Client Name $ind", "00000000$ind", l1)}
+        _clientListState.value = l
+    }
+    fun generatePackageList() {
+        Timber.d("generatePackageList")
+        val l = mutableListOf<PackageInfo>()
+        val l1 = mutableListOf<PackageItem>()
+        repeat(15) { ind -> l1 += PackageItem( "Wine Name $ind", "76 Cases | 120 Bottles | Wood")}
+        repeat(4) { l += PackageInfo("DEMIE  $it", "10 Wood Cases | 96 Cartoon Cases", l1) }
+        _packageListState.value = l
+    }
+//    fun filterPackagetList(query: String) {
+//        _packageListState.value = if (query.isNotEmpty()) _nonFilterPackageListState.value.filter { it.contains(query)  }
+//        else _nonFilterPackageListState.value
+//    }
+
+    // "Bottles 360 | CRD | ENG label |"
+    fun generatePackageWineList() {
+    Timber.d("generateClientList")
+        val l = mutableListOf<WineInfoItem>()
+        val l1 = mutableListOf<SubInfoItem>()
+        var cnt = 0
+        repeat(4) { l1 += SubInfoItem(itemName = "Client Name $it", qty = "2/19", isProcessed = (cnt and 1 != 0), itemData = "Bottles 360 | CRD | ENG label |" ); cnt++ }
+        repeat(1) { ind -> l += WineInfoItem("Wine Name $ind", "76 Cases | 120 Bottles | Wood", l1, 20+ ind * 20) }
+        _clientWineListState.value = l
+    }
+    fun generateClientWineList() {
+        Timber.d("generateClientWineList")
+        val l = mutableListOf<WineInfoItem>()
+        val l1 = mutableListOf<SubInfoItem>()
+        var cnt = 0
+        repeat(4) { l1 += SubInfoItem(itemName = "6 Standart Wood", qty = "2/19", isProcessed = (cnt and 1 != 0), itemData = "Bottles 360 | CRD | ENG label |" ); cnt++ }
+        repeat(3) { ind -> l += WineInfoItem("Wine Name $ind", "76 Cases | 120 Bottles | Wood", l1, ind *30) }
+        _clientWineListState.value = l
+    }
+
+    fun generateHabillageScanResultInfo() {
+        Timber.d("generateHabillageScanResultInfo")
+        val l1 = mutableListOf<BottleInfo>()
+        val l = mutableListOf<BoxInfo>()
+        val cntL = listOf(6, 1, 2, 3, 5)
+        repeat(5) { ind ->
+            l1.clear(); repeat(cntL[ind]) { indL ->
+            l1 += BottleInfo(
+                "E26P8DNN$indL",
+                "Wine Name $indL",
+                "750ml",
+                ""
+            )
+            }
+            l += BoxInfo("000000$ind", l1,)
+        }
+        _habillageScanResultInfoState.value = HabillageScanResultInfo("360", "360","60", l, listOf(SyncDeliveryInstructionItemBottle.Empty()), null)
+    }
+    fun generateDomainList() {
+        Timber.d("generateDomainList")
+        val doms = listOf("Château de Salles", "Chateau Léoville Poyferré", "Château La Gaffeliere")
+        val winss = listOf("", "", "", "")
+        val l = mutableListOf<DomainInfo>()
+        val l1 = mutableListOf<PackageItem>()
+        repeat(4) { ind -> l1 += PackageItem( "Chateau Léoville Poyferré |(201$ind)", "Max Qty: 1000 | Stock Qty: 900 | 13% alc.")}
+        repeat(3) {ind ->  l += DomainInfo(ind, doms[ind],  l1.map{ it.setDomain(doms[ind]) }) }
+        _domainListState.value = l
+    }
+}
+
+fun indToStatus(i: Int): String {
+    return when(i % 3) {
+        0 -> "Pending"
+        1 -> "In Progress"
+        2-> "Completed"
+        else ->"Strange".hashCode().toString()
+    }
+}
+
+fun statusToColor(context: Context, s: String): Long =
+//      if (s.contains("pending", true)) 0xFF444444
+//      else if (s.contains("progress", true) || s.contains("process", true)) 0xFFFE9827
+//      else if (s.contains("completed", true)) 0xFF33B958
+    if (s == context.getString(R.string.pending)) 0xFF444444
+    else if (s == context.getString(R.string.in_progress) || s == context.getString(R.string.in_process)) 0xFFFE9827
+    else if (s == context.getString(R.string.completed)) 0xFF33B958
+    else 0xFF252525
+
+fun getStickStatusColor(stickStatus: String):Long {
+    return if (stickStatus.contains("Prime")) 0xFF6F7E45L else 0xFF634D79L
+}
+

@@ -144,9 +144,10 @@ fun textField(value: String, stId: StringResource, onValueChange: (String)-> Uni
 @Composable
 fun ProfileEditInfoView(navController: NavHostController?, viewModel: IProfileModel
 ) {
-    val profileInfo by viewModel.profileInfo.collectAsState()
+    val profileInfoEx by viewModel.profileInfo.collectAsState()
+    val profileInfo = profileInfoEx.profile
     val personInfo by viewModel.personInfo.collectAsState()
-    val isConsumer by viewModel.isConsumer.collectAsState()
+    val isConsumer = profileInfoEx.isConsumer
     val notificationNotReadCount by viewModel.notificationNotReadCount.collectAsState()
     val notificationCount by viewModel.notificationCount.collectAsState()
     val uiResult by viewModel.uiResult.collectAsState()

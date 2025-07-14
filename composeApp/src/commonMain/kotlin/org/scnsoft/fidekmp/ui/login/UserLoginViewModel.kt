@@ -9,18 +9,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.scnsoft.fidekmp.data.api.auth.dto.SignUpRequestDto
-import org.scnsoft.fidekmp.data.repository.ChangePasswordResult
-import org.scnsoft.fidekmp.data.repository.CountryListResult
-import org.scnsoft.fidekmp.data.repository.LoginRepository
-import org.scnsoft.fidekmp.data.repository.LoginResult
-import org.scnsoft.fidekmp.data.repository.SignApiResult
+import org.scnsoft.fidekmp.domain.repository.ChangePasswordResult
+import org.scnsoft.fidekmp.domain.repository.CountryListResult
+import org.scnsoft.fidekmp.domain.repository.LoginRepository
+import org.scnsoft.fidekmp.domain.repository.LoginResult
+import org.scnsoft.fidekmp.domain.repository.SignApiResult
 import org.scnsoft.fidekmp.getPlatform
 import org.scnsoft.fidekmp.utils.getTickCount
-import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 data class LoginError(

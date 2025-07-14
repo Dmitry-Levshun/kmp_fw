@@ -21,8 +21,10 @@ data class ProfileInfo(
     val deleteRequestedAt: String = "",
     var userType: BottomBarUserType = BottomBarUserType.WINEYARD
     ) {
+    fun isNotEmpty(): Boolean = this.fullName.isNotEmpty() && this.email.isNotEmpty() && this.userId.isNotEmpty()
     companion object {
         fun Empty(): ProfileInfo = ProfileInfo("", "", "", "", "", 1, "", "", 1,"", listOf())
+
         fun profileFromDto(resp: ProfileResponseDto) =
             ProfileInfo(resp.avatar,
                 resp.company,
@@ -67,3 +69,10 @@ data class PersonInfo(
         )
     }
 }
+
+@Serializable
+data class ProfileExtInfo(
+    val profile: ProfileInfo,
+    val isConsumer: Boolean,
+    val isIntermediate: Boolean
+)

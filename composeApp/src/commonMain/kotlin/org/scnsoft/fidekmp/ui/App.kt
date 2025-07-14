@@ -20,10 +20,24 @@ import fidekmp.composeapp.generated.resources.compose_multiplatform
 import org.scnsoft.fidekmp.Greeting
 import org.scnsoft.fidekmp.getPlatform
 import org.scnsoft.fidekmp.ui.login.NavGraph
+import io.github.farhazulmullick.lenslogger.ui.LensApp
+
+@Composable
+fun App() {
+    LensApp(
+        modifier = Modifier.fillMaxSize(),
+// by default enabled, set to false to disable.
+        showLensFAB = true
+    ) {
+        // Your app content goes here
+        MainApp()
+    }
+}
+//-------
 
 @Composable
 @Preview
-fun App() {
+fun MainApp() {
     NavGraph()
     /*
     MaterialTheme {

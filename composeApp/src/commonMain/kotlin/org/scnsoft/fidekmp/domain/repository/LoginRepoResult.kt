@@ -1,4 +1,4 @@
-package org.scnsoft.fidekmp.data.repository
+package org.scnsoft.fidekmp.domain.repository
 
 import org.scnsoft.fidekmp.data.api.auth.dto.CountryListDto
 import org.scnsoft.fidekmp.data.api.auth.dto.LoginResponseDto

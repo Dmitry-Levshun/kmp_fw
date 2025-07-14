@@ -22,6 +22,7 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -73,7 +74,6 @@ fun CellarMainScreen(
     }
 
 //    val searchText by homeViewModel.searchText.collectAsState()
-    val isConsumer by homeViewModel.isConsumer.collectAsState(initial = false)
     val profileInfo by homeViewModel.profileInfo.collectAsState()
     Napier.d("CellarMainScreen")
     val titleId = Res.string.my_cellar
@@ -101,7 +101,7 @@ fun CellarMainScreen(
             backGroundColor = backColor
         )
         }},
-        bottomBar = { BottomNavBar(navController = navController, profileInfo.userType, profileInfo.permissions) },
+        bottomBar = { BottomNavBar(navController = navController, profileInfo.profile.userType, profileInfo.profile.permissions) },
         content = {
             CellarMainView(homeViewModel, navController)
 //            if (appTabType == 0) HomeView(homeViewModel, navController)
@@ -122,7 +122,9 @@ fun CellarMainView(viewModel: ICellarModel, navController: NavHostController?){
     }
     var untrackerLoaded by remember {mutableStateOf(false)}
     val isLoading by viewModel.isloadingState.collectAsState()
-    val isConsumer by viewModel.isConsumer.collectAsState(initial = false)
+    val profileInfo by viewModel.profileInfo.collectAsState()
+    val isConsumer = profileInfo.isConsumer
+
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isLoading,
         onRefresh = viewModel::getWines
@@ -131,7 +133,7 @@ fun CellarMainView(viewModel: ICellarModel, navController: NavHostController?){
     if (isConsumer) list += stringResource(Res.string.untracked)
     val tabIndex by viewModel.cellarTabIndexState.collectAsState()
     val domainList by viewModel.domainListState.collectAsState(listOf())
-    val untrackedUserWineList by viewModel.untrackedUserWineListState.collectAsState(initial = listOf())
+//    val untrackedUserWineList by viewModel.untrackedUserWineListState.collectAsState(initial = listOf())
     val untrackedPagedUserWineList = viewModel.untrackedUserWines.collectAsLazyPagingItems()
     val scope = rememberCoroutineScope()
     if (isConsumer && !untrackerLoaded) {
@@ -254,7 +256,7 @@ fun CellarMainView(viewModel: ICellarModel, navController: NavHostController?){
                     .align(Alignment.BottomCenter),
                 enabled = true,
                 onClick = {
-                    viewModel.onUntrackWineSearch("")
+//                    viewModel.onUntrackWineSearch("")
                     navController?.navigate(AppScreens.UntrackedMainScreen.route)
                 })
         }

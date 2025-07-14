@@ -1,5 +1,28 @@
 package org.scnsoft.fidekmp.domain.repository
 
+import kotlinx.datetime.LocalDateTime
+import org.scnsoft.fidekmp.data.api.ApiFailure
+import org.scnsoft.fidekmp.data.api.deliveryinstructions.dto.AppellationItem
+import org.scnsoft.fidekmp.data.api.deliveryinstructions.dto.ContactItem
+import org.scnsoft.fidekmp.data.api.deliveryinstructions.dto.CreateDigitalPassportTransferRequestWine
+import org.scnsoft.fidekmp.data.api.deliveryinstructions.dto.CustomerItemDto
+import org.scnsoft.fidekmp.data.api.deliveryinstructions.dto.DeliveryInstructionDto
+import org.scnsoft.fidekmp.data.api.deliveryinstructions.dto.DigitalPassportTransfer
+import org.scnsoft.fidekmp.data.api.deliveryinstructions.dto.DptDeliveryInstructionItemBottleType
+import org.scnsoft.fidekmp.data.api.deliveryinstructions.dto.DptDeliveryInstructionItemCaseType
+import org.scnsoft.fidekmp.data.api.deliveryinstructions.dto.InvoiceItem
+import org.scnsoft.fidekmp.data.api.deliveryinstructions.dto.OrCodeResponseNoLogin
+import org.scnsoft.fidekmp.data.api.deliveryinstructions.dto.Organisation
+import org.scnsoft.fidekmp.data.api.deliveryinstructions.dto.QrBoxCodeInfoResponse
+import org.scnsoft.fidekmp.data.api.deliveryinstructions.dto.QrCodeInfoResponse
+import org.scnsoft.fidekmp.data.api.deliveryinstructions.dto.TransferHistoryItemDto
+import org.scnsoft.fidekmp.data.api.deliveryinstructions.dto.VersionResponse
+import org.scnsoft.fidekmp.data.api.deliveryinstructions.dto.WineExtendedInfo
+import org.scnsoft.fidekmp.data.api.deliveryinstructions.dto.WineItem
+import org.scnsoft.fidekmp.data.api.untracked.dto.UntrackedUserWineItem
+import org.scnsoft.fidekmp.data.api.untracked.dto.UntrackedUserWineItemById
+import org.scnsoft.fidekmp.data.api.untracked.dto.UntrackedWineItem
+
 sealed class SyncResult {
     object Success : SyncResult()
     class SyncError(val batchId: Int?) : SyncResult()
@@ -13,7 +36,7 @@ sealed class SyncResult {
                 }
     }
 }
-/*
+
 sealed class WinesResult {
     class Success(val list: List<WineItem>) : WinesResult()
     class Failure(val apiFailure: ApiFailure) : WinesResult()
@@ -22,7 +45,7 @@ sealed class WinesResult {
         return "WinesResult " +
                 when(this) {
                     is Success -> "Success ${list.size}"
-                    is Failure ->"${apiFailure.detail}"
+                    is Failure ->"${apiFailure.message}"
                     is Error ->"Error $e"
                 }
     }
@@ -140,7 +163,7 @@ sealed class OrganisationResult {
 }
 
 data class CreateDigitalPassportTransferData(
-    var deliveryInstructionsDueDate: Date, //"2023-11-17T10:26:24.839Z",
+    var deliveryInstructionsDueDate: LocalDateTime, //"2023-11-17T10:26:24.839Z",
     var domainName: String,
     var selfProvideDeliveryInstruction: Boolean,
     var organizationId: String?, //"/api/v1/wineyard/organizations/1",
@@ -160,7 +183,7 @@ sealed class QrCodeInfoResult {
         return "" +
             when(this) {
                 is Success -> "Success //$passport"
-                is Failure -> "${apiFailure.detail}"
+                is Failure -> "${apiFailure.message}"
                 is Error ->"Error ${e?.message}"
             }
     }
@@ -173,7 +196,7 @@ sealed class QrCodeInfoResultNoLogin {
         return "QrCodeInfo " +
                 when(this) {
                     is Success -> "Success //$passport"
-                    is Failure ->"Failure ${apiFailure.detail}"
+                    is Failure ->"Failure ${apiFailure.message}"
                     is Error ->"Error ${e?.message}"
                 }
     }
@@ -193,9 +216,10 @@ sealed class QrBoxCodeInfoResult {
                 }
     }
 }
-*/
+
 sealed class CommonResult {
     object Success : CommonResult()
+    class Failure(val apiFailure: ApiFailure) : CommonResult()
     class Error(val e: Throwable?) : CommonResult()
 
     override fun toString(): String {
@@ -203,10 +227,11 @@ sealed class CommonResult {
                 when (this) {
                     is Success -> "Success"
                     is Error -> "Error ${e?.message}"
+                    is Failure -> "Failure ${apiFailure.code} ${apiFailure.message}"
                 }
     }
 }
-/*
+
 sealed class CustomerResult {
     class Success(val list: List<CustomerItemDto>) : CustomerResult()
     class Failure(val apiFailure: ApiFailure) : CustomerResult()
@@ -267,7 +292,7 @@ sealed class TransferHistoryResult {
 sealed class UntrackedWineListResult {
     class Success(val list: List<UntrackedWineItem>) : UntrackedWineListResult()
     class Failure(val apiFailure: ApiFailure) : UntrackedWineListResult()
-    class Error(val e: Exception?) : UntrackedWineListResult()
+    class Error(val e: Throwable?) : UntrackedWineListResult()
     override fun toString(): String {
         return "UntrackedWineListResult " +
                 when(this) {
@@ -277,10 +302,11 @@ sealed class UntrackedWineListResult {
                 }
     }
 }
+
 sealed class UntrackedUserWineListResult {
     class Success(val list: List<UntrackedUserWineItem>) : UntrackedUserWineListResult()
     class Failure(val apiFailure: ApiFailure) : UntrackedUserWineListResult()
-    class Error(val e: Exception?) : UntrackedUserWineListResult()
+    class Error(val e: Throwable?) : UntrackedUserWineListResult()
     override fun toString(): String {
         return "UntrackedUserWineListResult " +
                 when(this) {
@@ -294,7 +320,7 @@ sealed class UntrackedUserWineListResult {
 sealed class UntrackedUserWineResult {
     class Success(val userWine: UntrackedUserWineItemById) : UntrackedUserWineResult()
     class Failure(val apiFailure: ApiFailure) : UntrackedUserWineResult()
-    class Error(val e: Exception?) : UntrackedUserWineResult()
+    class Error(val e: Throwable?) : UntrackedUserWineResult()
 
     override fun toString(): String {
         return "UntrackedUserWineResult " +
@@ -309,7 +335,7 @@ sealed class UntrackedUserWineResult {
 sealed class UntrackedWineResult {
         class Success(val wine: UntrackedWineItem) : UntrackedWineResult()
         class Failure(val apiFailure: ApiFailure) : UntrackedWineResult()
-        class Error(val e: Exception?) : UntrackedWineResult()
+        class Error(val e: Throwable?) : UntrackedWineResult()
         override fun toString(): String {
             return "UntrackedWineResult " +
                     when(this) {
@@ -323,7 +349,7 @@ sealed class UntrackedWineResult {
 sealed class VersionResult {
     class Success(val response: VersionResponse) : VersionResult()
     class Failure(val apiFailure: ApiFailure) : VersionResult()
-    class Error(val e: Exception?) : VersionResult()
+    class Error(val e: Throwable?) : VersionResult()
 
     override fun toString(): String {
         return "VersionResult " +
@@ -334,4 +360,3 @@ sealed class VersionResult {
                 }
     }
 }
-*/

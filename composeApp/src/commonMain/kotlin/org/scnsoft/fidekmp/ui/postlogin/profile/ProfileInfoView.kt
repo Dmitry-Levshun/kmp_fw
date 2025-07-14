@@ -66,9 +66,10 @@ fun ProfileInfoScreen(
     viewModel: IProfileModel,
 ) {
     viewModel.resetUiResult()
-    val profileInfo by viewModel.profileInfo.collectAsState()
+    val profileInfoEx by viewModel.profileInfo.collectAsState()
+    val profileInfo = profileInfoEx.profile
     val personInfo by viewModel.personInfo.collectAsState()
-    val isConsumer by viewModel.isConsumer.collectAsState()
+    val isConsumer = profileInfoEx.isConsumer
     val notificationNotReadCount by viewModel.notificationNotReadCount.collectAsState()
     val notificationCount by viewModel.notificationCount.collectAsState()
     val uiResultState by viewModel.uiResult.collectAsState()
@@ -137,7 +138,8 @@ fun ProfileInfoView(navController: NavHostController?, viewModel: IProfileModel
 //    val list = listOf(stringResource(id = R.string.scanning), stringResource(id = R.string.wallet))
     val accTypes = stringArrayResource(Res.array.acc_types)
     val roleTypes = stringArrayResource(Res.array.role_types)
-    val profileInfo by viewModel.profileInfo.collectAsState()
+    val profileInfoEx by viewModel.profileInfo.collectAsState()
+    val profileInfo = profileInfoEx.profile
     val notificationNotReadCount by viewModel.notificationNotReadCount.collectAsState()
     val notificationCount by viewModel.notificationCount.collectAsState()
     val openDeleteDialog = remember { mutableStateOf(false) }

@@ -4,6 +4,7 @@ import org.scnsoft.fidekmp.domain.model.profile.ProfileInfo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import org.scnsoft.fidekmp.domain.model.FilterEntity
+import org.scnsoft.fidekmp.domain.model.profile.ProfileExtInfo
 
 interface LoadingInterface {
     val isloadingState: StateFlow<Boolean>
@@ -13,9 +14,7 @@ interface UiResultInterface {
     fun resetUiResult()
 }
 interface IProfileInfo {
-    val profileInfo: StateFlow<ProfileInfo>
-    val isConsumer: StateFlow<Boolean>
-    val isIntermediate: StateFlow<Boolean>
+    val profileInfo: StateFlow<ProfileExtInfo>
 }
 
 interface IFilter {

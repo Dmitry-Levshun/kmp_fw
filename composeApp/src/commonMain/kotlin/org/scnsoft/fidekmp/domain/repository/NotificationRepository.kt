@@ -1,4 +1,4 @@
-package org.scnsoft.fidekmp.data.repository
+package org.scnsoft.fidekmp.domain.repository
 
 import kotlinx.coroutines.flow.StateFlow
 import org.scnsoft.fidekmp.domain.model.NotificationItem

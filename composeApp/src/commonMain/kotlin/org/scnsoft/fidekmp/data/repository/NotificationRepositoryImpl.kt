@@ -1,22 +1,15 @@
-package org.scnsoft.fidekmp.domain.repository
+package org.scnsoft.fidekmp.data.repository
 
 import io.github.aakira.napier.Napier
-import org.scnsoft.fidekmp.data.api.notification.dto.DeviceInfoRequestDto
-import org.scnsoft.fidekmp.data.api.notification.dto.MessageContentRequest
-import org.scnsoft.fidekmp.data.api.notification.dto.MessageSendContentRequest
-import org.scnsoft.fidekmp.data.api.notification.dto.NotificationResponseItem
 import org.scnsoft.fidekmp.data.api.notification.dto.ReadRequest
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 import org.scnsoft.fidekmp.data.api.notification.NotificationApi
-import org.scnsoft.fidekmp.data.repository.NotificationRepository
 import org.scnsoft.fidekmp.data.settings.AppSettingsDataSource
 import org.scnsoft.fidekmp.domain.model.NotificationItem
-import org.scnsoft.fidekmp.data.repository.LoginRepository
 import org.scnsoft.fidekmp.domain.model.NotificationResult
+import org.scnsoft.fidekmp.domain.repository.LoginRepository
+import org.scnsoft.fidekmp.domain.repository.NotificationRepository
 import org.scnsoft.fidekmp.utils.currentUtcDateTime
 
 private const val IS_SERVICE = true

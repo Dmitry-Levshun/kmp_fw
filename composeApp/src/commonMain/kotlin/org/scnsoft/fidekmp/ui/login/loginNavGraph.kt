@@ -16,7 +16,10 @@ import androidx.navigation.toRoute
 import coil3.Uri
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.delay
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.Koin
+import org.koin.core.component.KoinComponent
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 enum class NavTarget(val label: String) {
@@ -48,7 +51,9 @@ fun NavGraph(
     var route by remember {
         mutableStateOf(NavTarget.Login.label)
     }
-    val viewModel = koinViewModel<UserLoginViewModel>(key = "LOGIN")
+//    val viewModel: UserLoginViewModel = koinViewModel<UserLoginViewModel>()//(key = "LOGIN")
+    val viewModel: UserLoginViewModel = koinInject<UserLoginViewModel>()
+
     Napier.d(tag = "MAIN", message = "NavGraph loginState:$loginState link:$applink, route:$route")
     LaunchedEffect(applink, loginState, splashState) {
         if (!loginState && !isUriEmpty(applink)) {
@@ -105,7 +110,7 @@ fun NavGraph(
                 // Or do nothing
                 Napier.i("Clicked back")
             }
-            UserLoginScreen(true, navController)
+            UserLoginScreen(true, navController, viewModel)
         }
 
         composable(

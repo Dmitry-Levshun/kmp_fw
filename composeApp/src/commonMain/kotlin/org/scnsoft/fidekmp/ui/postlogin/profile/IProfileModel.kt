@@ -9,6 +9,7 @@ import org.scnsoft.fidekmp.ui.IProfileInfo
 import org.scnsoft.fidekmp.ui.postlogin.notification.INotificationData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import org.scnsoft.fidekmp.domain.model.profile.ProfileExtInfo
 
 interface IProfileModel: IProfileInfo, UiResultInterface, INotificationData {
     val personInfo: StateFlow<PersonInfo>
@@ -19,10 +20,8 @@ interface IProfileModel: IProfileInfo, UiResultInterface, INotificationData {
 }
 class ProfileModelPreview : IProfileModel {
     override val personInfo: StateFlow<PersonInfo> get() = MutableStateFlow(PersonInfo("user ID","avatar", "wine", "John Doe", "sale", "user", "email@gmail.com", "02-6286", "2024-10-16"))
-    override val profileInfo: StateFlow<ProfileInfo> get() = MutableStateFlow(ProfileInfo("avatar", "wine", "John Doe", "sale", "user",0, "email@gmail.com", "Winemaker", 0, "", listOf("notifications")))
+    override val profileInfo: StateFlow<ProfileExtInfo> get() = MutableStateFlow(ProfileExtInfo(ProfileInfo("avatar", "wine", "John Doe", "sale", "user",0, "email@gmail.com", "Winemaker", 0, "", listOf("notifications")), false, false))
 
-    override val isConsumer: StateFlow<Boolean> get() = MutableStateFlow(false)
-    override val isIntermediate: StateFlow<Boolean> get() = MutableStateFlow(false)
     override val uiResult: StateFlow<UiResult?> get() = MutableStateFlow(null)
     override val notifications: StateFlow<List<NotificationItem>> get() = MutableStateFlow(listOf())
     override val notificationCount: StateFlow<Int> get() = MutableStateFlow(5)

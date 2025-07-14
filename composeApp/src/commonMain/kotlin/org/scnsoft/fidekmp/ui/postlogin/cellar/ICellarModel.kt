@@ -9,10 +9,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOf
+import org.scnsoft.fidekmp.data.api.untracked.dto.UntrackedUserWineItemById
+import org.scnsoft.fidekmp.data.api.untracked.dto.UntrackedWineItem
 import org.scnsoft.fidekmp.domain.model.CellarWineDetails
 import org.scnsoft.fidekmp.domain.model.DomainInfo
 import org.scnsoft.fidekmp.domain.model.FilterEntity
 import org.scnsoft.fidekmp.domain.model.PackageItem
+import org.scnsoft.fidekmp.domain.model.profile.ProfileExtInfo
 import org.scnsoft.fidekmp.domain.model.profile.ProfileInfo
 import org.scnsoft.fidekmp.ui.IProfileInfo
 import org.scnsoft.fidekmp.ui.LoadingInterface
@@ -35,19 +38,15 @@ class CellarModelPreview : ICellarModel {
         return ""
     }
 
-    override val untrackedUserWineListState: Flow<List<UntrackedUserWineItem>>
-        get() = MutableStateFlow(listOf())
+//    override val untrackedUserWineListState: Flow<List<UntrackedUserWineItem>>
+//        get() = MutableStateFlow(listOf())
     override val untrackedUserWines: Flow<PagingData<UntrackedUserWineItem>>
         get() = flowOf()
+    override val untrackedWineListState: Flow<List<UntrackedWineItem>> get() = flowOf()
 
     override fun getUntrackedUserWineById(id: Int) {
 
     }
-
-    override fun onUntrackWineSearch(query: String) {
-
-    }
-
     override val isloadingState: StateFlow<Boolean>
         get() = MutableStateFlow(false)
     override val uiResult: StateFlow<UiResult?>
@@ -57,14 +56,14 @@ class CellarModelPreview : ICellarModel {
 
     }
 
-    override val profileInfo: StateFlow<ProfileInfo>
-        get() = MutableStateFlow(ProfileInfo.Empty())
-    override val isConsumer: StateFlow<Boolean>
-        get() = MutableStateFlow(false)
-    override val isIntermediate: StateFlow<Boolean>
-        get() = MutableStateFlow(false)
+    override val profileInfo: StateFlow<ProfileExtInfo>
+        get() = MutableStateFlow(ProfileExtInfo(ProfileInfo.Empty(), false, false))
     override val cellarWineDetails: StateFlow<CellarWineDetails>
         get() = MutableStateFlow(fakeWineDetails())
+    override val untrackedUserWineInfoState: Flow<List<UntrackedUserWineItemById>> get() = flowOf()
+
+    override fun onUntrackMainWineSearch(query: String) {
+    }
 
     override fun selectCellarTab(tabInd: Int) {
     }

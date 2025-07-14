@@ -43,7 +43,8 @@ fun WalletScreen(
 ) {
     Napier.d("WalletScreen")
     val backColor = primaryColor
-    val profileInfo by viewModel.profileInfo.collectAsState()
+    val profileInfoEx by viewModel.profileInfo.collectAsState()
+    val profileInfo = profileInfoEx.profile
 
     Scaffold(
         topBar = {

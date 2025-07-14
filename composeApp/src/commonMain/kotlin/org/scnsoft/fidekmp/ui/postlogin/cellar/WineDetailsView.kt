@@ -68,7 +68,8 @@ fun WineDetailsScreen(
 //    val wineDetailsPairs by homeViewModel.wineDetailsPairListState.collectAsState()
 //    val nftId by homeViewModel.wineDetailsNftIdState.collectAsState()
 //    val descriptionText by homeViewModel.wineDetailsDescriptionState.collectAsState()
-    val profileInfo by homeViewModel.profileInfo.collectAsState()
+    val profileInfoEx by homeViewModel.profileInfo.collectAsState()
+    val profileInfo = profileInfoEx.profile
     val cellarWineDetails by homeViewModel.cellarWineDetails.collectAsState()
     val wineDetailInfo = cellarWineDetails.info
     val wineDetailsPairs = cellarWineDetails.wineDetailsPairs
