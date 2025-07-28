@@ -262,6 +262,7 @@ fun UserLoginScreen(
                     .padding(top = 16.dp)
                     .clickable(true) {
                         navController?.navigate(NavTarget.ForgetPass.label)
+//                        navController?.navigate(EmailConfirm("a@b.com"))
                     },
                 style = textExplanationStyle14
                 )

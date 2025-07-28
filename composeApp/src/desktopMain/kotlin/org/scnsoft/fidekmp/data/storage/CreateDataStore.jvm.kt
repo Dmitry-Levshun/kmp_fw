@@ -5,7 +5,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import okio.Path.Companion.toPath
 import org.scnsoft.fidekmp.data.storage.dataStoreFileName
-
+/*
 actual fun createDataStore(): DataStore<Preferences> {
     return PreferenceDataStoreFactory.createWithPath(
         corruptionHandler = null,
@@ -13,3 +13,5 @@ actual fun createDataStore(): DataStore<Preferences> {
         produceFile = { dataStoreFileName.toPath() }
     )
 }
+
+ */

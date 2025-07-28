@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.scnsoft.fidekmp.data.api.auth.dto.SignUpRequestDto
@@ -85,7 +86,7 @@ class UserLoginViewModel(
 
 
     override val countryList: StateFlow<List<String>> = loginRepository.countryListFlow
-
+    override val loginState: StateFlow<Boolean> = loginRepository.loginStateFlow.stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, false)
     override val phoneTextField: StateFlow<String> get() = _phoneTextField
     private val _phoneTextField = MutableStateFlow<String>(defPhone)
 
@@ -94,10 +95,10 @@ class UserLoginViewModel(
 
     private val _isPassConfirmed = MutableStateFlow(false)
     override val isPassConfirmed: StateFlow<Boolean> get() = _isPassConfirmed
-
     init {
         Napier.d("UserLoginViewModel init")
         getCountryList()
+        viewModelScope.launch { loginRepository.loginRefresh() }
     }
 
     override fun setCreds(email: String) {

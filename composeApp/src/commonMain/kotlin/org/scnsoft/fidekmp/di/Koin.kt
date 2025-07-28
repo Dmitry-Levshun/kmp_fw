@@ -50,6 +50,8 @@ import org.scnsoft.fidekmp.getPlatform
 import org.scnsoft.fidekmp.ui.login.UserLoginViewModel
 import org.scnsoft.fidekmp.ui.postlogin.cellar.untracked.UntrackedViewModel
 import io.github.farhazulmullick.lenslogger.plugin.network.LensHttpLogger
+import org.scnsoft.fidekmp.data.api.untracked.UntrackedWineApi
+import org.scnsoft.fidekmp.data.api.untracked.UntrackedWineApiImpl
 import org.scnsoft.fidekmp.data.repository.LoginRepositoryImpl
 import org.scnsoft.fidekmp.data.repository.NotificationRepositoryImpl
 import org.scnsoft.fidekmp.data.repository.UntrackedWineRepositoryImpl
@@ -89,16 +91,20 @@ val dataModule = module {
             defaultRequest {
                 // add base url for all request
                 url(BASE_URL)
-                headers.append("Authorization", "${authenticator.tokenType} ${authenticator.token}")
+                authenticator.token?.let{ headers.append("Authorization", "${authenticator.tokenType} ${authenticator.token}")}
                 headers.append("Content-Type", "application/json; charset=utf-8")
-                headers.append("X-User-Agent", "FIDEWine/${platform.appVersionName} ${platform.name}")
+//                headers.append("X-User-Agent", "FIDEWine/${platform.appVersionName} ${platform.name}")
+                headers.append("X-User-Agent", "FIDEWine/1.1 (Android 15)")
                 headers.append("X-Locale", platform.language)
 
             }
             install(ContentNegotiation) {
-                // TODO Fix API so it serves application/json
-                json(json, contentType = ContentType.Any)
+                json(Json { isLenient = true; ignoreUnknownKeys = true })
             }
+//            install(ContentNegotiation) {
+//                // TODO Fix API so it serves application/json
+//                json(json, contentType = ContentType.Any)
+//            }
             // set default request parameters
             /*
             install(Auth) {
@@ -145,6 +151,7 @@ val dataModule = module {
                 handleResponseExceptionWithRequest { exception, request ->
                     if (exception is ResponseException && exception.response.status == HttpStatusCode.Unauthorized) {
                         // Обновим токен
+                        Napier.d("Unauthorized onRefresh ${authenticator.onRefresh}")
                         authenticator.onRefresh?.invoke()
                     }
                 }
@@ -159,6 +166,7 @@ val dataModule = module {
     single<ProfileApi> { ProfileApiImpl(get()) }
     single<NotificationApi> { NotificationApiImpl(get()) }
     single<DeliveryInstructionApi> { DeliveryInstructionApiImpl(get()) }
+    single<UntrackedWineApi> { UntrackedWineApiImpl(get()) }
 
     single<AppSettingsDataSource> { AppSettingsDataSourceImpl() }
     single<LoginRepository> { LoginRepositoryImpl(get(), get(), authenticator) }
@@ -183,11 +191,12 @@ val viewModelModule = module {
 //    factoryOf(::UserLoginViewModel)
 //    factoryOf(::DetailViewModel)
     viewModelOf(::UserLoginViewModel)
-
+    viewModelOf(::UntrackedViewModel)
 }
+
 val appModule = module {
-    singleOf( ::UserLoginViewModel )
-    factory { OnUntrackedMainWineSearchUseCase(get()) }
+//    singleOf( ::UserLoginViewModel )
+//    factory { OnUntrackedMainWineSearchUseCase(get()) }
     factoryOf (::OnUntrackedMainWineSearchUseCase)
     factoryOf (::OnAddUntrackedWineUseCase)
     factoryOf (::GetUntrackedWineByIdUseCase)
@@ -199,7 +208,7 @@ val appModule = module {
     factoryOf (::GetUntrackedUserWineByIdUseCase)
     factoryOf (::GetUntrackedUserWineItemsPagedUseCase)
     factoryOf (::GetCurrentProfileUseCase)
-    singleOf  (::UntrackedViewModel)
+//    singleOf  (::UntrackedViewModel)
 }
 val errorParserModule = module {
     single { Json { ignoreUnknownKeys = true } }
@@ -213,8 +222,8 @@ fun initKoin(config: KoinAppDeclaration? = null) {
         modules(
             dataModule,
             appModule,
-            errorParserModule
-//            viewModelModule,
+            errorParserModule,
+            viewModelModule
         )
     }
 }

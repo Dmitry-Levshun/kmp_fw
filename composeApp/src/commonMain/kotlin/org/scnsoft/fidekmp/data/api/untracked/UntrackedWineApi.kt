@@ -69,7 +69,7 @@ class UntrackedWineApiImpl(private val client: HttpClient): UntrackedWineApi {
 //        case producerTitle = "producer.title"
     //@GET("wineyard/wines/external")
     override suspend fun getUntrackedWineProducers(page: Int? , itemsPerPage: Int?, producerName: String?): Result<UntrackedWineListDto>  = runCatching {
-        client.get("wwineyard/wines/external") {
+        client.get("wineyard/wines/external") {
             parameter("page", page)
             parameter("itemsPerPage", itemsPerPage)
             parameter("producer.name", producerName)
@@ -77,7 +77,7 @@ class UntrackedWineApiImpl(private val client: HttpClient): UntrackedWineApi {
     }
     //@GET("wineyard/wines/external")
     override suspend fun getUntrackedWinesbyWineName(page: Int?, itemsPerPage: Int?, wineName: String?): Result<UntrackedWineListDto> = runCatching {
-        client.get("wwineyard/wines/external") {
+        client.get("wineyard/wines/external") {
             parameter("page", page)
             parameter("itemsPerPage", itemsPerPage)
             parameter("name", wineName)
@@ -86,7 +86,7 @@ class UntrackedWineApiImpl(private val client: HttpClient): UntrackedWineApi {
 
 //    @GET("wineyard/wines/external")
 override suspend fun getUntrackedWines(page: Int?, itemsPerPage: Int?, name: String?): Result<UntrackedWineListDto> = runCatching {
-    client.get("wwineyard/wines/external") {
+    client.get("wineyard/wines/external") {
         parameter("page", page)
         parameter("itemsPerPage", itemsPerPage)
         parameter("search", name)

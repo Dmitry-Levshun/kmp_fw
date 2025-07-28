@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalForeignApi::class)
 package org.scnsoft.fidekmp.data.storage
 
 import androidx.datastore.core.DataStore
@@ -9,6 +10,19 @@ import platform.Foundation.NSURL
 import platform.Foundation.NSUserDomainMask
 import kotlinx.coroutines.runBlocking
 
+fun createDataStore(): DataStore<Preferences> {
+    return createDataStore {
+        val directory = NSFileManager.defaultManager.URLForDirectory(
+            directory = NSDocumentDirectory,
+            inDomain = NSUserDomainMask,
+            appropriateForURL = null,
+            create = false,
+            error = null
+        )
+        requireNotNull(directory).path + "/$dataStoreFileName"
+    }
+}
+/*
 @OptIn(ExperimentalForeignApi::class)
 actual fun createDataStore(): DataStore<Preferences> {
     return runBlocking {
@@ -24,3 +38,5 @@ actual fun createDataStore(): DataStore<Preferences> {
         })
     }
 }
+
+ */

@@ -79,7 +79,7 @@ fun UntrackedMyReviewsView(navController: NavHostController?,
         }
         ReviewInfoBox(reviews, onClick = {
             Napier.d("UntrackedMyReviewsView click $it")
-            navController?.navigate(AppScreens.UntrackedReviewDetailsScreen.route+"/$it")
+            navController?.navigate(AppScreens.UntrackedReviewDetailsScreen(it))
         })
     }
 }

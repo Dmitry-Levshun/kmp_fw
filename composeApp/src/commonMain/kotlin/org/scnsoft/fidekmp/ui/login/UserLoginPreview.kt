@@ -33,6 +33,7 @@ class UserLoginPreview : UserLogin {
         get() = MutableStateFlow("")
     override val countryList: StateFlow<List<String>>
         get() = MutableStateFlow(listOf<String>())
+    override val loginState: StateFlow<Boolean> get() = MutableStateFlow(false)
 
     override val phoneTextField: StateFlow<String>
         get() = MutableStateFlow("")

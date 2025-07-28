@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,14 +38,23 @@ class LoginRepositoryImpl(
     private val accessTokenFlow = MutableStateFlow<String?>(null)
     private val refreshTokenFlow = MutableStateFlow<String?>(null)
     private val isFakeLogin = MutableStateFlow<Boolean>(false)
-
+    val scope = CoroutineScope(Dispatchers.IO + Job())
     override var loginStateFlow: Flow<Boolean> = accessTokenFlow.map { it != null }//.distinctUntilChanged()
     init{
+        Napier.d("LoginRepository init")
         authenticator.setOnRefreshFunc(onRefresh = {
             Napier.d("setOnRefresh")
-            val scope = CoroutineScope(Dispatchers.IO + Job())
             scope.launch { loginRefresh() }
         })
+        /*
+        scope.launch { appSettingsDataSource.setRefreshToken("abbra")
+            delay(300)
+            val v = appSettingsDataSource.refreshToken.first()
+            Napier.d("LoginRepository init $v")
+            appSettingsDataSource.setRefreshToken("")
+        }
+
+         */
     }
     private val _countryListFlow = MutableStateFlow<MutableList<String>>(mutableListOf())
     override val countryListFlow: StateFlow<List<String>>
@@ -149,6 +159,7 @@ class LoginRepositoryImpl(
     }
 
     private suspend fun onResponse(result: Result<LoginResponseDto>): LoginResult {
+        Napier.d("onResponse $result")
         result
             .onSuccess { value ->
                 val login = LoginState.from(value)

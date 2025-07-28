@@ -8,8 +8,8 @@ import kotlinx.serialization.Serializable
 data class LoginResponseDto(
     @SerialName("accessToken") val accessToken: String,
     @SerialName("tokenType") val tokenType: String,
-    @SerialName("tokenID") val tokenID: String?,
-    @SerialName("tokenId") val tokenId: String?,
+    @SerialName("tokenID") val tokenID: String? = null,
+    @SerialName("tokenId") val tokenId: String? = null,
     @SerialName("refreshToken") var refreshToken: String?
 )
 /*

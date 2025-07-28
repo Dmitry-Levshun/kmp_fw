@@ -3,6 +3,7 @@ package org.scnsoft.fidekmp.ui.login
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,10 +17,13 @@ import androidx.navigation.toRoute
 import coil3.Uri
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.delay
+import kotlinx.serialization.Serializable
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.Koin
 import org.koin.core.component.KoinComponent
+import org.koin.core.parameter.parametersOf
+import org.scnsoft.fidekmp.ui.postlogin.cellar.untracked.UntrackedNavigator
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 enum class NavTarget(val label: String) {
@@ -36,6 +40,9 @@ enum class NavTarget(val label: String) {
     NoLoginScanDetail("nologinscandetail"),
 }
 
+@Serializable
+data class EmailConfirm(val email: String)
+
 @OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun NavGraph(
@@ -44,16 +51,15 @@ fun NavGraph(
 
     Napier.d(tag = "MAIN", message = "NavGraph start")
     val navController = rememberNavController()//rememberNavController()
+    val viewModel: UserLoginViewModel = koinViewModel<UserLoginViewModel>()//(key = "LOGIN")
+//    val viewModel: UserLoginViewModel = koinInject<UserLoginViewModel>(parameters = { parametersOf("Main") })
 
-    val loginState by remember { mutableStateOf(false) } //mainViewModel.loginState.collectAsState(false)
+    val loginState by viewModel.loginState.collectAsState(false)
     val splashState by  remember { mutableStateOf(false) } //mainViewModel.splashState.collectAsState(true)
     val applink by remember { mutableStateOf(Uri(path = "")) }//mainViewModel.applink.collectAsState()
     var route by remember {
         mutableStateOf(NavTarget.Login.label)
     }
-//    val viewModel: UserLoginViewModel = koinViewModel<UserLoginViewModel>()//(key = "LOGIN")
-    val viewModel: UserLoginViewModel = koinInject<UserLoginViewModel>()
-
     Napier.d(tag = "MAIN", message = "NavGraph loginState:$loginState link:$applink, route:$route")
     LaunchedEffect(applink, loginState, splashState) {
         if (!loginState && !isUriEmpty(applink)) {
@@ -122,6 +128,7 @@ fun NavGraph(
             Napier.d("NavGraph route:MAIN")
 //            mainViewModel.getCurrentProfile()
 //            AppMainScreen(navController1 = navController, mainViewModel = mainViewModel)
+            UntrackedNavigator()
         }
         composable(
             route = NavTarget.Splash.label
@@ -140,7 +147,7 @@ fun NavGraph(
 //                nullable = true
 //            }
 
-            val token = backStackEntry.toRoute<String>()
+            val token = backStackEntry.toRoute<String?>()
             Napier.d("NavGraph route:RecoveryPass ${token?.take(6)}")
 //            route = NavTarget.Login.label
             RecoveryPasswordScreen(token, navController, viewModel)
@@ -165,16 +172,30 @@ fun NavGraph(
         }
 */
         composable(route = NavTarget.EmailConfirm.label + "/{emailArg}") { backStackEntry ->
+            Napier.d("NavGraph route:EmailConfirm be:$backStackEntry")
 //            navArgument("emailArg") {
 //                type = NavType.StringType
 //                defaultValue = ""
 //            }
 //            var email = it.arguments?.getString("emailArg") ?: ""
             val email = backStackEntry.toRoute<String>()
-            Napier.d("NavGraph route:SignUpView")
+            Napier.d("NavGraph route:SignUpView $email")
             EmailConfirmView(navController, email, viewModel)
         }
-
+        composable<EmailConfirm> { backStackEntry ->
+            val vals = backStackEntry.destination.arguments.values.toList()
+            val keys = backStackEntry.destination.arguments.keys.toList()
+            Napier.d("NavGraph route:EmailConfirm be:$backStackEntry keys:$keys vals:$vals")
+//            navArgument("emailArg") {
+//                type = NavType.StringType
+//                defaultValue = ""
+//            }
+//            var email = it.arguments?.getString("emailArg") ?: ""
+            val emailConfirm: EmailConfirm = backStackEntry.toRoute()
+            val email = emailConfirm.email
+            Napier.d("NavGraph route:SignUpView $emailConfirm  mail:$email")
+            EmailConfirmView(navController, email, viewModel)
+        }
     }
 
 }

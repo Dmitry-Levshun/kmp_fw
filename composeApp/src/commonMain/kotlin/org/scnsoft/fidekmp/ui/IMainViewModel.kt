@@ -49,6 +49,10 @@ interface IResetQrCode{
     fun resetQrCodeInfo()
 }
 
+interface IMainViewModel {
+
+}
+
 sealed class UiResult {
     object Success : UiResult()
     class Error(val errorMessage: String?) : UiResult()

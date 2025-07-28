@@ -7,10 +7,15 @@ import kotlinx.coroutines.internal.SynchronizedObject
 import kotlinx.coroutines.internal.synchronized
 import okio.Path.Companion.toPath
 
-expect fun createDataStore(): DataStore<Preferences>
+//expect fun createDataStore(): DataStore<Preferences>
+fun createDataStore(): DataStore<Preferences> {
+    return PreferenceDataStoreFactory.createWithPath(
+        produceFile = { dataStoreFileName.toPath() }
+    )
+}
 
-internal const val dataStoreFileName = "datastore_preferences_fw"
-
+internal const val dataStoreFileName = "fidekmp.prefs.preferences_pb"//"datastore.preferences_fw"
+/*
 private lateinit var dataStore: DataStore<Preferences>
 @OptIn(InternalCoroutinesApi::class)
 private val lock = SynchronizedObject()
@@ -25,3 +30,5 @@ fun getDataStore(producePath: () -> String): DataStore<Preferences> =
                 .also { dataStore = it }
         }
     }
+
+ */

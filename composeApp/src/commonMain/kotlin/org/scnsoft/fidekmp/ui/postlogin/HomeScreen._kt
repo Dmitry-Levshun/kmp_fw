@@ -1,0 +1,233 @@
+package org.scnsoft.fidekmp.ui.postlogin
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import fidekmp.composeapp.generated.resources.Res
+import fidekmp.composeapp.generated.resources.*
+import io.github.aakira.napier.Napier
+import org.scnsoft.fidekmp.ui.postlogin.profile.MOBILE_ORDERS
+import org.scnsoft.fidekmp.ui.theme.blueButtonColor
+import org.scnsoft.fidekmp.ui.theme.primaryColor
+import org.scnsoft.fidekmp.ui.theme.primaryTextColor
+import org.scnsoft.fidekmp.ui.theme.textExplanationStyle14
+import org.scnsoft.fidekmp.ui.utils.AppScreens
+import org.scnsoft.fidekmp.ui.utils.BottomNavBar
+import org.scnsoft.fidekmp.ui.utils.CustomTabs
+import org.scnsoft.fidekmp.ui.utils.CustomToolbar
+import org.scnsoft.fidekmp.ui.utils.SearchToolBar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
+
+@Composable
+fun HomeScreen(
+    navController: NavHostController?,
+//    homeViewModel: IMainViewModel,
+    openDrawer: (() -> Unit)?
+) {
+    var isSearch by remember {
+        mutableStateOf(false)
+    }
+    val openFilterDialog = remember {
+        mutableStateOf(false)
+    }
+    var route by remember {
+        mutableStateOf("")
+    }
+
+    val searchText by remember { MutableStateFlow("") }//homeViewModel.searchText.collectAsState()
+    Napier.d("HomeScreen")
+    val titleId = Res.string.orders
+    val backColor = primaryColor
+    val profileInfo by homeViewModel.profileInfo.collectAsState()
+    if (!profileInfo.permissions.contains(MOBILE_ORDERS)) {
+        navController?.navigate(AppScreens.PassportMain.route)
+        return
+    }
+    Scaffold(
+        topBar = { if (!isSearch){
+            CustomToolbar(
+                title = stringResource(titleId),
+                navController = navController!!,
+                onSearchClick = { isSearch = !isSearch },
+                onFilterClick = {
+                    Napier.d("fun onFilerClick ${navController?.currentBackStackEntry?.destination?.route}")
+                    route = navController?.currentBackStackEntry?.destination?.route ?: ""
+                    openFilterDialog.value = true
+                },
+                backGroundColor = backColor)
+        } else { SearchToolBar(
+            searchText,
+            onTextChange = homeViewModel::onSearchTextChanged,
+            onCloseClick = {Timber.d("Home onCloseClick ")
+                isSearch = false},
+//            onSearchClick = {}
+            backGroundColor = backColor
+        )}},
+        bottomBar = { BottomNavBar(navController = navController, profileInfo.userType, profileInfo.permissions) },
+        content = {
+            HomeView(homeViewModel, navController)
+//            if (appTabType == 0) HomeView(homeViewModel, navController)
+//            else CellarMainView(viewModel = homeViewModel, navController = navController)
+        },
+        // Use `FloatingActionButton` rather than `ExtendedFloatingActionButton` for full control on
+        // how it should animate.
+
+    )
+//    if (openFilterDialog.value) FilterDialog(openFilterDialog, route, homeViewModel)
+}
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun HomeView(viewModel: ITransferModel, navController: NavHostController?){
+    val clientList by viewModel.clientListState.collectAsState(listOf())
+    val packageList by viewModel.packageListState.collectAsState()
+    val isIntermediate by viewModel.isIntermediate.collectAsState()
+    val isLoading by viewModel.isloadingState.collectAsState()
+    if (isIntermediate) viewModel.selectHomeTab(0)
+    val tabIndexInter by viewModel.intermediateHomeTabFilterState.collectAsState()
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isLoading,
+        onRefresh = viewModel::refreshDptData
+    )
+    var clientOrderId by remember { mutableStateOf("")}
+//    viewModel?.let { vm -> val clientList by viewModel.clientListState.collectAsState() }
+//        ?: run { val clientList = listOf()}
+    val lazyListState = rememberLazyListState()
+    val list = listOf(stringResource(id = R.string.client), stringResource(id = R.string.package_text))
+    val list2 = listOf(stringResource(id = R.string.incoming), stringResource(id = R.string.outcoming))
+    val scope = rememberCoroutineScope()
+    val tabIndex by viewModel.homeTabIndexState.collectAsState()
+    Timber.d("HomeView ind:$tabIndex")
+    /*
+    LaunchedEffect(clientOrderId) {
+        if (clientOrderId.isNotBlank()) {
+            viewModel.prepareClientWineList(clientOrderId)
+            delay(1000)
+            navController?.navigate(AppScreens.PreDeliveryInfoScreen.route + "/$clientOrderId")
+        }
+    }
+
+     */
+    Column {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp, top = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(id = R.string.sync_status),
+                    style = textExplanationStyle14,
+                    color = primaryTextColor
+                )
+                Button(
+                    onClick = {
+                              //viewModel.syncAllInstructions()
+                            if (BuildConfig.DEBUG) {
+                                viewModel.syncAllInstructions()
+//                                viewModel.clickRetry("bluetooth")
+//                                navController?.navigate(AppScreens.PrintSettingsScreen.route)
+                            } else {
+                                viewModel.syncAllInstructions()
+                            }
+                         },
+                    modifier = Modifier
+                        .height(28.dp)
+                        .width(150.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = blueButtonColor),
+                    shape = RoundedCornerShape(50)
+                ) {
+                    Text(
+                        stringResource(id = R.string.sync_all),
+                        style = textExplanationStyle14,
+                        color = Color.White
+                    )
+                }
+            }
+//            ProgressPanelView(98, 31, 59, Modifier.padding(top = 16.dp))
+            if (!isIntermediate) CustomTabs(list, startInd = tabIndex, onClick = viewModel::selectHomeTab)
+            else CustomTabs(list2, startInd = tabIndexInter, onClick = { viewModel.selectIntermediateHomeFilterTab(it); /*viewModel.updateFilter()*/ })
+            val  route = navController?.currentBackStackEntry?.destination?.route ?: ""
+            val filterListMap by viewModel.filterItemsState.collectAsState()
+            val filterList = filterListMap[route]
+            filterList?.let { ShowFilter(it, onCloseClick = { viewModel.updateFilter() } ) }
+            PullRefreshIndicator(
+                refreshing = isLoading,
+                state = pullRefreshState,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+
+            when (tabIndex) {
+                0 -> ClientInfoListView(clientList = clientList,
+                    pullRefreshState, onItemClick = { item ->
+                    Timber.d("ClientInfoView click $item")
+//                    viewModel.generateClientWineList()
+                    scope.launch {
+                        clientOrderId = item.orderId
+                        withContext(Dispatchers.IO) {
+                            viewModel.prepareClientWineList(item.orderId);
+                        }
+                        navController?.navigate(AppScreens.PreDeliveryInfoScreen.route + "/$clientOrderId")
+                    }
+//                    viewModel.prepareClientWineList(item.orderId)
+//                    navController?.navigate(AppScreens.PreDeliveryInfoScreen.route)
+                }
+                    , /*onBoxClick = viewModel::refreshDptData*/)
+                1 -> PackageInfoListView(packageList = packageList, pullRefreshState, onItemClick = { item ->
+                    Timber.d("PackageInfoView click $item")
+//                    viewModel.generatePackageWineList()
+                    viewModel.preparePackageWineList(item.id)
+                    val id = item.itemName//= viewModel.preparePackageWineList(item.id)
+                    navController?.navigate(AppScreens.PreDeliveryInfoScreen.route + "/${id}")
+                }, /* onBoxClick = viewModel::refreshDptData*/)
+            }
+        }
+
+//        ClientInfoView(clientList = clientList)
+    }
+//    if (isLoading) SpinnerOverlay()
+}
+
+@Preview
+@Composable
+private fun PreviewHomeScreen() {
+//    HomeView(null)
+}
+data class Task(
+    val name: String? = null,
+    val value: String? = null
+)

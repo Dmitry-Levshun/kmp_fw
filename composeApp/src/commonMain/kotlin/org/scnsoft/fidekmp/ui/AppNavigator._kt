@@ -1,0 +1,358 @@
+package org.scnsoft.fidekmp.ui
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.navigation.toRoute
+import io.github.aakira.napier.Napier
+import io.ktor.utils.io.core.String
+import org.koin.compose.viewmodel.koinViewModel
+import org.scnsoft.fidekmp.utils.jsonToObject
+import org.scnsoft.fidekmp.utils.objectToJson
+import org.scnsoft.fidekmp.domain.model.NotificationItem
+//import org.scnsoft.fidekmp.ui.MainViewModel
+import org.scnsoft.fidekmp.ui.login.ChangePasswordScreen
+import org.scnsoft.fidekmp.ui.postlogin.HomeScreen
+import org.scnsoft.fidekmp.ui.postlogin.notification.NotificationDetailsScreen
+import org.scnsoft.fidekmp.ui.postlogin.notification.NotificationScreen
+import org.scnsoft.fidekmp.ui.postlogin.cellar.CellarMainScreen
+import org.scnsoft.fidekmp.ui.postlogin.cellar.CellarModelPreview
+import org.scnsoft.fidekmp.ui.postlogin.cellar.CellarViewModel
+import org.scnsoft.fidekmp.ui.postlogin.cellar.WineDetailsScreen
+import org.scnsoft.fidekmp.ui.postlogin.cellar.untracked.UntrackedAddCustomWineScreen
+import org.scnsoft.fidekmp.ui.postlogin.cellar.untracked.UntrackedAddReviewScreen
+import org.scnsoft.fidekmp.ui.postlogin.cellar.untracked.UntrackedAddWineScreen
+import org.scnsoft.fidekmp.ui.postlogin.cellar.untracked.UntrackedMainView
+import org.scnsoft.fidekmp.ui.postlogin.cellar.untracked.UntrackedMyReviewsScreen
+import org.scnsoft.fidekmp.ui.postlogin.cellar.untracked.UntrackedPurchaseHistoryScreen
+import org.scnsoft.fidekmp.ui.postlogin.cellar.untracked.UntrackedReviewDetailsScreen
+import org.scnsoft.fidekmp.ui.postlogin.cellar.untracked.UntrackedSelectWineScreen
+import org.scnsoft.fidekmp.ui.postlogin.cellar.untracked.UntrackedWineDetailsScreen
+import org.scnsoft.fidekmp.ui.postlogin.notification.NotificationPreview
+import org.scnsoft.fidekmp.ui.postlogin.profile.ProfileInfoScreen
+import org.scnsoft.fidekmp.ui.postlogin.profile.ProfileSupportScreen
+import org.scnsoft.fidekmp.ui.postlogin.profile.WalletScreen
+import org.scnsoft.fidekmp.ui.utils.AppScreens
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
+
+@OptIn(ExperimentalAnimationApi::class, ExperimentalEncodingApi::class)
+@Composable
+fun AppRouter(
+    homeViewModel: IMainViewModel,
+    openDrawer: () -> Unit
+) {
+    val navController = rememberNavController()
+    /*
+    val applink by homeViewModel.applink.collectAsState()
+    Timber.d("AppRouter $applink")
+    LaunchedEffect(key1 = applink) {
+        if (!applink.host.isNullOrBlank()) navController.navigate(getAppLinkRoute(applink, homeViewModel))
+    }
+
+     */
+    NavHost(navController, startDestination = AppScreens.HomeScreen.route) {
+         composable(route = AppScreens.HomeScreen.route) {
+            HomeScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.Account.route) {
+            ProfileInfoScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.Help.route) {
+//            HelpScreen(navController, homeViewModel, openDrawer)
+        }
+        composable(route = AppScreens.Contact.route) {
+//            ContactUsScreen(navController, homeViewModel, openDrawer)
+        }
+        composable(route = AppScreens.CameraScreen.route) {
+//            CameraScreen(navController, homeViewModel, openDrawer)
+        }
+        composable(route = AppScreens.ChangePasswordScreen.route) {
+            ChangePasswordScreen(navController)
+        }
+/*
+        composable(route = AppScreens.QrCodeScreen.route) {
+            QrCodeScreen(navController, homeViewModel)
+        }
+
+        composable(route = AppScreens.HabillageQrCodeScreen.route + "/{isPrint}") {
+            navArgument("isPrint") {
+                type = NavType.StringType
+                defaultValue = "NO"
+            }
+            var print = it.arguments?.getString("isPrint") ?: "NO"
+            Timber.d("Navigator HabillageQrCodeScreen $print")
+
+            HabillageQrCodeScreen(print, navController, homeViewModel)
+        }
+*/
+        composable(route = AppScreens.ProfileSupportScreen.route) {
+            ProfileSupportScreen(navController)
+        }
+        /*
+        composable(route = AppScreens.AgreementScreen.route) {
+            AgreementScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.PreDeliveryInfoScreen.route + "/{orderId}") {
+            navArgument("orderId") {
+                type = NavType.StringType
+                defaultValue = ""
+            }
+            val orderId = it.arguments?.getString("orderId") ?: ""
+            PreDeliveryInfoScreen(orderId, navController, homeViewModel)
+        }
+        composable(route = AppScreens.HabillageScanResultScreen.route) {
+            HabillageScanResultScreen(navController, homeViewModel)
+        }
+                composable(route = AppScreens.PassportMain.route) {
+            TransfersMainScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.PassportDetails.route + "/{passport}") {
+            navArgument("passport") {
+                type = NavType.StringType
+                defaultValue = ""
+            }
+            var passStr = it.arguments?.getString("passport") ?: ""
+            if (passStr.isNotBlank()) passStr = String(Base64.UrlSafe.decode(passStr))
+            Timber.d("PassportDetails $passStr")
+            val passport: TransferDetailsInfo? = jsonToObjectEx(passStr)
+            TransferDetailsScreen(navController, homeViewModel, passport!!)
+        }
+
+        composable(route = AppScreens.CreatePassport.route + "/{stickStatus}") {
+            navArgument("stickStatus") {
+                type = NavType.StringType
+            }
+            val stickStatus = it.arguments?.getString("stickStatus") ?: ""
+            Timber.d("CreatePassport $stickStatus")
+            TransferCreatePassportScreen(navController, homeViewModel, stickStatus)
+        }
+        composable(route = AppScreens.CreatePassportQrCode.route) {
+            TransferCreateQrCodePassportScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.CreatePassportPage2.route + "/{stickStatus}") {
+            navArgument("stickStatus") {
+                type = NavType.StringType
+            }
+            val stickStatus = it.arguments?.getString("stickStatus") ?: ""
+            Timber.d("CreatePassportPage2 $stickStatus")
+            TransferCreatePassportPage2Screen(navController, homeViewModel, stickStatus)
+        }
+        composable(route = AppScreens.Inventory.route) {
+            InventoryMainScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.RateScreen.route) {
+            RateWineScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.StandAloneScanResultBottleScreen.route) {
+            StandAloneScanResultBottleScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.StandAloneScanResultBoxScreen.route) {
+            StandAloneScanResultBoxScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.PrintSettingsScreen.route + "/{isInventory}") {
+            navArgument("isInventory") {
+                type = NavType.StringType
+                defaultValue = "NO"
+            }
+            var inventory  = it.arguments?.getString("isInventory") ?: "NO"
+            val isInventory = inventory == "YES"
+            Timber.d("Navigator HabillageQrCodeScreen $isInventory")
+            PrinterSettingsScreen(isInventory, navController = navController)
+        }
+        composable(route = AppScreens.PrintLabelScreen.route) {
+            PrintLabelScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.InventoryCreatePassportScreen.route) {
+            InventoryCreatePassportScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.InventoryQrCodeScreen.route + "/{isPrint}") {
+            navArgument("isPrint") {
+                type = NavType.StringType
+                defaultValue = "NO"
+            }
+            var print = it.arguments?.getString("isPrint") ?: "NO"
+            val isPrint = print == "YES"
+            Timber.d("Navigator InventoryQrCodeScreen $print")
+
+            InventoryQrCodeScreen(isPrint, navController, homeViewModel)
+        }
+        composable(route = AppScreens.InventoryScanResultScreen.route) {
+            InventoryScanResultScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.MapViewScreen.route) {
+            MapViewScreen(navController, homeViewModel)
+        }
+
+         */
+        composable(route = AppScreens.WineDetails.route) {
+            WineDetailsScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.NotificationScreen.route) {
+            NotificationScreen(navController, homeViewModel)
+        }
+        composable<AppScreens.NotificationDetailsScreen> {backStackEntry ->
+            val route: AppScreens.NotificationDetailsScreen = backStackEntry.toRoute()
+            var notificationStr = route.notification
+            if (notificationStr.isNotBlank()) notificationStr = run {
+                Base64.UrlSafe.decode(notificationStr).decodeToString()
+            }
+            Napier.d("NotificationDetails $notificationStr")
+            val notificationItem: NotificationItem? = jsonToObject(notificationStr)
+            NotificationDetailsScreen(navController, NotificationPreview(), notificationItem!!)
+        }
+        composable(route = AppScreens.Cellar.route) {
+            val cellarViewModel = koinViewModel<CellarViewModel>()
+            CellarMainScreen(homeViewModel = cellarViewModel, navController = navController)
+        }
+        composable(route = AppScreens.Wallet.route) {
+            WalletScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.UntrackedMainScreen.route) {
+            UntrackedMainView(navController, homeViewModel)
+        }
+        composable(route = AppScreens.UntrackedSelectWineScreen.route) {
+            UntrackedSelectWineScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.UntrackedAddWineScreen.route) {
+            UntrackedAddWineScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.UntrackedWineDetailsScreen.route) {
+            UntrackedWineDetailsScreen(navController, homeViewModel)
+        }
+
+        composable(route = AppScreens.UntrackedMyReviewsScreen.route) {
+            UntrackedMyReviewsScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.UntrackedPurchaseHestoryScreen.route) {
+            UntrackedPurchaseHistoryScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.UntrackedAddReviewScreen.route) {
+            UntrackedAddReviewScreen(navController, homeViewModel)
+        }
+        composable(route = AppScreens.UntrackedReviewDetailsScreen.route+ "/{reviewId}") {
+            navArgument("reviewId") {
+                type = NavType.StringType
+                defaultValue = "-1"
+            }
+            val reviewId = it.arguments?.getString("reviewId") ?: "-1"
+            val reviewIdInt = reviewId.toIntOrNull() ?: -1
+            UntrackedReviewDetailsScreen(reviewIdInt, navController, homeViewModel)
+        }
+        composable(route = AppScreens.UntrackedAddCustomWineScreen.route) {
+            UntrackedAddCustomWineScreen(navController, homeViewModel)
+        }
+    }
+}
+/*
+@OptIn(ExperimentalEncodingApi::class)
+private fun getAppLinkRoute(uri: Uri, homeViewModel: MainViewModel,): String {
+    Timber.d("getAppLinkRoute  LOGIN $uri")
+    var route = AppScreens.HomeScreen.route
+
+    val  host = try {
+        if (uri.scheme == "fidewine") uri.host?.lowercase() else {
+            val path = uri.path?.split("/")?.get(1)
+            path
+        }
+    } catch (e: Exception) {
+        Timber.e(e)
+        return route
+    }
+    val lastPath = uri.lastPathSegment
+    val query = uri.query
+    val rt = when(host) {
+        "dpt" -> {
+            if (!query.isNullOrBlank()) {
+                val token = query.split("token=")[1]
+                Timber.d("getAppLinkRoute   token:$token")
+                val item: TransferDetailsInfo = homeViewModel.getDptByToken(token)
+                    ?: return AppScreens.PassportMain.route
+                Timber.d("getAppLinkRoute   dpt:${item?.dptId}")
+                val param = Base64.UrlSafe.encode(objectToJsonEx(item).toByteArray())
+                AppScreens.PassportDetails.route + "/$param"
+            } else if (lastPath.isNullOrBlank()) AppScreens.PassportMain.route else {
+                val item = homeViewModel.getDptBiId(lastPath) ?: return AppScreens.PassportMain.route
+                val param = Base64.UrlSafe.encode(objectToJsonEx(item).toByteArray())
+                AppScreens.PassportDetails.route + "/$param"
+            }
+        }
+        "wines"->{
+            if (lastPath.isNullOrBlank()) AppScreens.HomeScreen.route else {
+                val item = homeViewModel.getWineItemById(lastPath) ?: return AppScreens.HomeScreen.route
+                homeViewModel.setWineDetailInfo(item)
+                AppScreens.WineDetails.route
+            }
+        }
+//        "orders" -> { if (lastPath.isNullOrBlank()) AppScreens.HomeScreen.route else {
+//            val item = homeViewModel.getWineItemById(lastPath) ?: return AppScreens.HomeScreen.route
+//            homeViewModel.setWineDetailInfo(item)
+//            AppScreens.WineDetails.route
+//        }
+//        }
+        "account" -> AppScreens.Account.route
+        "logout"-> { homeViewModel.logout(); ""}
+//        "reset-password" -> { AppScreens.ChangePasswordScreen.route }
+
+        "inventory" -> AppScreens.Inventory.route
+        "notifications" -> {
+            homeViewModel.getNotifications()
+            if (lastPath.isNullOrBlank()) AppScreens.NotificationScreen.route else {
+                val item =
+                    homeViewModel.getNotificationById(lastPath) ?: return AppScreens.NotificationScreen.route
+                val param = Base64.UrlSafe.encode(objectToJsonEx(item).toByteArray())
+                homeViewModel.markAsRead(item.id)
+                AppScreens.NotificationDetailsScreen.route + "/$param"
+            }
+        }
+//        "reset-password" -> { homeViewModel.logout(); NavTarget.ForgetPass.label }
+//        "sign-up" -> { homeViewModel.logout(); NavTarget.SignUp.label }
+//        "sign-in" -> { homeViewModel.logout(); NavTarget.Login.label }
+        else -> ""
+    }
+    Timber.d("getAppLinkRoute LOGIN res:$rt ")
+
+    return if (rt.isNotBlank()) rt else route
+}
+ */
+@Composable
+fun EnterAnimation(content: @Composable () -> Unit) {
+    val visible by remember { mutableStateOf(true) }
+    val density = LocalDensity.current
+    AnimatedVisibility(
+        visible = visible,
+        enter = slideInVertically {
+            // Slide in from 40 dp from the top.
+            with(density) { -40.dp.roundToPx() }
+        } + expandVertically(
+            // Expand from the top.
+            expandFrom = Alignment.Top
+        ) + fadeIn(
+            // Fade in with the initial alpha of 0.3f.
+            initialAlpha = 0.3f,
+            animationSpec = tween(500, 500)
+        ),
+        exit = slideOutVertically() + shrinkVertically() + fadeOut()
+    ) {
+        content()
+    }
+}

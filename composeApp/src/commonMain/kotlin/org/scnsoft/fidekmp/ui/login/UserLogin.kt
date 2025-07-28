@@ -18,6 +18,7 @@ interface UserLogin {
     val phoneTextField: StateFlow<String>
     val isSignedUp: StateFlow<Boolean>
     val isPassConfirmed: StateFlow<Boolean>
+    val loginState : StateFlow<Boolean>
     fun onEmailTextValueChanged(email: String)
     fun onSupportTextValueChanged(text: String)
     fun validateEmail()
