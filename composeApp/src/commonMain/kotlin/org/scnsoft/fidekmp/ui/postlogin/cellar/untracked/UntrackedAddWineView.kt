@@ -76,6 +76,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import org.scnsoft.fidekmp.ui.login.DropDownMenu
 import org.scnsoft.fidekmp.ui.utils.uiResultDialog
+import org.scnsoft.fidekmp.utils.getTickCount
 import org.scnsoft.fidekmp.utils.mSecToLocalDateTime
 import org.scnsoft.fidekmp.utils.toLocalDateTime
 
@@ -84,7 +85,8 @@ fun UntrackedAddWineScreen(
     navController: NavHostController?,
     homeViewModel: IUntrackedModel,
 ) {
-    Napier.d("UntrackedAddWineScreen")
+    val backList = navController?.currentBackStack?.value?.map{it.destination.route}//  backStackList(
+    Napier.d("UntrackedAddWineScreen back:$backList")
     Scaffold(
         topBar = {
             CustomToolbarWithBackArrow(
@@ -112,8 +114,8 @@ fun UntrackedAddWineView(navController: NavHostController?,
     val openDateDialog = remember { mutableStateOf(false) }
     var onMenu by remember { mutableStateOf(false) }
     val onVintageMenu = remember { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState()
     var dueDate by remember { mutableStateOf(currentUtcDateTime().toSimpleString()) }
+    val datePickerState = rememberDatePickerState()//initialSelectedDateMillis = getTickCount(), initialDisplayedMonthMillis = getTickCount())
     var purchaseDate: LocalDate? by remember { mutableStateOf(null) }
     val vendorText = stringResource(Res.string.add_vendor)
     var vendor by remember { mutableStateOf(vendorText) }

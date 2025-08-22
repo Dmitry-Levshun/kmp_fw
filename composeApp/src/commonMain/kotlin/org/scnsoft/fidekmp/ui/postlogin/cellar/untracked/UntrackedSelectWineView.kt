@@ -3,6 +3,7 @@ package org.scnsoft.fidekmp.ui.postlogin.cellar.untracked
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -74,7 +75,8 @@ fun UntrackedSelectWineScreen(
                     ),
                     onClick = {
                         homeViewModel.resetUiResult()
-                        navController?.navigate(AppScreens.UntrackedAddCustomWineScreen.route) }
+                        navController?.navigate(AppScreens.UntrackedAddCustomWineScreen.route) },
+                    modifier = Modifier.padding(bottom = 56.dp)
                 ) {
                     Text(stringResource(Res.string.add_custom_wine))
                 }

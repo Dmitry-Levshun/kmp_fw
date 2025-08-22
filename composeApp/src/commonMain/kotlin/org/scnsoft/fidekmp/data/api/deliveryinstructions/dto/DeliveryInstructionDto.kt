@@ -6,23 +6,23 @@ import kotlinx.serialization.Serializable
 import org.scnsoft.fidekmp.data.api.StringOrListSerializer
 
 @Serializable
-data class DeliveryInstructionDto(
+data class DeliveryInstructionListDto(
     @SerialName("@context")
     val context: String,
     @SerialName("@id")
-    val id: String,
+    val idUrl: String,
     @SerialName("@type")
     val type: String,
     @SerialName("hydra:totalItems")
     val hydraTotalItems: Long,
     @SerialName("hydra:member")
-    val hydraMember: List<DeliveryInstructionHydraMember>,
+    val members: List<DeliveryInstructionDto>,
 )
 
 @Serializable
-data class DeliveryInstructionHydraMember(
+data class DeliveryInstructionDto(
     @SerialName("@id")
-    val id: String,
+    val idUrl: String,
     @SerialName("@type")
     val type: String,
     val digitalPassportTransfer: String,
@@ -33,14 +33,14 @@ data class DeliveryInstructionHydraMember(
 @Serializable
 data class DeliveryInstructionItem(
     @SerialName("@id")
-    val id: String,
+    val idUrl: String,
     @SerialName("@type")
     val type: String,
     @SerialName("id")
-    val id2: Long,
+    val id: Int,
     val wine: DeliveryInstructionWine,
     val caseType: CaseType,
-    val casesQty: Long,
+    val casesQty: Int,
     val pregnancyWarning: Boolean,
     val regie: String,
     val habillage: Habillage,
@@ -49,11 +49,11 @@ data class DeliveryInstructionItem(
 @Serializable
 data class DeliveryInstructionWine(
     @SerialName("@id")
-    val id: String,
+    val idUrl: String,
     @SerialName("@type")
     val type: String,
     @SerialName("id")
-    val id2: Long,
+    val id: Int,
     val wineType: String,
     val name: String,
     val imageUrl: String,
@@ -79,16 +79,16 @@ data class DeliveryInstructionWine(
 @Serializable
 data class CaseType(
     @SerialName("@id")
-    val id: String,
+    val idUrl: String,
     @SerialName("@type")
     val type: String,
     @SerialName("id")
-    val id2: Long,
+    val id: Int,
     val nameEn: String,
     val nameFr: String,
     val materialNameEn: String,
     val materialNameFr: String,
-    val bottlesQtyInCase: Long,
+    val bottlesQtyInCase: Int,
     val bottleNameEn: String,
     val bottleNameFr: String,
     val totalAmountInLiters: Double,
@@ -98,17 +98,17 @@ data class CaseType(
     @SerialName("unitEQVBottle")
     val unitEqvbottle: Double,
     @SerialName("totalEQVBottle")
-    val totalEqvbottle: Long,
+    val totalEqvbottle: Int,
 )
 
 @Serializable
 data class Habillage(
     @SerialName("@id")
-    val id: String,
+    val idUrl: String,
     @SerialName("@type")
     val type: String,
     @SerialName("id")
-    val id2: Long,
+    val id: Int,
     val name: String,
 )
 
@@ -119,7 +119,7 @@ data class ShippingInformation(
     @SerialName("@type")
     val type: String,
     @SerialName("id")
-    val id: Long,
+    val id: Int,
     val typeOfDelivery: String,
     val deliveryFrom: LocalDate, //String,
     val deliveryTo: LocalDate, //String,

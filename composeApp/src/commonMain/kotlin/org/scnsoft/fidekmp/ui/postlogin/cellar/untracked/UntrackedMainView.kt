@@ -68,6 +68,7 @@ fun UntrackedMainView(navController: NavHostController?,
     var isNavigated by remember { mutableStateOf(false) }
     var isKeyboardVisible by remember { mutableStateOf(false) }
     val shape = RoundedCornerShape(topStart = 32.dp, topEnd = 0.dp, bottomEnd = 0.dp, bottomStart = 0.dp)
+    Napier.d("UntrackedMainView st:$untrackedSearchText $isNavigated $untrackedWineList")
     val isImeVisible = WindowInsets.ime
 //    WindowInsetsHolder.current.ime.isVisible
 //    WindowCompat.setDecorFitsSytemWindows(window, false)

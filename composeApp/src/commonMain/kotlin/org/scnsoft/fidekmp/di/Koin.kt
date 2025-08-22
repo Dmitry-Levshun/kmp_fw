@@ -50,6 +50,7 @@ import org.scnsoft.fidekmp.getPlatform
 import org.scnsoft.fidekmp.ui.login.UserLoginViewModel
 import org.scnsoft.fidekmp.ui.postlogin.cellar.untracked.UntrackedViewModel
 import io.github.farhazulmullick.lenslogger.plugin.network.LensHttpLogger
+import io.ktor.client.engine.HttpClientEngine
 import org.scnsoft.fidekmp.data.api.untracked.UntrackedWineApi
 import org.scnsoft.fidekmp.data.api.untracked.UntrackedWineApiImpl
 import org.scnsoft.fidekmp.data.repository.LoginRepositoryImpl
@@ -84,10 +85,16 @@ val authenticator = object : Authenticator {
     }
 }
 val dataModule = module {
+
+//    factory {
+//        fun httpClientEngine(): HttpClientEngine = HttpClientEngineFactory().getHttpEngine()
+//    }
+
     single {
         val json = Json { ignoreUnknownKeys = true }
         val platform = getPlatform()
-        HttpClient {
+        val engine = HttpClientEngineFactory().getHttpEngine()
+        HttpClient(engine) {
             defaultRequest {
                 // add base url for all request
                 url(BASE_URL)
@@ -99,7 +106,7 @@ val dataModule = module {
 
             }
             install(ContentNegotiation) {
-                json(Json { isLenient = true; ignoreUnknownKeys = true })
+                json(Json { isLenient = true; ignoreUnknownKeys = true; prettyPrint = true }, contentType = ContentType.Any)
             }
 //            install(ContentNegotiation) {
 //                // TODO Fix API so it serves application/json

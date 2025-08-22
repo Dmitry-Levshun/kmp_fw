@@ -1,0 +1,379 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "35a919bc4d638efba4d2a7a9f5344b3f",
+    "entities": [
+      {
+        "tableName": "delivery_instructions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`internalId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `di_id_url` TEXT NOT NULL, `type` TEXT, `digitalPassportTransfer` TEXT, `si_id_url` TEXT, `si_id` INTEGER, `typeOfDelivery` TEXT, `deliveryFrom` TEXT, `deliveryTo` TEXT, `addressCountry` TEXT, `addressLocality` TEXT, `addressRegion` TEXT, `postalCode` TEXT, `streetAddress` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "internalId",
+            "columnName": "internalId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idUrl",
+            "columnName": "di_id_url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "digitalPassportTransfer",
+            "columnName": "digitalPassportTransfer",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "shippingInformation.shippingIdUrl",
+            "columnName": "si_id_url",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "shippingInformation.shippingId",
+            "columnName": "si_id",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "shippingInformation.typeOfDelivery",
+            "columnName": "typeOfDelivery",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "shippingInformation.deliveryFrom",
+            "columnName": "deliveryFrom",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "shippingInformation.deliveryTo",
+            "columnName": "deliveryTo",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "shippingInformation.addressCountry",
+            "columnName": "addressCountry",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "shippingInformation.addressLocality",
+            "columnName": "addressLocality",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "shippingInformation.addressRegion",
+            "columnName": "addressRegion",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "shippingInformation.postalCode",
+            "columnName": "postalCode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "shippingInformation.streetAddress",
+            "columnName": "streetAddress",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "internalId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_delivery_instructions_di_id_url",
+            "unique": true,
+            "columnNames": [
+              "di_id_url"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_delivery_instructions_di_id_url` ON `${TABLE_NAME}` (`di_id_url`)"
+          }
+        ]
+      },
+      {
+        "tableName": "delivery_items",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`item_id` INTEGER NOT NULL, `item_id_url` TEXT NOT NULL, `type` TEXT, `parent_di_id_url` TEXT NOT NULL, `casesQty` INTEGER NOT NULL, `pregnancyWarning` INTEGER NOT NULL, `regie` TEXT, `wine_id_url` TEXT NOT NULL, `wine_id` INTEGER NOT NULL, `wine_wineType` TEXT, `wine_name` TEXT, `wine_imageUrl` TEXT, `wine_country` TEXT, `wine_region` TEXT, `wine_appellation` TEXT, `wine_classification` TEXT, `wine_color` TEXT, `wine_agriculture` TEXT, `wine_producer` TEXT, `wine_champagneType` TEXT, `wine_grapeVarieties` TEXT, `wine_alcohol` REAL, `wine_certification` TEXT, `wine_sulfites` INTEGER, `wine_allergens` TEXT, `casetype_id_url` TEXT NOT NULL, `casetype_id` INTEGER NOT NULL, `casetype_nameEn` TEXT, `casetype_nameFr` TEXT, `casetype_materialNameEn` TEXT, `casetype_materialNameFr` TEXT, `casetype_bottlesQtyInCase` INTEGER, `casetype_bottleNameEn` TEXT, `casetype_bottleNameFr` TEXT, `casetype_totalAmountInLiters` REAL, `casetype_bottleSizeLabelEn` TEXT, `casetype_bottleSizeLabelFr` TEXT, `casetype_litersPerCase` REAL, `casetype_unitEQVBottle` REAL, `casetype_totalEQVBottle` INTEGER, `hab_id_url` TEXT NOT NULL, `hab_id` INTEGER NOT NULL, `hab_name` TEXT, PRIMARY KEY(`item_id`), FOREIGN KEY(`parent_di_id_url`) REFERENCES `delivery_instructions`(`di_id_url`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "itemId",
+            "columnName": "item_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idUrl",
+            "columnName": "item_id_url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "parentDeliveryInstructionIdUrl",
+            "columnName": "parent_di_id_url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "casesQty",
+            "columnName": "casesQty",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pregnancyWarning",
+            "columnName": "pregnancyWarning",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "regie",
+            "columnName": "regie",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wine.idUrl",
+            "columnName": "wine_id_url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "wine.wineId",
+            "columnName": "wine_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "wine.wineType",
+            "columnName": "wine_wineType",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wine.name",
+            "columnName": "wine_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wine.imageUrl",
+            "columnName": "wine_imageUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wine.country",
+            "columnName": "wine_country",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wine.region",
+            "columnName": "wine_region",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wine.appellation",
+            "columnName": "wine_appellation",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wine.classification",
+            "columnName": "wine_classification",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wine.color",
+            "columnName": "wine_color",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wine.agriculture",
+            "columnName": "wine_agriculture",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wine.producer",
+            "columnName": "wine_producer",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wine.champagneType",
+            "columnName": "wine_champagneType",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wine.grapeVarieties",
+            "columnName": "wine_grapeVarieties",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wine.alcohol",
+            "columnName": "wine_alcohol",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "wine.certification",
+            "columnName": "wine_certification",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wine.sulfites",
+            "columnName": "wine_sulfites",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "wine.allergens",
+            "columnName": "wine_allergens",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "caseType.idUrl",
+            "columnName": "casetype_id_url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "caseType.caseTypeId",
+            "columnName": "casetype_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "caseType.nameEn",
+            "columnName": "casetype_nameEn",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "caseType.nameFr",
+            "columnName": "casetype_nameFr",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "caseType.materialNameEn",
+            "columnName": "casetype_materialNameEn",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "caseType.materialNameFr",
+            "columnName": "casetype_materialNameFr",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "caseType.bottlesQtyInCase",
+            "columnName": "casetype_bottlesQtyInCase",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "caseType.bottleNameEn",
+            "columnName": "casetype_bottleNameEn",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "caseType.bottleNameFr",
+            "columnName": "casetype_bottleNameFr",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "caseType.totalAmountInLiters",
+            "columnName": "casetype_totalAmountInLiters",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "caseType.bottleSizeLabelEn",
+            "columnName": "casetype_bottleSizeLabelEn",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "caseType.bottleSizeLabelFr",
+            "columnName": "casetype_bottleSizeLabelFr",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "caseType.litersPerCase",
+            "columnName": "casetype_litersPerCase",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "caseType.unitEQVBottle",
+            "columnName": "casetype_unitEQVBottle",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "caseType.totalEQVBottle",
+            "columnName": "casetype_totalEQVBottle",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "habillage.idUrl",
+            "columnName": "hab_id_url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "habillage.habillageId",
+            "columnName": "hab_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "habillage.name",
+            "columnName": "hab_name",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "item_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_delivery_items_item_id_url",
+            "unique": true,
+            "columnNames": [
+              "item_id_url"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_delivery_items_item_id_url` ON `${TABLE_NAME}` (`item_id_url`)"
+          },
+          {
+            "name": "index_delivery_items_parent_di_id_url",
+            "unique": false,
+            "columnNames": [
+              "parent_di_id_url"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_delivery_items_parent_di_id_url` ON `${TABLE_NAME}` (`parent_di_id_url`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "delivery_instructions",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "parent_di_id_url"
+            ],
+            "referencedColumns": [
+              "di_id_url"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '35a919bc4d638efba4d2a7a9f5344b3f')"
+    ]
+  }
+}

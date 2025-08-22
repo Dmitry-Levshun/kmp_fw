@@ -132,7 +132,7 @@ fun CustomToolbarWithBackArrow(title: String, navController: NavHostController, 
 //        windowInsets = TopAppBarDefaults.windowInsets,
         navigationIcon = {
             IconButton(onClick = {
-                val backList = navController.currentBackStack//  backStackList()
+                val backList = navController.currentBackStack.value.map{it.destination.route}//  backStackList()
                 Napier.d("CustomToolbarWithBackArrow back:$backList")
                 onBackClick?.invoke()
                 navController.popBackStack()

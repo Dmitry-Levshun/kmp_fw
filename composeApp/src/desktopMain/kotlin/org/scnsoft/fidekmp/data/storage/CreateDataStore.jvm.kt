@@ -15,3 +15,8 @@ actual fun createDataStore(): DataStore<Preferences> {
 }
 
  */
+actual fun createDataStore(): DataStore<Preferences> {
+    return PreferenceDataStoreFactory.createWithPath(
+        produceFile = { dataStoreFileName.toPath() }
+    )
+}

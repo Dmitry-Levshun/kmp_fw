@@ -19,7 +19,7 @@ actual fun createDataStore(): DataStore<Preferences> {
     }
 }
 */
-fun createDataStore(): DataStore<Preferences> {
+actual fun createDataStore(): DataStore<Preferences> {
 //    return createDataStore {
 //        ContextUtils.applicationContext!!.filesDir.resolve(dataStoreFileName).absolutePath
 //    }

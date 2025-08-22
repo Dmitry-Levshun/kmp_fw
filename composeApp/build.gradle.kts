@@ -13,11 +13,14 @@ plugins {
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.kotlinxSerialization)
     id("com.codingfeline.buildkonfig") version "+"
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 val myServerUrl = '\"' + "https://api.example.com" + '\"'
 val isBetaFeatureEnabled = true // Could also come from gradle.properties or command line
 val appVersion ='\"' + "1.0.0"+ '\"'
+
 val generateCustomBuildConfigTask = tasks.register("generateCustomBuildConfig") {
     group = "build"
     description = "Generates a Kotlin file with custom build fields for commonMain."
@@ -61,12 +64,14 @@ kotlin {
     
     jvm("desktop")
 
+    /*
     sourceSets.commonMain.get().kotlin.srcDir(generateCustomBuildConfigTask.map { it.outputs.files.singleFile.parentFile }) // Add parent directory
     tasks.withType<KotlinCompile>().configureEach {
         if (name.lowercase().contains("commonMain")) { // More robust check
             dependsOn(generateCustomBuildConfigTask)
         }
     }
+     */
     sourceSets {
         val desktopMain by getting
         
@@ -127,6 +132,10 @@ kotlin {
             implementation(libs.barcode.generator.oned)
             implementation(libs.paging.compose.common)
             implementation(libs.lens.logger)
+//            implementation(libs.androidx.compose.ui.tooling.preview)
+            implementation(libs.room.runtime)
+//            implementation(libs.room.ktx)
+            implementation(libs.sqlite.bundled)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -135,6 +144,7 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+            implementation(libs.ktor.client.okhttp)
         }
 
     }
@@ -170,6 +180,19 @@ android {
         implementation(libs.androidx.core)
         debugImplementation(compose.uiTooling)
     }
+}
+dependencies {
+    // KSP for code generation
+//    add("kspCommonMainMetadata", libs.room.compiler)
+//    add("kspJvm", libs.room.compiler)
+    add("kspAndroid", libs.room.compiler)
+    add("kspIosX64", libs.room.compiler)
+    add("kspIosArm64", libs.room.compiler)
+//    add("kspMacosX64", libs.room.compiler)
+//    add("kspMacosArm64", libs.room.compiler)
+    add("kspIosSimulatorArm64", libs.room.compiler)
+    add("kspDesktop", libs.room.compiler)
+
 }
 /*
 dependencies {
@@ -226,6 +249,9 @@ buildkonfig {
     }
 }
 
+room {
+    schemaDirectory("$projectDir/schemas")
+}
 
 /*
 val appVersion = project.findProperty("app.version") as String

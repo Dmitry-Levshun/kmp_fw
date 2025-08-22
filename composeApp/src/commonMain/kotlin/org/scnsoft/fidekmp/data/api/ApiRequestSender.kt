@@ -16,7 +16,7 @@ class ApiRequestSender(
 ) {
     suspend inline fun <reified T>  sendRequest(invoke: () -> Result<T>): ApiResult<T> {
             val result = invoke()
-            return if (!result.isSuccess) ApiResult.Success(result.getOrNull()!!)
+            return if (result.isSuccess) ApiResult.Success(result.getOrNull()!!)
             else {
                 val e = result.exceptionOrNull() ?: return  ApiResult.Error(Exception("unknown error"))
                 Napier.e("sendRequest exception", e)

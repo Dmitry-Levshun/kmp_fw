@@ -100,7 +100,7 @@ override suspend fun getUntrackedWines(page: Int?, itemsPerPage: Int?, name: Str
 
 //    @GET("wineyard/wines/user/external/{id}")
     override suspend fun getUntrackedUserWineById(id: Int): Result<UntrackedUserWineItemById> = runCatching {
-        client.get("ineyard/wines/user/external/$id").body()
+        client.get("wineyard/wines/user/external/$id").body()
     }
 
 //    @POST ("wineyard/wines/external/review")

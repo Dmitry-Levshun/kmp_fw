@@ -3,7 +3,7 @@ package org.scnsoft.fidekmp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import kotlinx.cinterop.ExperimentalForeignApi
-import org.scnsoft.fidekmp.shared.config.CustomBuildFields
+//import org.scnsoft.fidekmp.shared.config.CustomBuildFields
 import platform.Foundation.NSBundle
 import platform.UIKit.UIDevice
 import platform.Foundation.NSLocale
@@ -19,7 +19,7 @@ import kotlin.text.split
 class IOSPlatform: Platform {
     override val name: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
     override val language: String = getCurrentLanguage()
-    override val appVersionName: String = CustomBuildFields.APP_VERSION
+    override val appVersionName: String = "1.0"//CustomBuildFields.APP_VERSION
 
     //    override val appVersionName: String =
 //        "iOS " + NSBundle.mainBundle.infoDictionary?.get("CFBundleVersion")
@@ -31,7 +31,7 @@ class IOSPlatform: Platform {
 }
 
 actual fun getPlatform(): Platform = IOSPlatform()
-
+/*
 @OptIn(ExperimentalForeignApi::class)
 actual fun createDataStore(): DataStore<Preferences> = createDataStore(
     producePath = {
@@ -45,3 +45,5 @@ actual fun createDataStore(): DataStore<Preferences> = createDataStore(
         requireNotNull(documentDirectory).path + "/$dataStoreFileName"
     }
 )
+
+ */

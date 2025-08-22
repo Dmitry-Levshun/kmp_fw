@@ -1,0 +1,12 @@
+<device-admin>
+    <support-transfer-ownership/>
+    <uses-policies>
+        <limit-password/>
+        <watch-login/>
+        <reset-password/>
+        <force-lock/>
+        <expire-password/>
+        <disable-camera/>
+        <disable-keyguard-features/>
+    </uses-policies>
+</device-admin>

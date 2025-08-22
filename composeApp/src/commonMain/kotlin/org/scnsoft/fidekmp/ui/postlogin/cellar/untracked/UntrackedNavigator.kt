@@ -12,6 +12,7 @@ import org.scnsoft.fidekmp.ui.utils.AppScreens
 
 @Composable
 fun UntrackedNavigator() {
+    Napier.d(message = "UntrackedNavigator start")
     val navController = rememberNavController()
     val viewModel: UntrackedViewModel = koinViewModel()
     NavHost(navController, startDestination = AppScreens.UntrackedMainScreen.route) {

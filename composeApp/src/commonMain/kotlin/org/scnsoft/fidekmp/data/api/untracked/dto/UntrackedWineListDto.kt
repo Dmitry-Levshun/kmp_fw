@@ -33,13 +33,13 @@ data class UntrackedWineItem(
     val drinkType: String,
     @SerialName("name")
     val wineName: String,
-    val country: String?,
-    val region: String?,
+    val country: String? = null,
+    val region: String? = null,
     val color: String,
     val producerName: String?,
-    val appellation: String?,
-    val classification: String?,
-    val reviews: List<WineReview?>,
+    val appellation: String? = null,
+    val classification: String? = null,
+    val reviews: List<WineReview?>? = null,
     var query: String? = ""
 ) {
     fun contains(text: String): Boolean {

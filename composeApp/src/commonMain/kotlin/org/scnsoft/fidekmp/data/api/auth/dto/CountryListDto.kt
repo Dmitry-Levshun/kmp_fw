@@ -20,12 +20,13 @@ data class CountryListDto(
 @Serializable
 data class HydraMember(
     @SerialName("@id")
-    val id: String,
+    val idUrl: String,
     @SerialName("@type")
     val type: String,
     @SerialName("id")
-    val id2: Long,
+    val id: Int,
     val name: String,
+    val isoCode: String
 )
 /*
 {
